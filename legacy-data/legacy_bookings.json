@@ -1,0 +1,38 @@
+[
+  {
+    "id": "bk-1",
+    "asset_id": "room-1",
+    "requester_name": "Budi Santoso",
+    "requester_email": "budi.santoso@example.com",
+    "requester_phone": "0812345678",
+    "requester_organization": "Kementerian Keuangan",
+    "purpose": "Rapat Koordinasi Anggaran",
+    "attendance": 15,
+    "start_date": "2026-08-15T09:00:00",
+    "end_date": "2026-08-15T12:00:00",
+    "status": "approved",
+    "rejection_reason": null,
+    "created_at": "2026-08-12T08:00:00",
+    "updated_at": "2026-08-12T08:00:00"
+  },
+  {
+    "id": "bk-2",
+    "asset_id": "room-1",
+    "requester_name": "Roni Wijaya",
+    "requester_email": "invalid-email-format",
+    "start_date": "2026-08-16T13:00:00",
+    "end_date": "2026-08-16T15:00:00",
+    "status": "pending",
+    "rejection_reason": null
+  },
+  {
+    "id": "bk-3",
+    "asset_id": "unmapped-asset-id",
+    "requester_name": "Sari Indah",
+    "requester_email": "sari.indah@example.com",
+    "start_date": "2026-08-17T09:00:00",
+    "end_date": "2026-08-17T11:00:00",
+    "status": "pending",
+    "rejection_reason": null
+  }
+]

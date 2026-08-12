@@ -7,10 +7,10 @@
 
 ### Data Foundation & Migration
 
-- [ ] **DATA-01**: Administrator can run an idempotent migration that imports legacy assets, bookings, and administrator accounts using preserved source identifiers.
-- [ ] **DATA-02**: Administrator can review a migration reconciliation report containing source, imported, rejected, and exception counts without exposing credentials.
-- [ ] **DATA-03**: System preserves legacy booking history and links each migrated booking to its migrated asset and requester data.
-- [ ] **DATA-04**: System stores all booking date-time values with an explicit `Asia/Jakarta` interpretation and records the normalized value durably.
+- [x] **DATA-01**: Administrator can run an idempotent migration that imports legacy assets, bookings, and administrator accounts using preserved source identifiers.
+- [x] **DATA-02**: Administrator can review a migration reconciliation report containing source, imported, rejected, and exception counts without exposing credentials.
+- [x] **DATA-03**: System preserves legacy booking history and links each migrated booking to its migrated asset and requester data.
+- [x] **DATA-04**: System stores all booking date-time values with an explicit `Asia/Jakarta` interpretation and records the normalized value durably.
 
 ### Administrator Access
 
@@ -76,10 +76,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | Phase 1 | Pending |
-| DATA-02 | Phase 1 | Pending |
-| DATA-03 | Phase 1 | Pending |
-| DATA-04 | Phase 1 | Pending |
+| DATA-01 | Phase 1 | Complete |
+| DATA-02 | Phase 1 | Complete |
+| DATA-03 | Phase 1 | Complete |
+| DATA-04 | Phase 1 | Complete |
 | AUTH-01 | Phase 2 | Pending |
 | AUTH-02 | Phase 2 | Pending |
 | AUTH-03 | Phase 2 | Pending |
@@ -104,6 +104,7 @@
 | OPS-04 | Phase 5 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 26 total
 - Mapped to phases: 26
 - Unmapped: 0 ✓

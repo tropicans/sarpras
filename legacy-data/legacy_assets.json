@@ -1,0 +1,18 @@
+[
+  {
+    "id": "room-1",
+    "name": "Ruang Rapat Utama Gedung A",
+    "type": "room",
+    "location": "Gedung Utama Lantai 2",
+    "capacity": 30,
+    "bookable": true
+  },
+  {
+    "id": "dorm-1",
+    "name": "Asrama Cempaka Kamar 101",
+    "type": "dormitory",
+    "location": "Gedung Asrama Cempaka",
+    "capacity": 2,
+    "bookable": true
+  }
+]

@@ -16,11 +16,11 @@ Users can confidently request an available room or dormitory, and administrators
 
 - ✓ A TanStack Start application can render a public route — existing `src/routes/index.tsx`.
 - ✓ File-based routing and the application shell are established — existing `src/router.tsx` and `src/routes/__root.tsx`.
+- ✓ Durable storage and migrated legacy assets, bookings, and administrator accounts — validated in Phase 1: Canonical Data & Migration.
 
 ### Active
 
 - [ ] Rebuild public room and dormitory booking flows.
-- [ ] Add durable storage and migrate current assets, bookings, and administrator accounts.
 - [ ] Provide authenticated, role-based administration for assets, schedules, and booking decisions.
 - [ ] Prevent booking conflicts and preserve an auditable booking history.
 - [ ] Improve usability, responsiveness, filtering, and validation across public and administrative workflows.
@@ -49,7 +49,7 @@ Users can confidently request an available room or dormitory, and administrators
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Rebuild the full application | The existing local repository is only a starter while the deployed product includes public and administrative workflows. | — Pending |
-| Migrate assets, bookings, and administrator accounts | The replacement must preserve existing operational data. | — Pending |
+| Migrate assets, bookings, and administrator accounts | The replacement must preserve existing operational data. | ✓ Migrated successfully in Phase 1 (idempotent importer CLI + Drizzle schemas + 100% test coverage) |
 | Enhance rather than clone the current application | The rebuilt product should improve validation, usability, approval tracking, and maintainability. | — Pending |
 | Prioritize booking integrity | Preventing conflicts and retaining accountable decisions is the product’s core value. | — Pending |
 
@@ -71,4 +71,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-12 after initialization*
+*Last updated: 2026-08-12 after Phase 1 completion*
