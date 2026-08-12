@@ -76,38 +76,38 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | Unassigned | Pending |
-| DATA-02 | Unassigned | Pending |
-| DATA-03 | Unassigned | Pending |
-| DATA-04 | Unassigned | Pending |
-| AUTH-01 | Unassigned | Pending |
-| AUTH-02 | Unassigned | Pending |
-| AUTH-03 | Unassigned | Pending |
-| AUTH-04 | Unassigned | Pending |
-| ASSET-01 | Unassigned | Pending |
-| ASSET-02 | Unassigned | Pending |
-| ASSET-03 | Unassigned | Pending |
-| ASSET-04 | Unassigned | Pending |
-| BOOK-01 | Unassigned | Pending |
-| BOOK-02 | Unassigned | Pending |
-| BOOK-03 | Unassigned | Pending |
-| BOOK-04 | Unassigned | Pending |
-| BOOK-05 | Unassigned | Pending |
-| FLOW-01 | Unassigned | Pending |
-| FLOW-02 | Unassigned | Pending |
-| FLOW-03 | Unassigned | Pending |
-| FLOW-04 | Unassigned | Pending |
-| FLOW-05 | Unassigned | Pending |
-| OPS-01 | Unassigned | Pending |
-| OPS-02 | Unassigned | Pending |
-| OPS-03 | Unassigned | Pending |
-| OPS-04 | Unassigned | Pending |
+| DATA-01 | Phase 1 | Pending |
+| DATA-02 | Phase 1 | Pending |
+| DATA-03 | Phase 1 | Pending |
+| DATA-04 | Phase 1 | Pending |
+| AUTH-01 | Phase 2 | Pending |
+| AUTH-02 | Phase 2 | Pending |
+| AUTH-03 | Phase 2 | Pending |
+| AUTH-04 | Phase 2 | Pending |
+| ASSET-01 | Phase 2 | Pending |
+| ASSET-02 | Phase 2 | Pending |
+| ASSET-03 | Phase 2 | Pending |
+| ASSET-04 | Phase 4 | Pending |
+| BOOK-01 | Phase 4 | Pending |
+| BOOK-02 | Phase 4 | Pending |
+| BOOK-03 | Phase 4 | Pending |
+| BOOK-04 | Phase 4 | Pending |
+| BOOK-05 | Phase 4 | Pending |
+| FLOW-01 | Phase 3 | Pending |
+| FLOW-02 | Phase 5 | Pending |
+| FLOW-03 | Phase 5 | Pending |
+| FLOW-04 | Phase 3 | Pending |
+| FLOW-05 | Phase 3 | Pending |
+| OPS-01 | Phase 5 | Pending |
+| OPS-02 | Phase 5 | Pending |
+| OPS-03 | Phase 3 | Pending |
+| OPS-04 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 26 total
-- Mapped to phases: 0
-- Unmapped: 26 ⚠️
+- Mapped to phases: 26
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-08-12*
-*Last updated: 2026-08-12 after initial definition*
+*Last updated: 2026-08-12 after roadmap creation*
