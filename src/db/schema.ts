@@ -17,6 +17,8 @@ export const users = pgTable("user", {
   emailVerified: boolean("email_verified").default(false).notNull(),
   image: text("image"),
   role: text("role").default("operator").notNull(), // admin, operator, pimpinan
+  status: text("status").default("active").notNull(), // active, inactive
+  mustResetPassword: boolean("must_reset_password").default(false).notNull(),
   legacyId: text("legacy_id").unique(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
@@ -108,6 +110,28 @@ export const auditLogs = pgTable("audit_logs", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const assetAvailability = pgTable("asset_availability", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  assetId: uuid("asset_id")
+    .notNull()
+    .references(() => assets.id, { onDelete: "cascade" }),
+  dayOfWeek: integer("day_of_week").notNull(), // 0 = Sunday, 1 = Monday, etc.
+  openTime: text("open_time").notNull(), // "HH:MM" e.g., "08:00"
+  closeTime: text("close_time").notNull(), // "HH:MM" e.g., "16:00"
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const assetClosures = pgTable("asset_closures", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  assetId: uuid("asset_id")
+    .notNull()
+    .references(() => assets.id, { onDelete: "cascade" }),
+  date: timestamp("date", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 // --- Relations ---
 
 export const userRelations = relations(users, ({ many }) => ({
@@ -125,8 +149,18 @@ export const accountRelations = relations(accounts, ({ one }) => ({
 
 export const assetRelations = relations(assets, ({ many }) => ({
   bookings: many(bookings),
+  availability: many(assetAvailability),
+  closures: many(assetClosures),
 }));
 
 export const bookingRelations = relations(bookings, ({ one }) => ({
   asset: one(assets, { fields: [bookings.assetId], references: [assets.id] }),
+}));
+
+export const assetAvailabilityRelations = relations(assetAvailability, ({ one }) => ({
+  asset: one(assets, { fields: [assetAvailability.assetId], references: [assets.id] }),
+}));
+
+export const assetClosuresRelations = relations(assetClosures, ({ one }) => ({
+  asset: one(assets, { fields: [assetClosures.assetId], references: [assets.id] }),
 }));

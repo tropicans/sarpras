@@ -199,6 +199,8 @@ async function main() {
           email: adminData.email,
           emailVerified: true,
           role: adminData.role,
+          status: adminData.status,
+          mustResetPassword: true,
           legacyId: adminData.id,
         });
 

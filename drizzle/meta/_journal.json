@@ -8,6 +8,13 @@
       "when": 1786513412820,
       "tag": "0000_overjoyed_edwin_jarvis",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786517263019,
+      "tag": "0001_spooky_hex",
+      "breakpoints": true
     }
   ]
 }
