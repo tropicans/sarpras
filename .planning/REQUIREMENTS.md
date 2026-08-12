@@ -14,16 +14,16 @@
 
 ### Administrator Access
 
-- [ ] **AUTH-01**: Administrator can sign in with a migrated or newly provisioned account using an email-and-password flow.
-- [ ] **AUTH-02**: Administrator session remains protected by secure server-side session handling and can be ended by logout.
-- [ ] **AUTH-03**: System enforces roles and permissions on every administrative data read and mutation, not only in the user interface.
-- [ ] **AUTH-04**: Authorized administrator can deactivate an administrator account and revoke that account's active sessions.
+- [x] **AUTH-01**: Administrator can sign in with a migrated or newly provisioned account using an email-and-password flow.
+- [x] **AUTH-02**: Administrator session remains protected by secure server-side session handling and can be ended by logout.
+- [x] **AUTH-03**: System enforces roles and permissions on every administrative data read and mutation, not only in the user interface.
+- [x] **AUTH-04**: Authorized administrator can deactivate an administrator account and revoke that account's active sessions.
 
 ### Assets & Availability
 
-- [ ] **ASSET-01**: Authorized administrator can create and edit room and dormitory assets with name, type, location, capacity, and bookable status.
-- [ ] **ASSET-02**: Authorized administrator can set operating availability and date-specific closures for an asset.
-- [ ] **ASSET-03**: Authorized administrator can archive an asset without deleting its historical bookings or audit records.
+- [x] **ASSET-01**: Authorized administrator can create and edit room and dormitory assets with name, type, location, capacity, and bookable status.
+- [x] **ASSET-02**: Authorized administrator can set operating availability and date-specific closures for an asset.
+- [x] **ASSET-03**: Authorized administrator can archive an asset without deleting its historical bookings or audit records.
 - [ ] **ASSET-04**: Visitor can browse rooms and dormitories and filter availability by type and requested date/time without seeing another requester's personal data.
 
 ### Public Booking
@@ -80,13 +80,13 @@
 | DATA-02 | Phase 1 | Complete |
 | DATA-03 | Phase 1 | Complete |
 | DATA-04 | Phase 1 | Complete |
-| AUTH-01 | Phase 2 | Pending |
-| AUTH-02 | Phase 2 | Pending |
-| AUTH-03 | Phase 2 | Pending |
-| AUTH-04 | Phase 2 | Pending |
-| ASSET-01 | Phase 2 | Pending |
-| ASSET-02 | Phase 2 | Pending |
-| ASSET-03 | Phase 2 | Pending |
+| AUTH-01 | Phase 2 | Complete |
+| AUTH-02 | Phase 2 | Complete |
+| AUTH-03 | Phase 2 | Complete |
+| AUTH-04 | Phase 2 | Complete |
+| ASSET-01 | Phase 2 | Complete |
+| ASSET-02 | Phase 2 | Complete |
+| ASSET-03 | Phase 2 | Complete |
 | ASSET-04 | Phase 4 | Pending |
 | BOOK-01 | Phase 4 | Pending |
 | BOOK-02 | Phase 4 | Pending |

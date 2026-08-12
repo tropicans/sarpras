@@ -14,7 +14,7 @@ Sarpras PPKASN will progress from a trustworthy migrated data foundation to secu
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Canonical Data & Migration** - Establish durable records, timezone semantics, and a rehearsable legacy-data import. (completed 2026-08-12)
-- [ ] **Phase 2: Secure Administration & Asset Setup** - Protect administration and let authorized staff manage bookable assets and schedules.
+- [x] **Phase 2: Secure Administration & Asset Setup** - Protect administration and let authorized staff manage bookable assets and schedules. (completed 2026-08-12)
 - [ ] **Phase 3: Booking Integrity & Audit Core** - Make booking lifecycle changes authoritative, concurrent-safe, and accountable.
 - [ ] **Phase 4: Public Discovery & Booking Requests** - Let visitors safely find assets, submit accessible requests, and check their status.
 - [ ] **Phase 5: Administrative Decisions & Operations** - Give administrators the queue, calendar, dashboard, and audit views needed to operate bookings.
@@ -109,7 +109,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Canonical Data & Migration | 1/1 | Complete    | 2026-08-12 |
-| 2. Secure Administration & Asset Setup | 0/TBD | Not started | - |
+| 2. Secure Administration & Asset Setup | 3/3 | Complete    | 2026-08-12 |
 | 3. Booking Integrity & Audit Core | 0/TBD | Not started | - |
 | 4. Public Discovery & Booking Requests | 0/TBD | Not started | - |
 | 5. Administrative Decisions & Operations | 0/TBD | Not started | - |
