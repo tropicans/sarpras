@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a" />
+      <stop offset="50%" stop-color="#1e40af" />
+      <stop offset="100%" stop-color="#2563eb" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.25" />
+    </filter>
+  </defs>
+
+  <!-- Background rounded rectangle -->
+  <rect width="128" height="128" rx="28" fill="url(#brandGrad)" filter="url(#shadow)" />
+
+  <!-- Inner subtle border glow -->
+  <rect x="2" y="2" width="124" height="124" rx="26" fill="none" stroke="#60a5fa" stroke-width="2" stroke-opacity="0.4" />
+
+  <!-- Stylized Modern Building & Facilities Icon (White & Cyan) -->
+  <g fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Main central tower/building -->
+    <path d="M44 32 L84 32 L84 100 L44 100 Z" fill="#ffffff" fill-opacity="0.1" />
+    
+    <!-- Left wing -->
+    <path d="M24 54 L44 54 L44 100 L24 100 Z" />
+    
+    <!-- Right wing -->
+    <path d="M84 54 L104 54 L104 100 L84 100 Z" />
+    
+    <!-- Entrance door -->
+    <path d="M56 100 L56 82 L72 82 L72 100" fill="#60a5fa" fill-opacity="0.4" stroke="#60a5fa" stroke-width="4" />
+    
+    <!-- Windows (Main Building) -->
+    <line x1="54" y1="46" x2="58" y2="46" stroke="#93c5fd" stroke-width="5" />
+    <line x1="70" y1="46" x2="74" y2="46" stroke="#93c5fd" stroke-width="5" />
+    
+    <line x1="54" y1="62" x2="58" y2="62" stroke="#93c5fd" stroke-width="5" />
+    <line x1="70" y1="62" x2="74" y2="62" stroke="#93c5fd" stroke-width="5" />
+
+    <!-- Windows (Wings) -->
+    <line x1="34" y1="68" x2="34" y2="72" stroke="#93c5fd" stroke-width="4" />
+    <line x1="94" y1="68" x2="94" y2="72" stroke="#93c5fd" stroke-width="4" />
+  </g>
+
+  <!-- Top Beacon / Government Crown Accent -->
+  <circle cx="64" cy="22" r="5" fill="#38bdf8" />
+</svg>

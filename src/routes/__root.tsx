@@ -15,10 +15,24 @@ export const Route = createRootRoute({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "TanStack Start Starter",
+				title: "Sarpras PPKASN - Sistem Peminjaman Sarana & Prasarana",
+			},
+			{
+				name: "description",
+				content:
+					"Layanan resmi peminjaman dan pengelolaan fasilitas sarana & prasarana PPKASN Kementerian Kesehatan RI.",
 			},
 		],
 		links: [
+			{
+				rel: "icon",
+				type: "image/svg+xml",
+				href: "/favicon.svg",
+			},
+			{
+				rel: "shortcut icon",
+				href: "/favicon.svg",
+			},
 			{
 				rel: "stylesheet",
 				href: appCss,
