@@ -27,21 +27,35 @@ Users can confidently request an available room or dormitory, and administrators
 - ✓ Automated approval and rejection notification to requester with reasons and status tracking links — validated in Phase 7: WhatsApp Notification Integration.
 - ✓ Non-blocking post-commit async dispatches and notification dispatch audit logging — validated in Phase 7: WhatsApp Notification Integration.
 
+### Current Milestone: v1.3 Dual-Channel Notification Integration
+
+**Goal:** Deliver transactional and operational email notifications via Resend while maintaining WhatsApp (Fonnte) integration for dual-channel reliability.
+
+**Target features:**
+- Resend email gateway integration with environment config (`RESEND_API_KEY`, `EMAIL_FROM`, `ADMIN_DEFAULT_EMAIL`) and mock fallback.
+- Rich responsive HTML and plaintext email templates (Indonesian) for booking submission, admin alerts, approval, and rejection.
+- Unified asynchronous non-blocking notification dispatch across Email and WhatsApp in booking lifecycle hooks.
+- Multi-channel dispatch audit logging and test suite.
+
 ### Active
 
-None. All milestone v1.2 requirements validated.
+- [ ] Email notification client service and environment configuration (Resend API adapter) with mock fallback and email validation.
+- [ ] Responsive HTML & plaintext email templates for booking submission confirmation, admin alerts, approval, and rejection.
+- [ ] Unified dual-channel asynchronous dispatch in `BookingService` lifecycle hooks (`createBookingRequest`, `approveBooking`, `rejectBooking`).
+- [ ] Notification dispatch audit logging supporting both email and WhatsApp channels.
 
 ### Out of Scope
 
 - Native mobile applications — v1 is a responsive web application designed for mobile and desktop viewports.
 - Replacing the organization’s upstream identity system — v1 migrates and manages the existing administrator accounts with Better Auth.
 - Real-time chat or public social features — not relevant to facility booking workflows.
-- Two-way interactive bot conversations — v1.2 focuses on transactional and operational push notifications.
+- Two-way interactive bot conversations — transactional and operational push notifications only.
+- Inbound email processing or webhook receipt handling.
 
 ## Context
 
 - Shipped v1.0 MVP, v1.1 RBAC Enforcement, and v1.2 WhatsApp Integration with 53 passing automated tests.
-- Tech Stack: TanStack Start, React 19, TypeScript, PostgreSQL (Neon / Drizzle ORM), Better Auth, Tailwind CSS, Lucide React, date-fns-tz (Asia/Jakarta WIB), Fonnte WhatsApp API.
+- Tech Stack: TanStack Start, React 19, TypeScript, PostgreSQL (Neon / Drizzle ORM), Better Auth, Tailwind CSS, Lucide React, date-fns-tz (Asia/Jakarta WIB), Fonnte WhatsApp API, Resend Email API.
 - Codebase documentation and architecture maps are maintained in `.planning/codebase/`.
 
 ## Constraints
