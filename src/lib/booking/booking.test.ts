@@ -381,6 +381,19 @@ test("Wave 2 & Wave 3: Transactional Booking Service, Concurrency & Audit Trail"
 			timezone: "Asia/Jakarta",
 		});
 
+		await assert.rejects(
+			async () => {
+				await BookingService.cancelBookingByPublicReference(
+					booking.id,
+					`${prefix}gamma@example.com`,
+					"",
+				);
+			},
+			{
+				message: /Alasan pembatalan wajib diisi/,
+			},
+		);
+
 		const cancelled = await BookingService.cancelBookingByPublicReference(
 			booking.id,
 			`${prefix}gamma@example.com`,

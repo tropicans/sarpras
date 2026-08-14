@@ -81,7 +81,7 @@ export type CancelBookingInput = z.infer<typeof CancelBookingInputSchema>;
 export const CancelPublicBookingInputSchema = z.object({
 	bookingId: z.string().uuid("Invalid booking ID"),
 	referenceToken: z.string().min(1, "Reference token is required"),
-	reason: z.string().optional(),
+	reason: z.string().trim().min(1, "Alasan pembatalan wajib diisi"),
 });
 
 export type CancelPublicBookingInput = z.infer<

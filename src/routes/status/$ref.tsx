@@ -72,6 +72,12 @@ function BookingStatusDetailPage() {
 
 	const handleCancelBooking = async () => {
 		if (!booking) return;
+		const trimmedReason = cancelReason.trim();
+		if (!trimmedReason) {
+			setCancelError("Alasan pembatalan wajib diisi.");
+			return;
+		}
+
 		setCancelling(true);
 		setCancelError(null);
 
@@ -80,7 +86,7 @@ function BookingStatusDetailPage() {
 				data: {
 					bookingId: booking.id,
 					referenceToken: ref,
-					reason: cancelReason.trim() || undefined,
+					reason: trimmedReason,
 				},
 			});
 
@@ -421,13 +427,16 @@ function BookingStatusDetailPage() {
 
 						<div className="space-y-1.5">
 							<label className="text-xs font-semibold text-foreground">
-								Alasan Pembatalan (Opsional):
+								Alasan Pembatalan <span className="text-destructive">*</span>:
 							</label>
 							<textarea
-								rows={2}
+								rows={3}
 								value={cancelReason}
-								onChange={(e) => setCancelReason(e.target.value)}
-								placeholder="Contoh: Agenda diundur atau dipindahkan..."
+								onChange={(e) => {
+									setCancelReason(e.target.value);
+									if (cancelError) setCancelError(null);
+								}}
+								placeholder="Tuliskan alasan pembatalan peminjaman (wajib)..."
 								className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-hidden resize-none"
 							/>
 						</div>

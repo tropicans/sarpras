@@ -528,8 +528,13 @@ export class BookingService {
 	static async cancelBookingByPublicReference(
 		bookingId: string,
 		referenceToken: string,
-		reason?: string,
+		reason: string,
 	) {
+		const trimmedReason = reason?.trim();
+		if (!trimmedReason) {
+			throw new BookingConflictError("Alasan pembatalan wajib diisi.");
+		}
+
 		const { updatedBooking, asset } = await db.transaction(async (tx) => {
 			const [booking] = await tx
 				.select()
