@@ -21,6 +21,9 @@ services:
       - FONNTE_API_TOKEN=${FONNTE_API_TOKEN:-}
       - FONNTE_ADMIN_TARGET=${FONNTE_ADMIN_TARGET:-}
       - FONNTE_MOCK=${FONNTE_MOCK:-false}
+      - RESEND_API_KEY=${RESEND_API_KEY:-}
+      - RESEND_MOCK=${RESEND_MOCK:-false}
+      - EMAIL_FROM=${EMAIL_FROM:-}
     depends_on:
       postgres:
         condition: service_healthy
