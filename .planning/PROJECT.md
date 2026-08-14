@@ -21,6 +21,7 @@ Users can confidently request an available room or dormitory, and administrators
 - ✓ Explicit booking state machine, concurrency controls, and immutable audit logs — validated in Phase 3: Booking Integrity & Audit Core.
 - ✓ Public discovery portal, privacy-safe schedules, responsive 3-step booking wizard, and self-service cancellation — validated in Phase 4: Public Discovery & Booking Requests.
 - ✓ Administrative decision queue, live conflict analysis, operations calendar, KPI dashboard, and audit history explorer — validated in Phase 5: Administrative Decisions & Operations.
+- ✓ Restricted administrative views, routes, and server function endpoints based on admin, operator, and pimpinan roles — validated in Phase 6: Role-Based Access Control.
 
 ### Active
 
@@ -55,4 +56,4 @@ Users can confidently request an available room or dormitory, and administrators
 | Prioritize booking integrity | Preventing double-bookings and retaining accountable decisions is the core value. | ✓ Good — transactional state machine with row locks & dormitory capacity calculations |
 
 ---
-*Last updated: 2026-08-14 after v1.0 milestone completion*
+*Last updated: 2026-08-14 after v1.1 milestone completion*
