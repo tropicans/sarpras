@@ -25,17 +25,22 @@ Users can confidently request an available room or dormitory, and administrators
 
 ### Active
 
-(None currently — run `/gsd-new-milestone` to define scope for next release)
+- [ ] WhatsApp notification client service and environment configuration (Fonnte API adapter).
+- [ ] Automated WhatsApp notifications sent to requester on booking submission (reference code & summary).
+- [ ] Instant WhatsApp notification to administrator/operator group or numbers for pending reviews.
+- [ ] Automated approval and rejection notification to requester with reasons and status tracking links.
+- [ ] Safe delivery failure handling and notification audit logs.
 
 ### Out of Scope
 
 - Native mobile applications — v1 is a responsive web application designed for mobile and desktop viewports.
 - Replacing the organization’s upstream identity system — v1 migrates and manages the existing administrator accounts with Better Auth.
 - Real-time chat or public social features — not relevant to facility booking workflows.
+- Two-way interactive bot conversations — v1.2 focuses on transactional and operational push notifications.
 
 ## Context
 
-- Shipped v1.0 MVP with 33 passing automated tests across 7 test suites covering database migrations, Better Auth security, booking state machine, concurrency/locking, public discovery, and administrative operations.
+- Shipped v1.0 MVP & v1.1 RBAC Enforcement with 31 passing automated tests.
 - Tech Stack: TanStack Start, React 19, TypeScript, PostgreSQL (Neon / Drizzle ORM), Better Auth, Tailwind CSS, Lucide React, date-fns-tz (Asia/Jakarta WIB).
 - Codebase documentation and architecture maps are maintained in `.planning/codebase/`.
 
@@ -45,6 +50,7 @@ Users can confidently request an available room or dormitory, and administrators
 - **Compatibility**: Built on TanStack Start, React, TypeScript, Vite, Tailwind CSS, and Drizzle ORM.
 - **Security**: Server boundary authorization, session revocation on deactivation, and privacy-safe public projections with zero PII exposure.
 - **Availability**: Authoritative server-side booking conflict checks with PostgreSQL row-level locks (`SELECT FOR UPDATE`).
+- **Resilience**: WhatsApp delivery failures should not roll back database booking transactions (asynchronous/non-blocking dispatch).
 
 ## Key Decisions
 
@@ -54,6 +60,24 @@ Users can confidently request an available room or dormitory, and administrators
 | Migrate assets, bookings, and administrator accounts | The replacement must preserve existing operational history. | ✓ Good — migrated via idempotent CLI importer with 100% test coverage |
 | Enhance rather than clone the current application | The rebuilt product improves validation, conflict detection, usability, and audit tracking. | ✓ Good — privacy-safe schedule modals & live conflict drawer added |
 | Prioritize booking integrity | Preventing double-bookings and retaining accountable decisions is the core value. | ✓ Good — transactional state machine with row locks & dormitory capacity calculations |
+| Fonnte WhatsApp Gateway | Popular, reliable, and lightweight gateway for Indonesian numbers with straightforward token auth. | — Pending v1.2 implementation |
+
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
 
 ---
-*Last updated: 2026-08-14 after v1.1 milestone completion*
+*Last updated: 2026-08-14 for v1.2 WhatsApp Integration milestone start*
