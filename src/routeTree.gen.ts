@@ -15,6 +15,9 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminAssetsRouteImport } from './routes/admin/assets'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as BookAssetIdRouteImport } from './routes/book/$assetId'
+import { Route as StatusIndexRouteImport } from './routes/status/index'
+import { Route as StatusRefRouteImport } from './routes/status/$ref'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,6 +50,21 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AdminRoute,
 } as any)
+const BookAssetIdRoute = BookAssetIdRouteImport.update({
+  id: '/book/$assetId',
+  path: '/book/$assetId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatusIndexRoute = StatusIndexRouteImport.update({
+  id: '/status/',
+  path: '/status/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatusRefRoute = StatusRefRouteImport.update({
+  id: '/status/$ref',
+  path: '/status/$ref',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -59,7 +77,10 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/admin/assets': typeof AdminAssetsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/book/$assetId': typeof BookAssetIdRoute
+  '/status/$ref': typeof StatusRefRoute
   '/admin/': typeof AdminIndexRoute
+  '/status/': typeof StatusIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
@@ -67,7 +88,10 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/admin/assets': typeof AdminAssetsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/book/$assetId': typeof BookAssetIdRoute
+  '/status/$ref': typeof StatusRefRoute
   '/admin': typeof AdminIndexRoute
+  '/status': typeof StatusIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
@@ -77,7 +101,10 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/admin/assets': typeof AdminAssetsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/book/$assetId': typeof BookAssetIdRoute
+  '/status/$ref': typeof StatusRefRoute
   '/admin/': typeof AdminIndexRoute
+  '/status/': typeof StatusIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
@@ -88,11 +115,22 @@ export interface FileRouteTypes {
     | '/login'
     | '/admin/assets'
     | '/admin/users'
+    | '/book/$assetId'
+    | '/status/$ref'
     | '/admin/'
+    | '/status/'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/login' | '/admin/assets' | '/admin/users' | '/admin' | '/api/auth/$'
+    | '/'
+    | '/login'
+    | '/admin/assets'
+    | '/admin/users'
+    | '/book/$assetId'
+    | '/status/$ref'
+    | '/admin'
+    | '/status'
+    | '/api/auth/$'
   id:
     | '__root__'
     | '/'
@@ -100,7 +138,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/admin/assets'
     | '/admin/users'
+    | '/book/$assetId'
+    | '/status/$ref'
     | '/admin/'
+    | '/status/'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
@@ -108,6 +149,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   LoginRoute: typeof LoginRoute
+  BookAssetIdRoute: typeof BookAssetIdRoute
+  StatusRefRoute: typeof StatusRefRoute
+  StatusIndexRoute: typeof StatusIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -155,6 +199,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/book/$assetId': {
+      id: '/book/$assetId'
+      path: '/book/$assetId'
+      fullPath: '/book/$assetId'
+      preLoaderRoute: typeof BookAssetIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/status/': {
+      id: '/status/'
+      path: '/status'
+      fullPath: '/status/'
+      preLoaderRoute: typeof StatusIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/status/$ref': {
+      id: '/status/$ref'
+      path: '/status/$ref'
+      fullPath: '/status/$ref'
+      preLoaderRoute: typeof StatusRefRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -183,6 +248,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   LoginRoute: LoginRoute,
+  BookAssetIdRoute: BookAssetIdRoute,
+  StatusRefRoute: StatusRefRoute,
+  StatusIndexRoute: StatusIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

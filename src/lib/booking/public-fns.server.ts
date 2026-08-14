@@ -28,6 +28,33 @@ export const getPublicAssetsListFn = createServerFn({ method: "GET" }).handler(
 );
 
 /**
+ * Public Server Function: Retrieves single asset details by ID.
+ */
+export const getPublicAssetByIdFn = createServerFn({ method: "GET" })
+	.validator((data: unknown) =>
+		z
+			.object({
+				assetId: z.string().uuid(),
+			})
+			.parse(data),
+	)
+	.handler(async ({ data }) => {
+		const [asset] = await db
+			.select({
+				id: assets.id,
+				name: assets.name,
+				type: assets.type,
+				location: assets.location,
+				capacity: assets.capacity,
+				status: assets.status,
+			})
+			.from(assets)
+			.where(and(eq(assets.id, data.assetId), eq(assets.status, "active")));
+
+		return asset || null;
+	});
+
+/**
  * Public Server Function: Retrieves privacy-safe public schedule (booked slots & closures).
  * Strictly omits any requester PII (ASSET-04, D-01, D-02).
  */
