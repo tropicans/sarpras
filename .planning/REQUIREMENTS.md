@@ -11,7 +11,7 @@ Requesters and administrators receive reliable, timely, and branded transactiona
 - [x] **EMAIL-01**: System can send transactional emails via Resend API using configured `RESEND_API_KEY` and `EMAIL_FROM` sender address.
 - [x] **EMAIL-02**: System provides an automatic mock/logger fallback provider when `RESEND_API_KEY` is missing or in test/development mode to prevent runtime errors.
 - [x] **EMAIL-03**: System validates and sanitizes recipient email addresses, with graceful handling of missing or malformed addresses.
-- [ ] **EMAIL-04**: System dispatches email notifications asynchronously and non-blockingly so external gateway latency or failures never affect database transactions.
+- [x] **EMAIL-04**: System dispatches email notifications asynchronously and non-blockingly so external gateway latency or failures never affect database transactions.
 
 ### Email Templates (Responsive HTML & Plaintext)
 
@@ -22,8 +22,8 @@ Requesters and administrators receive reliable, timely, and branded transactiona
 
 ### Dual-Channel Orchestration & Audit Logging
 
-- [ ] **NOTIF-01**: System unifies notification triggers in `BookingService` lifecycle hooks (`createBookingRequest`, `approveBooking`, `rejectBooking`) to dispatch both Email (Resend) and WhatsApp (Fonnte) notifications concurrently.
-- [ ] **NOTIF-02**: Notification dispatch logging records channel-specific execution (`email` vs `whatsapp`), recipient target, reference code, dispatch status (`sent`, `failed`, `mocked`), timestamp, and error details.
+- [x] **NOTIF-01**: System unifies notification triggers in `BookingService` lifecycle hooks (`createBookingRequest`, `approveBooking`, `rejectBooking`) to dispatch both Email (Resend) and WhatsApp (Fonnte) notifications concurrently.
+- [x] **NOTIF-02**: Notification dispatch logging records channel-specific execution (`email` vs `whatsapp`), recipient target, reference code, dispatch status (`sent`, `failed`, `mocked`), timestamp, and error details.
 
 ## Traceability
 
@@ -32,13 +32,13 @@ Requesters and administrators receive reliable, timely, and branded transactiona
 | EMAIL-01 | Phase 8 | Complete |
 | EMAIL-02 | Phase 8 | Complete |
 | EMAIL-03 | Phase 8 | Complete |
-| EMAIL-04 | Phase 8 | Pending |
+| EMAIL-04 | Phase 8 | Complete |
 | EMAIL-05 | Phase 8 | Complete |
 | EMAIL-06 | Phase 8 | Complete |
 | EMAIL-07 | Phase 8 | Complete |
 | EMAIL-08 | Phase 8 | Complete |
-| NOTIF-01 | Phase 8 | Pending |
-| NOTIF-02 | Phase 8 | Pending |
+| NOTIF-01 | Phase 8 | Complete |
+| NOTIF-02 | Phase 8 | Complete |
 
 ---
 *Requirements defined: 2026-08-14*
