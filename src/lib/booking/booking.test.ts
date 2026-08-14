@@ -307,9 +307,9 @@ test("Wave 2 & Wave 3: Transactional Booking Service, Concurrency & Audit Trail"
 
 			// Verify booking.create audit event
 			const logsAfterCreate = await getAuditLogsForEntity("booking", reqA.id);
-			assert.strictEqual(logsAfterCreate.length, 1);
-			assert.strictEqual(logsAfterCreate[0].action, "booking.create");
-			assert.strictEqual(logsAfterCreate[0].metadata.newStatus, "pending");
+			const createLog = logsAfterCreate.find((l) => l.action === "booking.create");
+			assert.ok(createLog);
+			assert.strictEqual(createLog.metadata.newStatus, "pending");
 
 			// 2. Create booking B
 			const reqB = await BookingService.createBookingRequest({
@@ -327,10 +327,10 @@ test("Wave 2 & Wave 3: Transactional Booking Service, Concurrency & Audit Trail"
 
 			// Verify booking.approve audit event
 			const logsAfterApprove = await getAuditLogsForEntity("booking", reqA.id);
-			assert.strictEqual(logsAfterApprove.length, 2);
-			assert.strictEqual(logsAfterApprove[0].action, "booking.approve");
-			assert.strictEqual(logsAfterApprove[0].metadata.oldStatus, "pending");
-			assert.strictEqual(logsAfterApprove[0].metadata.newStatus, "approved");
+			const approveLog = logsAfterApprove.find((l) => l.action === "booking.approve");
+			assert.ok(approveLog);
+			assert.strictEqual(approveLog.metadata.oldStatus, "pending");
+			assert.strictEqual(approveLog.metadata.newStatus, "approved");
 
 			// 4. Attempting to approve booking B must fail with 409 Conflict
 			await assert.rejects(
@@ -352,10 +352,10 @@ test("Wave 2 & Wave 3: Transactional Booking Service, Concurrency & Audit Trail"
 
 			// Verify booking.reject audit event
 			const logsB = await getAuditLogsForEntity("booking", reqB.id);
-			assert.strictEqual(logsB.length, 2);
-			assert.strictEqual(logsB[0].action, "booking.reject");
+			const rejectLog = logsB.find((l) => l.action === "booking.reject");
+			assert.ok(rejectLog);
 			assert.strictEqual(
-				logsB[0].metadata.rejectionReason,
+				rejectLog.metadata.rejectionReason,
 				"Slot waktu sudah terisi oleh permohonan lain",
 			);
 		},
@@ -389,8 +389,9 @@ test("Wave 2 & Wave 3: Transactional Booking Service, Concurrency & Audit Trail"
 		assert.strictEqual(cancelled.status, "cancelled");
 
 		const logs = await getAuditLogsForEntity("booking", booking.id);
-		assert.strictEqual(logs[0].action, "booking.cancel");
-		assert.strictEqual(logs[0].metadata.cancelledVia, "public_reference");
+		const cancelLog = logs.find((l) => l.action === "booking.cancel");
+		assert.ok(cancelLog);
+		assert.strictEqual(cancelLog.metadata.cancelledVia, "public_reference");
 	});
 
 	await cleanup();

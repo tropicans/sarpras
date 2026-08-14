@@ -8,14 +8,13 @@ import {
 } from "../../db/schema";
 import { recordAuditEvent } from "../audit/audit.server";
 import { normalizeDate } from "../timezone/datetime";
-import { safeDispatchNotification } from "../whatsapp/service.server";
 import {
-	buildBookingApprovalMessage,
-	buildBookingCancellationMessage,
-	buildBookingRejectionMessage,
-	buildBookingSubmissionAdminMessage,
-	buildBookingSubmissionRequesterMessage,
-} from "../whatsapp/templates";
+	dispatchBookingApprovedNotifications,
+	dispatchBookingCancelledNotifications,
+	dispatchBookingCreatedNotifications,
+	dispatchBookingRejectedNotifications,
+	safeDispatchBookingNotifications,
+} from "../notifications/service.server";
 import {
 	checkRoomOverlap,
 	validateAssetClosures,
@@ -214,44 +213,23 @@ export class BookingService {
 			return { newBooking, asset };
 		});
 
-		// 6. Post-commit asynchronous notification dispatches (WA-04, WA-07, WA-08)
-		if (newBooking.requesterPhone) {
-			const requesterMsg = buildBookingSubmissionRequesterMessage({
+		// 6. Post-commit asynchronous dual-channel notification dispatches (NOTIF-01, NOTIF-02)
+		void safeDispatchBookingNotifications(() =>
+			dispatchBookingCreatedNotifications({
+				bookingId: newBooking.id,
 				bookingRef: newBooking.id,
 				requesterName: newBooking.requesterName,
+				requesterEmail: newBooking.requesterEmail,
+				requesterPhone: newBooking.requesterPhone,
+				requesterOrganization: newBooking.requesterOrganization,
 				assetName: asset.name,
 				assetLocation: asset.location,
 				startDate: newBooking.startDate,
 				endDate: newBooking.endDate,
-				purpose: newBooking.purpose,
-			});
-			void safeDispatchNotification({
-				target: newBooking.requesterPhone,
-				message: requesterMsg,
-				bookingId: newBooking.id,
-				templateType: "BOOKING_CREATED_REQUESTER",
-			});
-		}
-
-		const adminTarget = process.env.FONNTE_ADMIN_TARGET?.trim();
-		if (adminTarget) {
-			const adminMsg = buildBookingSubmissionAdminMessage({
-				bookingRef: newBooking.id,
-				requesterName: newBooking.requesterName,
-				requesterOrganization: newBooking.requesterOrganization,
-				assetName: asset.name,
-				startDate: newBooking.startDate,
-				endDate: newBooking.endDate,
 				attendance: newBooking.attendance ?? 1,
 				purpose: newBooking.purpose,
-			});
-			void safeDispatchNotification({
-				target: adminTarget,
-				message: adminMsg,
-				bookingId: newBooking.id,
-				templateType: "BOOKING_CREATED_ADMIN",
-			});
-		}
+			}),
+		);
 
 		return newBooking;
 	}
@@ -374,23 +352,20 @@ export class BookingService {
 			return { updatedBooking, asset };
 		});
 
-		// 7. Post-commit asynchronous notification dispatch (WA-05)
-		if (updatedBooking.requesterPhone) {
-			const approvalMsg = buildBookingApprovalMessage({
+		// 7. Post-commit asynchronous dual-channel notification dispatch (NOTIF-01)
+		void safeDispatchBookingNotifications(() =>
+			dispatchBookingApprovedNotifications({
+				bookingId: updatedBooking.id,
 				bookingRef: updatedBooking.id,
 				requesterName: updatedBooking.requesterName,
+				requesterEmail: updatedBooking.requesterEmail,
+				requesterPhone: updatedBooking.requesterPhone,
 				assetName: asset.name,
 				assetLocation: asset.location,
 				startDate: updatedBooking.startDate,
 				endDate: updatedBooking.endDate,
-			});
-			void safeDispatchNotification({
-				target: updatedBooking.requesterPhone,
-				message: approvalMsg,
-				bookingId: updatedBooking.id,
-				templateType: "BOOKING_APPROVED",
-			});
-		}
+			}),
+		);
 
 		return updatedBooking;
 	}
@@ -455,23 +430,20 @@ export class BookingService {
 			return { updatedBooking, asset };
 		});
 
-		// Post-commit asynchronous notification dispatch (WA-06)
-		if (updatedBooking.requesterPhone) {
-			const rejectionMsg = buildBookingRejectionMessage({
+		// Post-commit asynchronous dual-channel notification dispatch (NOTIF-01)
+		void safeDispatchBookingNotifications(() =>
+			dispatchBookingRejectedNotifications({
+				bookingId: updatedBooking.id,
 				bookingRef: updatedBooking.id,
 				requesterName: updatedBooking.requesterName,
+				requesterEmail: updatedBooking.requesterEmail,
+				requesterPhone: updatedBooking.requesterPhone,
 				assetName: asset?.name || "Fasilitas",
 				startDate: updatedBooking.startDate,
 				endDate: updatedBooking.endDate,
 				rejectionReason: rejectionReason.trim(),
-			});
-			void safeDispatchNotification({
-				target: updatedBooking.requesterPhone,
-				message: rejectionMsg,
-				bookingId: updatedBooking.id,
-				templateType: "BOOKING_REJECTED",
-			});
-		}
+			}),
+		);
 
 		return updatedBooking;
 	}
@@ -531,24 +503,21 @@ export class BookingService {
 			return { updatedBooking, asset };
 		});
 
-		// Post-commit asynchronous notification dispatch
-		if (updatedBooking.requesterPhone) {
-			const cancelMsg = buildBookingCancellationMessage({
+		// Post-commit asynchronous dual-channel notification dispatch
+		void safeDispatchBookingNotifications(() =>
+			dispatchBookingCancelledNotifications({
+				bookingId: updatedBooking.id,
 				bookingRef: updatedBooking.id,
 				requesterName: updatedBooking.requesterName,
+				requesterEmail: updatedBooking.requesterEmail,
+				requesterPhone: updatedBooking.requesterPhone,
 				assetName: asset?.name || "Fasilitas",
 				startDate: updatedBooking.startDate,
 				endDate: updatedBooking.endDate,
 				reason: reason || null,
 				cancelledBy: actorId,
-			});
-			void safeDispatchNotification({
-				target: updatedBooking.requesterPhone,
-				message: cancelMsg,
-				bookingId: updatedBooking.id,
-				templateType: "BOOKING_CANCELLED",
-			});
-		}
+			}),
+		);
 
 		return updatedBooking;
 	}
@@ -620,24 +589,21 @@ export class BookingService {
 			return { updatedBooking, asset };
 		});
 
-		// Post-commit asynchronous notification dispatch
-		if (updatedBooking.requesterPhone) {
-			const cancelMsg = buildBookingCancellationMessage({
+		// Post-commit asynchronous dual-channel notification dispatch
+		void safeDispatchBookingNotifications(() =>
+			dispatchBookingCancelledNotifications({
+				bookingId: updatedBooking.id,
 				bookingRef: updatedBooking.id,
 				requesterName: updatedBooking.requesterName,
+				requesterEmail: updatedBooking.requesterEmail,
+				requesterPhone: updatedBooking.requesterPhone,
 				assetName: asset?.name || "Fasilitas",
 				startDate: updatedBooking.startDate,
 				endDate: updatedBooking.endDate,
 				reason: reason || null,
 				cancelledBy: "Pemohon",
-			});
-			void safeDispatchNotification({
-				target: updatedBooking.requesterPhone,
-				message: cancelMsg,
-				bookingId: updatedBooking.id,
-				templateType: "BOOKING_CANCELLED",
-			});
-		}
+			}),
+		);
 
 		return updatedBooking;
 	}
