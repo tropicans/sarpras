@@ -1,5 +1,20 @@
 # Milestones
 
+## v1.3 Dual-Channel Notification Integration (Shipped: 2026-08-14)
+
+**Phases completed:** 1 phase (Phase 8), 2 plans, 21 new automated tests (74 total passing)
+
+**Key accomplishments:**
+
+1. Built Resend transactional email client (`src/lib/email/service.server.ts`) with RFC 5322 address validation (`sanitizeEmail`, `sanitizeEmailList`), Bearer authentication, safe console ASCII mock logger for test/dev modes, and channel-specific dispatch audit logging (`notification.email_dispatch`).
+2. Engineered responsive Indonesian HTML & plaintext email templates engine (`src/lib/email/templates.ts`) featuring PPKASN branding, status badges, Asia/Jakarta (WIB) wall-clock time formatting, and dynamic tracking/action URLs.
+3. Implemented transactional templates across 5 booking lifecycle events: Requester Submission Confirmation, Admin Operational Alerts (supporting comma-separated distribution lists), Booking Approval, Booking Rejection with mandatory justification, and Booking Cancellation.
+4. Engineered unified concurrent notification orchestrator (`src/lib/notifications/service.server.ts`) leveraging `Promise.allSettled` for simultaneous, zero-penalty Email and WhatsApp dispatches with complete fault isolation.
+5. Integrated post-commit async notification triggers across all `BookingService` lifecycle transitions (`createBookingRequest`, `approveBooking`, `rejectBooking`, `cancelBooking`, `cancelBookingByPublicReference`) ensuring 100% database transaction resilience.
+6. Expanded automated test suite with 21 new tests across email templates, mock gateway behaviors, and orchestrator fault isolation, achieving 74/74 passing tests repository-wide.
+
+---
+
 ## v1.2 WhatsApp Integration (Shipped: 2026-08-14)
 
 **Phases completed:** 1 phase (Phase 7), 2 plans, 5 tasks, 22 automated tests (53 total passing)

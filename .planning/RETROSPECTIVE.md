@@ -76,6 +76,30 @@
 ### Key Lessons
 - **Graceful degradation on missing contact info:** When user phone numbers are null or invalid, the core booking lifecycle proceeds seamlessly while logging a dispatch warning.
 
+## Milestone: v1.3 — Dual-Channel Notification Integration (Resend Email + Fonnte WhatsApp)
+
+**Shipped:** 2026-08-14  
+**Phases:** 1 | **Plans:** 2 | **Automated Tests:** 74 / 74 Passing (100%)
+
+### What Was Built
+- **Resend Email Gateway & Responsive HTML/Plaintext Templates (Phase 8 Plan 1):** Built complete Resend REST integration with RFC 5322 address validation, multi-recipient list parsing, safe console ASCII mock logger, and 5 branded Indonesian HTML/plaintext email templates (submission, admin alert, approval, rejection, cancellation).
+- **Unified Dual-Channel Orchestrator & Booking Integration (Phase 8 Plan 2):** Engineered concurrent multi-channel dispatch engine using `Promise.allSettled` to fire Email and WhatsApp notifications concurrently, wired into all `BookingService` transition mutations (`createBookingRequest`, `approveBooking`, `rejectBooking`, `cancelBooking`, `cancelBookingByPublicReference`), recording channel-specific audit events (`notification.email_dispatch` & `notification.whatsapp_dispatch`).
+
+### What Worked
+- **Concurrent `Promise.allSettled` Pattern:** Dispathing Email and WhatsApp in parallel guarantees that failure or delay in one gateway never impairs the other channel.
+- **Dual HTML + Plaintext Template Strategy:** Building both HTML with institutional PPKASN palette (`#1e3a8a`) and markdown plaintext versions ensured high email deliverability and screen-reader accessibility.
+- **Multi-recipient Admin Alerts:** Parsing comma-separated distribution lists in `ADMIN_DEFAULT_EMAIL` enabled seamless operations alerting across multiple admin team members.
+
+### What Was Inefficient
+- Initial test runner in `package.json` had hardcoded individual test files; updated it with glob/node runner to automatically execute all 10 unit and integration test files.
+
+### Patterns Established
+- **Channel-specific audit trails:** Distinguishing `notification.email_dispatch` and `notification.whatsapp_dispatch` in `audit_logs` provides unambiguous per-channel operational telemetry.
+- **Multi-channel isolation:** Asynchronous dispatch orchestrator wraps all provider calls in isolated execution blocks so unexpected exceptions are trapped and logged without affecting caller execution.
+
+### Key Lessons
+- **Graceful recipient validation:** When users provide only an email or only a WhatsApp number, the orchestrator dispatches cleanly to available channels without throwing errors.
+
 ---
 
 ## Cross-Milestone Trends
@@ -84,6 +108,7 @@
 
 | Milestone | Phases | Plans | Tests | Key Change |
 |-----------|--------|-------|-------|------------|
+| v1.3 | 1 | 2 | 74 | Integrated Resend email gateway and unified concurrent dual-channel orchestrator |
 | v1.2 | 1 | 2 | 53 | Added asynchronous WhatsApp notifications and operational alert pipelines |
 | v1.1 | 1 | 1 | 31 | Implemented secure role hierarchy and route-level authorization |
 | v1.0 | 5 | 13 | 33 | Initial greenfield-to-production build with full GSD pipeline |
@@ -92,6 +117,7 @@
 
 | Milestone | Tests | Pass Rate | Gaps |
 |-----------|-------|-----------|------|
+| v1.3 | 74 | 100% | 0 |
 | v1.2 | 53 | 100% | 0 |
 | v1.1 | 31 | 100% | 0 |
 | v1.0 | 33 | 100% | 0 |
@@ -102,3 +128,4 @@
 2. Privacy-safe public API boundaries eliminate data leakage risks from the start.
 3. View-only constraints on the UI should always be coupled with strict min-role boundary checks on the server.
 4. Asynchronous post-commit dispatch guarantees third-party API reliability without compromising core database transaction integrity.
+5. Concurrent multi-channel dispatch (`Promise.allSettled`) provides independent fault isolation across disparate external communication providers.
