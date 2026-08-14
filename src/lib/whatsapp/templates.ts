@@ -31,7 +31,7 @@ export function buildBookingSubmissionRequesterMessage(
 	const baseUrl = getAppBaseUrl();
 	const trackingUrl =
 		data.trackingUrl ||
-		`${baseUrl}/check-booking?ref=${encodeURIComponent(data.bookingRef)}`;
+		`${baseUrl}/status/${encodeURIComponent(data.bookingRef)}`;
 	const startWib = formatWib(data.startDate);
 	const endWib = formatWib(data.endDate);
 	const locationStr = data.assetLocation ? ` (${data.assetLocation})` : "";
@@ -62,7 +62,7 @@ export function buildBookingSubmissionAdminMessage(
 	data: BookingSubmissionAdminData,
 ): string {
 	const baseUrl = getAppBaseUrl();
-	const adminUrl = data.adminApprovalUrl || `${baseUrl}/admin/approval`;
+	const adminUrl = data.adminApprovalUrl || `${baseUrl}/admin/bookings`;
 	const startWib = formatWib(data.startDate);
 	const endWib = formatWib(data.endDate);
 	const orgStr = data.requesterOrganization
@@ -94,7 +94,7 @@ export function buildBookingApprovalMessage(data: BookingApprovalData): string {
 	const baseUrl = getAppBaseUrl();
 	const trackingUrl =
 		data.trackingUrl ||
-		`${baseUrl}/check-booking?ref=${encodeURIComponent(data.bookingRef)}`;
+		`${baseUrl}/status/${encodeURIComponent(data.bookingRef)}`;
 	const startWib = formatWib(data.startDate);
 	const endWib = formatWib(data.endDate);
 	const locationStr = data.assetLocation ? ` (${data.assetLocation})` : "";

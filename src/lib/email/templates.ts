@@ -151,7 +151,7 @@ export function buildBookingSubmissionRequesterEmail(
 	const baseUrl = getAppBaseUrl();
 	const trackingUrl =
 		data.trackingUrl ||
-		`${baseUrl}/check-booking?ref=${encodeURIComponent(data.bookingRef)}`;
+		`${baseUrl}/status/${encodeURIComponent(data.bookingRef)}`;
 	const startWib = formatWib(data.startDate);
 	const endWib = formatWib(data.endDate);
 	const locationStr = data.assetLocation ? ` (${data.assetLocation})` : "";
@@ -199,7 +199,7 @@ export function buildBookingSubmissionRequesterEmail(
 		title: "Konfirmasi Pengajuan Booking",
 		badgeText: "⏳ Menunggu Verifikasi",
 		badgeBg: "#fef3c7",
-		badgeColor: "#92400e",
+		badgeColor: "#d97706",
 		bodyHtml,
 		ctaUrl: trackingUrl,
 		ctaText: "Cek Status Permohonan",
@@ -233,7 +233,7 @@ export function buildBookingSubmissionAdminEmail(
 	data: BookingSubmissionAdminEmailData,
 ): EmailTemplateOutput {
 	const baseUrl = getAppBaseUrl();
-	const adminUrl = data.adminApprovalUrl || `${baseUrl}/admin/approval`;
+	const adminUrl = data.adminApprovalUrl || `${baseUrl}/admin/bookings`;
 	const startWib = formatWib(data.startDate);
 	const endWib = formatWib(data.endDate);
 	const orgStr = data.requesterOrganization
@@ -325,7 +325,7 @@ export function buildBookingApprovalEmail(
 	const baseUrl = getAppBaseUrl();
 	const trackingUrl =
 		data.trackingUrl ||
-		`${baseUrl}/check-booking?ref=${encodeURIComponent(data.bookingRef)}`;
+		`${baseUrl}/status/${encodeURIComponent(data.bookingRef)}`;
 	const startWib = formatWib(data.startDate);
 	const endWib = formatWib(data.endDate);
 	const locationStr = data.assetLocation ? ` (${data.assetLocation})` : "";
@@ -409,7 +409,7 @@ export function buildBookingRejectionEmail(
 	const baseUrl = getAppBaseUrl();
 	const trackingUrl =
 		data.trackingUrl ||
-		`${baseUrl}/check-booking?ref=${encodeURIComponent(data.bookingRef)}`;
+		`${baseUrl}/status/${encodeURIComponent(data.bookingRef)}`;
 	const startWib = formatWib(data.startDate);
 	const endWib = formatWib(data.endDate);
 	const reasonStr = data.rejectionReason.trim();

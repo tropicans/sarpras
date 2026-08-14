@@ -35,7 +35,7 @@ test("WhatsApp Message Templates Engine (WA-04, WA-05, WA-06, WA-07, WA-08)", as
 		assert.match(msg, /Ruang Rapat Utama \(Gedung A Lt\. 2\)/);
 		assert.match(msg, /20\/08\/2026 08:30 s\.d\. 20\/08\/2026 16:00 WIB/);
 		assert.match(msg, /Rapat Koordinasi Tim IT/);
-		assert.match(msg, /check-booking\?ref=bkg-12345/);
+		assert.match(msg, /\/status\/bkg-12345/);
 	});
 
 	await t.test("WA-07, WA-08: buildBookingSubmissionAdminMessage", () => {
@@ -56,7 +56,7 @@ test("WhatsApp Message Templates Engine (WA-04, WA-05, WA-06, WA-07, WA-08)", as
 		assert.match(msg, /Auditorium/);
 		assert.match(msg, /50 orang/);
 		assert.match(msg, /Workshop Transformasi Digital/);
-		assert.match(msg, /\/admin\/approval/);
+		assert.match(msg, /\/admin\/bookings/);
 	});
 
 	await t.test("WA-05: buildBookingApprovalMessage", () => {

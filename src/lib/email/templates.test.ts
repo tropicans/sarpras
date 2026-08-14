@@ -54,12 +54,13 @@ describe("Email Templates Engine (EMAIL-01, EMAIL-05, EMAIL-06, EMAIL-07, EMAIL-
 		assert.ok(result.html.includes("Auditorium Utama"));
 		assert.ok(result.html.includes("20/08/2026 08:00 s.d. 20/08/2026 16:00 WIB"));
 		assert.ok(result.html.includes("Cek Status Permohonan"));
-		assert.ok(result.html.includes("/check-booking?ref=bkg-req-001"));
+		assert.ok(result.html.includes("/status/bkg-req-001"));
 
 		// Plaintext asserts
 		assert.ok(result.text.includes("PENGAJUAN BOOKING SARPRAS PPKASN"));
 		assert.ok(result.text.includes("#bkg-req-001"));
 		assert.ok(result.text.includes("Auditorium Utama (Gedung A Lt. 2)"));
+		assert.ok(result.text.includes("/status/bkg-req-001"));
 		assert.ok(!result.text.includes("<table>"));
 	});
 
@@ -84,7 +85,7 @@ describe("Email Templates Engine (EMAIL-01, EMAIL-05, EMAIL-06, EMAIL-07, EMAIL-
 
 		assert.ok(result.text.includes("OPERATIONAL ALERT: BOOKING BARU"));
 		assert.ok(result.text.includes("35 orang"));
-		assert.ok(result.text.includes("/admin/approval"));
+		assert.ok(result.text.includes("/admin/bookings"));
 	});
 
 	it("generates booking approval email with confirmation details (EMAIL-07)", () => {
