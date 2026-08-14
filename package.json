@@ -14,7 +14,7 @@
     "format": "biome format",
     "lint": "biome lint",
     "check": "biome check",
-    "test": "node --import tsx --test src/db/migration.test.ts src/db/auth.test.ts src/lib/booking/booking.test.ts src/lib/auth/rbac.test.ts",
+    "test": "node --import tsx --test src/db/migration.test.ts src/db/auth.test.ts src/lib/booking/booking.test.ts src/lib/auth/rbac.test.ts src/lib/whatsapp/phone.test.ts src/lib/whatsapp/templates.test.ts src/lib/whatsapp/service.test.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
     "db:migrate-legacy": "tsx src/db/migrate-legacy.ts"

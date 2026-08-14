@@ -566,3 +566,192 @@ test("Phase 4 Wave 1: Public Discovery, Schedule Projections & Pre-flight Availa
 
 	await cleanup();
 });
+
+test("Phase 7 Wave 7: WhatsApp Notification & Integration Triggers (WA-04, WA-05, WA-06, WA-07, WA-08)", async (t) => {
+	const prefix = "test-wa-trig-";
+
+	const cleanup = async () => {
+		await db
+			.delete(auditLogs)
+			.where(like(auditLogs.actorId, "system:whatsapp"));
+		await db.delete(auditLogs).where(like(auditLogs.actorId, `${prefix}%`));
+		await db
+			.delete(bookings)
+			.where(like(bookings.requesterEmail, `${prefix}%`));
+		await db.delete(assets).where(like(assets.name, `${prefix}%`));
+	};
+
+	await cleanup();
+
+	const [room] = await db
+		.insert(assets)
+		.values({
+			name: `${prefix}Executive Boardroom`,
+			type: "room",
+			capacity: 20,
+			status: "active",
+			location: "Gedung Utama Lt. 3",
+		})
+		.returning();
+
+	await t.test(
+		"WA-04 & WA-07 & WA-08: Booking Creation triggers Requester and Admin WhatsApp notifications",
+		async () => {
+			process.env.FONNTE_ADMIN_TARGET = "6289999999999";
+
+			const booking = await BookingService.createBookingRequest({
+				assetId: room.id,
+				requesterName: "Ahmad Dahlan",
+				requesterEmail: `${prefix}ahmad@example.com`,
+				requesterPhone: "081234567890",
+				requesterOrganization: "Pusat Data dan Informasi",
+				purpose: "Rapat Koordinasi Infrastruktur",
+				attendance: 12,
+				startDate: new Date("2026-09-10T02:00:00.000Z"),
+				endDate: new Date("2026-09-10T05:00:00.000Z"),
+				timezone: "Asia/Jakarta",
+			});
+
+			assert.ok(booking.id);
+			assert.strictEqual(booking.status, "pending");
+
+			// Allow async non-blocking task to write audit logs
+			await new Promise((resolve) => setTimeout(resolve, 150));
+
+			const auditEntries = await getAuditLogsForEntity("booking", booking.id);
+			const dispatchLogs = auditEntries.filter(
+				(l) => l.action === "notification.whatsapp_dispatch",
+			);
+			assert.strictEqual(dispatchLogs.length, 2);
+
+			const requesterLog = dispatchLogs.find(
+				(l) => (l.metadata as any)?.template === "BOOKING_CREATED_REQUESTER",
+			);
+			assert.ok(requesterLog);
+			assert.strictEqual(
+				(requesterLog.metadata as any)?.target,
+				"6281234567890",
+			);
+			assert.strictEqual((requesterLog.metadata as any)?.status, "mock");
+
+			const adminLog = dispatchLogs.find(
+				(l) => (l.metadata as any)?.template === "BOOKING_CREATED_ADMIN",
+			);
+			assert.ok(adminLog);
+			assert.strictEqual((adminLog.metadata as any)?.target, "6289999999999");
+			assert.strictEqual((adminLog.metadata as any)?.status, "mock");
+		},
+	);
+
+	await t.test(
+		"WA-05: Booking Approval triggers Requester WhatsApp approval notification",
+		async () => {
+			const booking = await BookingService.createBookingRequest({
+				assetId: room.id,
+				requesterName: "Siti Rahma",
+				requesterEmail: `${prefix}siti@example.com`,
+				requesterPhone: "+628111222333",
+				purpose: "Workshop UI/UX",
+				attendance: 10,
+				startDate: new Date("2026-09-11T02:00:00.000Z"),
+				endDate: new Date("2026-09-11T05:00:00.000Z"),
+				timezone: "Asia/Jakarta",
+			});
+
+			await BookingService.approveBooking(
+				booking.id,
+				`${prefix}admin-approver`,
+			);
+
+			await new Promise((resolve) => setTimeout(resolve, 150));
+
+			const auditEntries = await getAuditLogsForEntity("booking", booking.id);
+			const approveDispatch = auditEntries.find(
+				(l) =>
+					l.action === "notification.whatsapp_dispatch" &&
+					(l.metadata as any)?.template === "BOOKING_APPROVED",
+			);
+			assert.ok(approveDispatch);
+			assert.strictEqual(
+				(approveDispatch.metadata as any)?.target,
+				"628111222333",
+			);
+			assert.strictEqual((approveDispatch.metadata as any)?.status, "mock");
+		},
+	);
+
+	await t.test(
+		"WA-06: Booking Rejection triggers Requester WhatsApp rejection notification with reason",
+		async () => {
+			const booking = await BookingService.createBookingRequest({
+				assetId: room.id,
+				requesterName: "Hendra Wijaya",
+				requesterEmail: `${prefix}hendra@example.com`,
+				requesterPhone: "087788990011",
+				purpose: "Seminar Internal",
+				attendance: 15,
+				startDate: new Date("2026-09-12T02:00:00.000Z"),
+				endDate: new Date("2026-09-12T05:00:00.000Z"),
+				timezone: "Asia/Jakarta",
+			});
+
+			const rejectionReason =
+				"Ruangan digunakan untuk kunjungan tamu kementerian";
+			await BookingService.rejectBooking(
+				booking.id,
+				`${prefix}admin-rejector`,
+				rejectionReason,
+			);
+
+			await new Promise((resolve) => setTimeout(resolve, 150));
+
+			const auditEntries = await getAuditLogsForEntity("booking", booking.id);
+			const rejectDispatch = auditEntries.find(
+				(l) =>
+					l.action === "notification.whatsapp_dispatch" &&
+					(l.metadata as any)?.template === "BOOKING_REJECTED",
+			);
+			assert.ok(rejectDispatch);
+			assert.strictEqual(
+				(rejectDispatch.metadata as any)?.target,
+				"6287788990011",
+			);
+			assert.strictEqual((rejectDispatch.metadata as any)?.status, "mock");
+		},
+	);
+
+	await t.test(
+		"Non-blocking resilience: Missing or null phone does not break booking lifecycle",
+		async () => {
+			// Create booking with no phone number
+			const booking = await BookingService.createBookingRequest({
+				assetId: room.id,
+				requesterName: "No Phone User",
+				requesterEmail: `${prefix}nophone@example.com`,
+				requesterPhone: null,
+				purpose: "Silent Meeting",
+				attendance: 5,
+				startDate: new Date("2026-09-13T02:00:00.000Z"),
+				endDate: new Date("2026-09-13T05:00:00.000Z"),
+				timezone: "Asia/Jakarta",
+			});
+
+			assert.strictEqual(booking.status, "pending");
+
+			const approved = await BookingService.approveBooking(
+				booking.id,
+				`${prefix}admin`,
+			);
+			assert.strictEqual(approved.status, "approved");
+
+			const cancelled = await BookingService.cancelBooking(
+				booking.id,
+				`${prefix}admin`,
+				"User request",
+			);
+			assert.strictEqual(cancelled.status, "cancelled");
+		},
+	);
+
+	await cleanup();
+});

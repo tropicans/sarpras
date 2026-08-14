@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normalizePhoneNumber } from "../whatsapp/phone";
 
 export const BOOKING_STATUSES = [
 	"pending",
@@ -32,7 +33,17 @@ export const CreateBookingInputSchema = z
 		assetId: z.string().uuid("Invalid asset ID"),
 		requesterName: z.string().min(1, "Nama pemohon wajib diisi"),
 		requesterEmail: z.string().email("Format email tidak valid"),
-		requesterPhone: z.string().optional().nullable(),
+		requesterPhone: z
+			.string()
+			.optional()
+			.nullable()
+			.refine(
+				(val) =>
+					!val || val.trim() === "" || normalizePhoneNumber(val) !== null,
+				{
+					message: "Format nomor WhatsApp tidak valid (contoh: 08123456789)",
+				},
+			),
 		requesterOrganization: z.string().optional().nullable(),
 		purpose: z.string().optional().nullable(),
 		attendance: z.number().int().positive("Jumlah peserta/tamu minimal 1"),

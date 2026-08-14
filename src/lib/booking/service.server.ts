@@ -8,6 +8,14 @@ import {
 } from "../../db/schema";
 import { recordAuditEvent } from "../audit/audit.server";
 import { normalizeDate } from "../timezone/datetime";
+import { safeDispatchNotification } from "../whatsapp/service.server";
+import {
+	buildBookingApprovalMessage,
+	buildBookingCancellationMessage,
+	buildBookingRejectionMessage,
+	buildBookingSubmissionAdminMessage,
+	buildBookingSubmissionRequesterMessage,
+} from "../whatsapp/templates";
 import {
 	checkRoomOverlap,
 	validateAssetClosures,
@@ -50,7 +58,7 @@ export class BookingService {
 		const endDate = normalizeDate(input.endDate);
 		const attendance = input.attendance ?? 1;
 
-		return await db.transaction(async (tx) => {
+		const { newBooking, asset } = await db.transaction(async (tx) => {
 			// 1. Lock the asset row using SELECT FOR UPDATE (D-01)
 			const [asset] = await tx
 				.select()
@@ -203,15 +211,56 @@ export class BookingService {
 				},
 			});
 
-			return newBooking;
+			return { newBooking, asset };
 		});
+
+		// 6. Post-commit asynchronous notification dispatches (WA-04, WA-07, WA-08)
+		if (newBooking.requesterPhone) {
+			const requesterMsg = buildBookingSubmissionRequesterMessage({
+				bookingRef: newBooking.id,
+				requesterName: newBooking.requesterName,
+				assetName: asset.name,
+				assetLocation: asset.location,
+				startDate: newBooking.startDate,
+				endDate: newBooking.endDate,
+				purpose: newBooking.purpose,
+			});
+			void safeDispatchNotification({
+				target: newBooking.requesterPhone,
+				message: requesterMsg,
+				bookingId: newBooking.id,
+				templateType: "BOOKING_CREATED_REQUESTER",
+			});
+		}
+
+		const adminTarget = process.env.FONNTE_ADMIN_TARGET?.trim();
+		if (adminTarget) {
+			const adminMsg = buildBookingSubmissionAdminMessage({
+				bookingRef: newBooking.id,
+				requesterName: newBooking.requesterName,
+				requesterOrganization: newBooking.requesterOrganization,
+				assetName: asset.name,
+				startDate: newBooking.startDate,
+				endDate: newBooking.endDate,
+				attendance: newBooking.attendance ?? 1,
+				purpose: newBooking.purpose,
+			});
+			void safeDispatchNotification({
+				target: adminTarget,
+				message: adminMsg,
+				bookingId: newBooking.id,
+				templateType: "BOOKING_CREATED_ADMIN",
+			});
+		}
+
+		return newBooking;
 	}
 
 	/**
 	 * Approves a pending booking, authoritatively locking the asset and re-validating availability.
 	 */
 	static async approveBooking(bookingId: string, actorId: string) {
-		return await db.transaction(async (tx) => {
+		const { updatedBooking, asset } = await db.transaction(async (tx) => {
 			// 1. Lock the booking record
 			const [booking] = await tx
 				.select()
@@ -322,8 +371,28 @@ export class BookingService {
 				},
 			});
 
-			return updatedBooking;
+			return { updatedBooking, asset };
 		});
+
+		// 7. Post-commit asynchronous notification dispatch (WA-05)
+		if (updatedBooking.requesterPhone) {
+			const approvalMsg = buildBookingApprovalMessage({
+				bookingRef: updatedBooking.id,
+				requesterName: updatedBooking.requesterName,
+				assetName: asset.name,
+				assetLocation: asset.location,
+				startDate: updatedBooking.startDate,
+				endDate: updatedBooking.endDate,
+			});
+			void safeDispatchNotification({
+				target: updatedBooking.requesterPhone,
+				message: approvalMsg,
+				bookingId: updatedBooking.id,
+				templateType: "BOOKING_APPROVED",
+			});
+		}
+
+		return updatedBooking;
 	}
 
 	/**
@@ -334,7 +403,7 @@ export class BookingService {
 		actorId: string,
 		rejectionReason: string,
 	) {
-		return await db.transaction(async (tx) => {
+		const { updatedBooking, asset } = await db.transaction(async (tx) => {
 			const [booking] = await tx
 				.select()
 				.from(bookings)
@@ -344,6 +413,12 @@ export class BookingService {
 			if (!booking) {
 				throw new BookingNotFoundError();
 			}
+
+			// Fetch asset for template context
+			const [asset] = await tx
+				.select()
+				.from(assets)
+				.where(eq(assets.id, booking.assetId));
 
 			// Validate transition & required rejection reason (D-05, D-06)
 			validateBookingTransition(
@@ -377,8 +452,28 @@ export class BookingService {
 				},
 			});
 
-			return updatedBooking;
+			return { updatedBooking, asset };
 		});
+
+		// Post-commit asynchronous notification dispatch (WA-06)
+		if (updatedBooking.requesterPhone) {
+			const rejectionMsg = buildBookingRejectionMessage({
+				bookingRef: updatedBooking.id,
+				requesterName: updatedBooking.requesterName,
+				assetName: asset?.name || "Fasilitas",
+				startDate: updatedBooking.startDate,
+				endDate: updatedBooking.endDate,
+				rejectionReason: rejectionReason.trim(),
+			});
+			void safeDispatchNotification({
+				target: updatedBooking.requesterPhone,
+				message: rejectionMsg,
+				bookingId: updatedBooking.id,
+				templateType: "BOOKING_REJECTED",
+			});
+		}
+
+		return updatedBooking;
 	}
 
 	/**
@@ -389,7 +484,7 @@ export class BookingService {
 		actorId: string,
 		reason?: string,
 	) {
-		return await db.transaction(async (tx) => {
+		const { updatedBooking, asset } = await db.transaction(async (tx) => {
 			const [booking] = await tx
 				.select()
 				.from(bookings)
@@ -399,6 +494,12 @@ export class BookingService {
 			if (!booking) {
 				throw new BookingNotFoundError();
 			}
+
+			// Fetch asset for template context
+			const [asset] = await tx
+				.select()
+				.from(assets)
+				.where(eq(assets.id, booking.assetId));
 
 			// Validate transition (D-05)
 			validateBookingTransition(booking.status as BookingStatus, "cancelled");
@@ -427,8 +528,29 @@ export class BookingService {
 				},
 			});
 
-			return updatedBooking;
+			return { updatedBooking, asset };
 		});
+
+		// Post-commit asynchronous notification dispatch
+		if (updatedBooking.requesterPhone) {
+			const cancelMsg = buildBookingCancellationMessage({
+				bookingRef: updatedBooking.id,
+				requesterName: updatedBooking.requesterName,
+				assetName: asset?.name || "Fasilitas",
+				startDate: updatedBooking.startDate,
+				endDate: updatedBooking.endDate,
+				reason: reason || null,
+				cancelledBy: actorId,
+			});
+			void safeDispatchNotification({
+				target: updatedBooking.requesterPhone,
+				message: cancelMsg,
+				bookingId: updatedBooking.id,
+				templateType: "BOOKING_CANCELLED",
+			});
+		}
+
+		return updatedBooking;
 	}
 
 	/**
@@ -439,7 +561,7 @@ export class BookingService {
 		referenceToken: string,
 		reason?: string,
 	) {
-		return await db.transaction(async (tx) => {
+		const { updatedBooking, asset } = await db.transaction(async (tx) => {
 			const [booking] = await tx
 				.select()
 				.from(bookings)
@@ -461,6 +583,12 @@ export class BookingService {
 					"Kode referensi pembatalan tidak cocok dengan data permohonan.",
 				);
 			}
+
+			// Fetch asset for template context
+			const [asset] = await tx
+				.select()
+				.from(assets)
+				.where(eq(assets.id, booking.assetId));
 
 			validateBookingTransition(booking.status as BookingStatus, "cancelled");
 
@@ -489,8 +617,29 @@ export class BookingService {
 				},
 			});
 
-			return updatedBooking;
+			return { updatedBooking, asset };
 		});
+
+		// Post-commit asynchronous notification dispatch
+		if (updatedBooking.requesterPhone) {
+			const cancelMsg = buildBookingCancellationMessage({
+				bookingRef: updatedBooking.id,
+				requesterName: updatedBooking.requesterName,
+				assetName: asset?.name || "Fasilitas",
+				startDate: updatedBooking.startDate,
+				endDate: updatedBooking.endDate,
+				reason: reason || null,
+				cancelledBy: "Pemohon",
+			});
+			void safeDispatchNotification({
+				target: updatedBooking.requesterPhone,
+				message: cancelMsg,
+				bookingId: updatedBooking.id,
+				templateType: "BOOKING_CANCELLED",
+			});
+		}
+
+		return updatedBooking;
 	}
 
 	/**
