@@ -31,6 +31,28 @@
 1. **Concurrency locking is essential early:** Row-level locks on assets prevented race conditions during simultaneous booking approvals.
 2. **Dormitory capacity math:** Calculating daily overlapping occupancy with date ranges ensures rooms and dormitories share a clean domain interface while handling distinct capacity rules.
 
+## Milestone: v1.1 — Role-Based Access Control (RBAC)
+
+**Shipped:** 2026-08-14  
+**Phases:** 1 | **Plans:** 1 | **Automated Tests:** 31 / 31 Passing (100%)
+
+### What Was Built
+- **Role Hierarchy & Validation (Phase 6):** Configured strict roles (`admin`, `operator`, `pimpinan`), implemented effective role resolution with fallback, and added route-level middleware validations.
+- **Access Segregation:** Dynamically hid navigation links and dashboard action shortcuts based on permissions, restricted unauthorized role access to `/admin/users` and `/admin/audit`, and forced view-only mode for Pimpinan.
+
+### What Worked
+- **Middleware Reuse:** The rank-based helper allowed simple, concise middleware rules that protect both page loads and API functions.
+- **Unit Testing Hierarchy:** Creating tests directly testing the rank hierarchy ensured authorization functions are robust.
+
+### What Was Inefficient
+- Node.js runtime not being globally available on the system PATH during daemon invocation required explicit absolute path references for CLI commands.
+
+### Patterns Established
+- **Unified middleware enforcement:** Applying `requireMinRole` consistently on both frontend routes and backend server functions ensures security at every boundary.
+
+### Key Lessons
+- **View-only constraints:** Conditionally hiding actions in layout files is helpful for UX, but backend checks are the only way to enforce security policies.
+
 ---
 
 ## Cross-Milestone Trends
@@ -39,15 +61,18 @@
 
 | Milestone | Phases | Plans | Tests | Key Change |
 |-----------|--------|-------|-------|------------|
+| v1.1 | 1 | 1 | 31 | Implemented secure role hierarchy and route-level authorization |
 | v1.0 | 5 | 13 | 33 | Initial greenfield-to-production build with full GSD pipeline |
 
 ### Cumulative Quality
 
 | Milestone | Tests | Pass Rate | Gaps |
 |-----------|-------|-----------|------|
+| v1.1 | 31 | 100% | 0 |
 | v1.0 | 33 | 100% | 0 |
 
 ### Top Lessons (Verified Across Milestones)
 
 1. Transactional concurrency control paired with audit logging guarantees clean operational history and prevents booking collisions.
 2. Privacy-safe public API boundaries eliminate data leakage risks from the start.
+3. View-only constraints on the UI should always be coupled with strict min-role boundary checks on the server.
