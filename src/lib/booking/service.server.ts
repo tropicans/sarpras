@@ -1,13 +1,13 @@
 import { and, eq, gt, lt, ne } from "drizzle-orm";
-import { db } from "#/db/client.server";
+import { db } from "../../db/client.server";
 import {
 	assetAvailability,
 	assetClosures,
 	assets,
 	bookings,
-} from "#/db/schema";
-import { recordAuditEvent } from "#/lib/audit/audit.server";
-import { normalizeDate } from "#/lib/timezone/datetime";
+} from "../../db/schema";
+import { recordAuditEvent } from "../audit/audit.server";
+import { normalizeDate } from "../timezone/datetime";
 import {
 	checkRoomOverlap,
 	validateAssetClosures,
@@ -83,16 +83,20 @@ export class BookingService {
 			}
 
 			// 3. Asset-specific availability checks
-			if (asset.type === "room") {
-				// Room capacity check (D-10)
+			if (
+				asset.type === "room" ||
+				asset.type === "vehicle" ||
+				asset.type === "field"
+			) {
+				// Capacity / Pax check
 				const capCheck = validateRoomCapacity(attendance, asset.capacity);
 				if (!capCheck.valid) {
 					throw new BookingConflictError(
-						capCheck.reason || "Jumlah peserta melebihi kapasitas ruangan.",
+						capCheck.reason || "Jumlah peserta melebihi kapasitas fasilitas.",
 					);
 				}
 
-				// Room operating hours check (D-11)
+				// Operating hours check (if configured)
 				const schedules = await tx
 					.select()
 					.from(assetAvailability)
@@ -107,12 +111,12 @@ export class BookingService {
 					if (!hoursCheck.valid) {
 						throw new BookingConflictError(
 							hoursCheck.reason ||
-								"Jadwal peminjaman di luar jam operasional ruangan.",
+								"Jadwal peminjaman di luar jam operasional fasilitas.",
 						);
 					}
 				}
 
-				// Room overlap check against existing APPROVED bookings (D-04, D-10)
+				// Overlap check against existing APPROVED bookings
 				const approvedBookings = await tx
 					.select({
 						id: bookings.id,
@@ -137,12 +141,12 @@ export class BookingService {
 				if (!overlapCheck.available) {
 					throw new BookingConflictError(
 						overlapCheck.conflictReason ||
-							"Ruangan sudah terisi untuk jadwal tersebut.",
+							"Fasilitas sudah terisi untuk jadwal tersebut.",
 						overlapCheck.details,
 					);
 				}
-			} else if (asset.type === "dormitory") {
-				// Dormitory shared capacity check (D-09, D-12)
+			} else if (asset.type === "dormitory" || asset.type === "equipment") {
+				// Dormitory / Equipment shared capacity check
 				const dormCheck = await checkDormitoryCapacity(
 					tx,
 					asset.id,
@@ -155,7 +159,7 @@ export class BookingService {
 				if (!dormCheck.available) {
 					throw new BookingConflictError(
 						dormCheck.conflictReason ||
-							"Kapasitas asrama penuh pada rentang tanggal tersebut.",
+							"Kapasitas fasilitas penuh pada rentang waktu tersebut.",
 						dormCheck.details,
 					);
 				}
@@ -240,7 +244,11 @@ export class BookingService {
 			const attendance = booking.attendance ?? 1;
 
 			// 4. Authoritatively re-check availability at approval time (FLOW-05)
-			if (asset.type === "room") {
+			if (
+				asset.type === "room" ||
+				asset.type === "vehicle" ||
+				asset.type === "field"
+			) {
 				const approvedBookings = await tx
 					.select({
 						id: bookings.id,
@@ -266,11 +274,11 @@ export class BookingService {
 				);
 				if (!overlapCheck.available) {
 					throw new BookingConflictError(
-						"Tidak dapat menyetujui: Ruangan sudah disetujui untuk peminjaman lain pada slot waktu tersebut.",
+						"Tidak dapat menyetujui: Fasilitas sudah disetujui untuk peminjaman lain pada slot waktu tersebut.",
 						overlapCheck.details,
 					);
 				}
-			} else if (asset.type === "dormitory") {
+			} else if (asset.type === "dormitory" || asset.type === "equipment") {
 				const dormCheck = await checkDormitoryCapacity(
 					tx,
 					asset.id,
@@ -283,7 +291,7 @@ export class BookingService {
 
 				if (!dormCheck.available) {
 					throw new BookingConflictError(
-						"Tidak dapat menyetujui: Kapasitas asrama sudah terisi penuh oleh peminjaman yang telah disetujui.",
+						"Tidak dapat menyetujui: Kapasitas fasilitas sudah terisi penuh oleh peminjaman yang telah disetujui.",
 						dormCheck.details,
 					);
 				}

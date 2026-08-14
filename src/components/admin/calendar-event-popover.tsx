@@ -94,7 +94,7 @@ export function CalendarEventPopover({
 							</span>
 							<span className="text-[#71717a] text-[11px]">
 								{formatJakartaDisplay(event.startDate, "HH:mm")} -{" "}
-								{formatJakartaDisplay(event.endDate, "HH:mm WIB")}
+								{formatJakartaDisplay(event.endDate, "HH:mm 'WIB'")}
 							</span>
 						</div>
 					</div>

@@ -1,0 +1,44 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sarpras_app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-3002}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sarpras}:${POSTGRES_PASSWORD:-sarpras_password}@postgres:5432/${POSTGRES_DB:-sarpras_db}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-f9b4c0274e1d4b8e8f8e8a7c2b4d6e9f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d}
+      - BETTER_AUTH_URL=${BETTER_AUTH_URL:-http://localhost:3002}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      - ADMIN_DEFAULT_EMAIL=${ADMIN_DEFAULT_EMAIL:-admin@ppkasn.go.id}
+      - ADMIN_DEFAULT_PASSWORD=${ADMIN_DEFAULT_PASSWORD:-Password123!}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: sarpras_postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-sarpras}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-sarpras_password}
+      - POSTGRES_DB=${POSTGRES_DB:-sarpras_db}
+    ports:
+      - "${DB_PORT:-5435}:5432"
+    volumes:
+      - sarpras_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sarpras} -d ${POSTGRES_DB:-sarpras_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  sarpras_pgdata:
+    driver: local

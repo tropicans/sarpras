@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { and, asc, eq } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "#/db/client.server";
-import { assetClosures, assets, bookings } from "#/db/schema";
+import { db } from "../../db/client.server";
+import { assetClosures, assets, bookings } from "../../db/schema";
 import { BookingService } from "./service.server";
 
 /**

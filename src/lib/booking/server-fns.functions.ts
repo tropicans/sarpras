@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireMinRole } from "#/lib/auth.middleware";
+import { requireMinRole } from "../auth.middleware";
 import { BookingService } from "./service.server";
 import {
 	ApproveBookingInputSchema,

@@ -1,6 +1,6 @@
 import { and, desc, eq } from "drizzle-orm";
-import { db } from "#/db/client.server";
-import { auditLogs } from "#/db/schema";
+import { db } from "../../db/client.server";
+import { auditLogs } from "../../db/schema";
 
 export type AuditActorType = "system" | "user";
 export type AuditEntityType = "booking" | "asset" | "user";

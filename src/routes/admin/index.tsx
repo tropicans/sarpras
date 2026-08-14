@@ -12,13 +12,14 @@ import {
 import { useEffect, useState } from "react";
 import { KpiCard } from "#/components/admin/kpi-card";
 import { UrgentBookingsWidget } from "#/components/admin/urgent-bookings-widget";
-import { getAdminDashboardOverviewFn } from "#/lib/booking/admin-fns.server";
+import { getAdminDashboardOverviewFn } from "#/lib/booking/admin-fns.functions";
 
 export const Route = createFileRoute("/admin/")({
 	component: AdminDashboardComponent,
 });
 
 function AdminDashboardComponent() {
+	const { user: currentUser } = Route.useRouteContext();
 	const [data, setData] = useState<{
 		kpi: {
 			pendingActionCount: number;
@@ -57,9 +58,7 @@ function AdminDashboardComponent() {
 	if (error || !data) {
 		return (
 			<div className="p-6 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 flex flex-col gap-2">
-				<h4 className="font-semibold text-sm">
-					Terjadi Kesalahan Memuat Data
-				</h4>
+				<h4 className="font-semibold text-sm">Terjadi Kesalahan Memuat Data</h4>
 				<p className="text-xs">{error || "Data tidak dapat dimuat."}</p>
 				<button
 					type="button"
@@ -174,16 +173,18 @@ function AdminDashboardComponent() {
 								<ArrowUpRight size={14} className="text-[#71717a]" />
 							</Link>
 
-							<Link
-								to="/admin/audit"
-								className="p-3 bg-white border border-[#e4e4e7] rounded-lg hover:border-[#09090b] transition-all flex items-center justify-between text-xs font-medium text-[#09090b]"
-							>
-								<div className="flex items-center gap-2.5">
-									<ScrollText size={16} className="text-zinc-600" />
-									<span>Periksa Riwayat Audit Sistem</span>
-								</div>
-								<ArrowUpRight size={14} className="text-[#71717a]" />
-							</Link>
+							{currentUser.role === "admin" && (
+								<Link
+									to="/admin/audit"
+									className="p-3 bg-white border border-[#e4e4e7] rounded-lg hover:border-[#09090b] transition-all flex items-center justify-between text-xs font-medium text-[#09090b]"
+								>
+									<div className="flex items-center gap-2.5">
+										<ScrollText size={16} className="text-zinc-600" />
+										<span>Periksa Riwayat Audit Sistem</span>
+									</div>
+									<ArrowUpRight size={14} className="text-[#71717a]" />
+								</Link>
+							)}
 						</div>
 					</div>
 
@@ -194,8 +195,8 @@ function AdminDashboardComponent() {
 						</div>
 						<p className="text-xs text-blue-800 leading-relaxed">
 							Setiap persetujuan atau penolakan permohonan akan secara otomatis
-							tercatat dalam riwayat audit sistem dan mengunci slot jadwal secara
-							transaksional.
+							tercatat dalam riwayat audit sistem dan mengunci slot jadwal
+							secara transaksional.
 						</p>
 					</div>
 				</div>

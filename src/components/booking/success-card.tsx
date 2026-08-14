@@ -81,7 +81,8 @@ export function SuccessCard({ bookingId, assetName }: SuccessCardProps) {
 			<div className="rounded-xl bg-muted/40 p-4 text-xs text-muted-foreground flex items-center justify-center gap-2">
 				<Clock className="h-4 w-4 text-primary shrink-0" />
 				<span>
-					Proses verifikasi oleh petugas umumnya memerlukan waktu 1x24 jam kerja.
+					Proses verifikasi oleh petugas umumnya memerlukan waktu 1x24 jam
+					kerja.
 				</span>
 			</div>
 

@@ -13,10 +13,10 @@ import {
 	sql,
 } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "#/db/client.server";
-import { assetClosures, assets, bookings } from "#/db/schema";
-import { authMiddleware } from "#/lib/auth.middleware";
-import { normalizeDate } from "#/lib/timezone/datetime";
+import { db } from "../../db/client.server";
+import { assetClosures, assets, bookings } from "../../db/schema";
+import { authMiddleware, requireMinRole } from "../auth.middleware";
+import { normalizeDate } from "../timezone/datetime";
 import { BookingService } from "./service.server";
 
 export const AdminDashboardOverviewSchema = z.object({}).optional();
@@ -25,7 +25,9 @@ export const AdminBookingsFilterSchema = z.object({
 	status: z
 		.enum(["all", "pending", "approved", "rejected", "cancelled"])
 		.default("all"),
-	assetType: z.enum(["all", "room", "dormitory"]).default("all"),
+	assetType: z
+		.enum(["all", "room", "dormitory", "vehicle", "field", "equipment"])
+		.default("all"),
 	startDate: z.string().optional(),
 	endDate: z.string().optional(),
 	search: z.string().optional(),
@@ -50,7 +52,10 @@ export const RejectBookingAdminInputSchema = z.object({
 
 export const AdminCalendarEventsInputSchema = z.object({
 	assetId: z.string().uuid().optional(),
-	assetType: z.enum(["all", "room", "dormitory"]).optional().default("all"),
+	assetType: z
+		.enum(["all", "room", "dormitory", "vehicle", "field", "equipment"])
+		.optional()
+		.default("all"),
 	start: z.string().min(1, "Tanggal mulai harus disertakan"),
 	end: z.string().min(1, "Tanggal selesai harus disertakan"),
 });
@@ -372,7 +377,7 @@ export const getBookingConflictContextFn = createServerFn({ method: "GET" })
  * Admin Server Function: Approves a booking request atomically (FLOW-03).
  */
 export const approveBookingAdminFn = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([requireMinRole("operator")])
 	.validator((data: unknown) => ApproveBookingAdminInputSchema.parse(data))
 	.handler(async ({ data, context }) => {
 		const booking = await BookingService.approveBooking(
@@ -395,7 +400,7 @@ export const approveBookingAdminFn = createServerFn({ method: "POST" })
  * Admin Server Function: Rejects a booking request with justification (FLOW-03).
  */
 export const rejectBookingAdminFn = createServerFn({ method: "POST" })
-	.middleware([authMiddleware])
+	.middleware([requireMinRole("operator")])
 	.validator((data: unknown) => RejectBookingAdminInputSchema.parse(data))
 	.handler(async ({ data, context }) => {
 		const booking = await BookingService.rejectBooking(

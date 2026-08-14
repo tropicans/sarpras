@@ -1,44 +1,56 @@
 import { createMiddleware, createServerFn } from "@tanstack/react-start";
 import { getRequestHeaders } from "@tanstack/react-start/server";
-import { auth } from "#/db/auth.server";
+import { eq } from "drizzle-orm";
+import { auth } from "../db/auth.server";
+import { db } from "../db/client.server";
+import { users } from "../db/schema";
+import {
+	ROLE_RANK,
+	resolveEffectiveRole,
+	type UserRole,
+} from "./auth/role-helper";
 
 export const getSessionFn = createServerFn({ method: "GET" }).handler(
 	async () => {
 		const headers = getRequestHeaders();
 		const session = await auth.api.getSession({ headers });
+		if (session?.user) {
+			const effectiveRole = resolveEffectiveRole(session.user);
+			if (session.user.role !== effectiveRole) {
+				session.user.role = effectiveRole;
+				await db
+					.update(users)
+					.set({ role: effectiveRole })
+					.where(eq(users.id, session.user.id));
+			}
+		}
 		return session;
 	},
 );
 
-export const authMiddleware = createMiddleware().server(
-	async ({ next }) => {
-		const headers = getRequestHeaders();
-		const session = await auth.api.getSession({ headers });
+export const authMiddleware = createMiddleware().server(async ({ next }) => {
+	const headers = getRequestHeaders();
+	const session = await auth.api.getSession({ headers });
 
-		if (!session) {
-			throw new Error("Unauthorized");
-		}
+	if (!session) {
+		throw new Error("Unauthorized");
+	}
 
-		if (session.user.status === "inactive") {
-			throw new Error("Unauthorized");
-		}
+	if (session.user.status === "inactive") {
+		throw new Error("Unauthorized");
+	}
 
-		return next({
-			context: {
-				user: session.user,
-				session: session.session,
-			},
-		});
-	},
-);
+	session.user.role = resolveEffectiveRole(session.user);
 
-const ROLE_RANK = {
-	admin: 3,
-	operator: 2,
-	pimpinan: 1,
-} as const;
+	return next({
+		context: {
+			user: session.user,
+			session: session.session,
+		},
+	});
+});
 
-export function requireMinRole(minRole: "admin" | "operator" | "pimpinan") {
+export function requireMinRole(minRole: UserRole) {
 	return createMiddleware().server(async ({ next }) => {
 		const headers = getRequestHeaders();
 		const session = await auth.api.getSession({ headers });
@@ -51,11 +63,10 @@ export function requireMinRole(minRole: "admin" | "operator" | "pimpinan") {
 			throw new Error("Unauthorized");
 		}
 
-		const userRole = (session.user.role || "operator") as
-			| "admin"
-			| "operator"
-			| "pimpinan";
-		if (ROLE_RANK[userRole] < ROLE_RANK[minRole]) {
+		const effectiveRole = resolveEffectiveRole(session.user);
+		session.user.role = effectiveRole;
+
+		if (ROLE_RANK[effectiveRole] < ROLE_RANK[minRole]) {
 			throw new Error("Forbidden");
 		}
 

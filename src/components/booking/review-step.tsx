@@ -122,7 +122,9 @@ export function ReviewStep({
 							</div>
 
 							<div>
-								<span className="text-muted-foreground">Perkiraan Peserta:</span>
+								<span className="text-muted-foreground">
+									Perkiraan Peserta:
+								</span>
 								<p className="font-semibold text-primary">
 									{schedule.attendance} Orang (Kapasitas: {asset.capacity})
 								</p>
@@ -153,14 +155,18 @@ export function ReviewStep({
 							</div>
 
 							<div>
-								<span className="text-muted-foreground">No. Telepon/WhatsApp:</span>
+								<span className="text-muted-foreground">
+									No. Telepon/WhatsApp:
+								</span>
 								<p className="font-medium text-foreground">
 									{requester.requesterPhone}
 								</p>
 							</div>
 
 							<div>
-								<span className="text-muted-foreground">Unit Kerja / Instansi:</span>
+								<span className="text-muted-foreground">
+									Unit Kerja / Instansi:
+								</span>
 								<p className="font-medium text-foreground">
 									{requester.requesterOrganization}
 								</p>

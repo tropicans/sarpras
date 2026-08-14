@@ -211,13 +211,13 @@ export function AuditTable({
 										<td className="py-3 px-4 whitespace-nowrap text-[#71717a]">
 											<div className="flex flex-col">
 												<span className="font-semibold text-[#09090b]">
-													{formatJakartaDisplay(
-														log.createdAt,
-														"dd MMM yyyy",
-													)}
+													{formatJakartaDisplay(log.createdAt, "dd MMM yyyy")}
 												</span>
 												<span className="text-[11px]">
-													{formatJakartaDisplay(log.createdAt, "HH:mm:ss WIB")}
+													{formatJakartaDisplay(
+														log.createdAt,
+														"HH:mm:ss 'WIB'",
+													)}
 												</span>
 											</div>
 										</td>
@@ -245,7 +245,8 @@ export function AuditTable({
 													{log.actorName || log.actorId}
 												</span>
 												<span className="text-[10px] text-[#71717a] capitalize">
-													{log.actorType} {log.actorEmail ? `(${log.actorEmail})` : ""}
+													{log.actorType}{" "}
+													{log.actorEmail ? `(${log.actorEmail})` : ""}
 												</span>
 											</div>
 										</td>

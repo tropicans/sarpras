@@ -1,7 +1,6 @@
 import assert from "node:assert";
 import test from "node:test";
-import { and, eq, like, ne, or } from "drizzle-orm";
-import { db } from "#/db/client.server";
+import { db } from "../../db/client.server";
 import {
 	assetAvailability,
 	assetClosures,
@@ -9,11 +8,11 @@ import {
 	auditLogs,
 	bookings,
 	users,
-} from "#/db/schema";
+} from "../../db/schema";
 import {
 	AdminAuditLogsFilterSchema,
 	getAdminAuditLogsFn,
-} from "../audit/admin-fns.server";
+} from "../audit/admin-fns.functions";
 import { recordAuditEvent } from "../audit/audit.server";
 import {
 	AdminBookingsFilterSchema,
@@ -21,7 +20,7 @@ import {
 	getAdminCalendarEventsFn,
 	getAdminDashboardOverviewFn,
 	getBookingConflictContextFn,
-} from "./admin-fns.server";
+} from "./admin-fns.functions";
 import { BookingConflictError, BookingService } from "./service.server";
 
 test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {

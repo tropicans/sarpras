@@ -28,8 +28,8 @@ import {
 } from "lucide-react";
 import React, { useState } from "react";
 import {
-	CalendarEventPopover,
 	type CalendarEventItem,
+	CalendarEventPopover,
 } from "./calendar-event-popover";
 
 interface AssetOption {
@@ -39,6 +39,14 @@ interface AssetOption {
 	capacity: number;
 }
 
+export type CalendarAssetTypeFilter =
+	| "all"
+	| "room"
+	| "dormitory"
+	| "vehicle"
+	| "field"
+	| "equipment";
+
 interface AdminCalendarViewProps {
 	events: CalendarEventItem[];
 	assetsList: AssetOption[];
@@ -46,8 +54,8 @@ interface AdminCalendarViewProps {
 	onDateChange: (date: Date) => void;
 	selectedAssetId?: string;
 	onAssetChange: (assetId?: string) => void;
-	selectedAssetType?: "all" | "room" | "dormitory";
-	onAssetTypeChange: (assetType: "all" | "room" | "dormitory") => void;
+	selectedAssetType?: CalendarAssetTypeFilter;
+	onAssetTypeChange: (assetType: CalendarAssetTypeFilter) => void;
 	loading?: boolean;
 }
 
@@ -151,7 +159,7 @@ export function AdminCalendarView({
 						</select>
 					</div>
 
-					<div className="flex items-center gap-1 bg-[#fafafa] p-0.5 border border-[#e4e4e7] rounded-lg">
+					<div className="flex items-center gap-1 bg-[#fafafa] p-0.5 border border-[#e4e4e7] rounded-lg flex-wrap">
 						<button
 							type="button"
 							onClick={() => onAssetTypeChange("all")}
@@ -172,7 +180,7 @@ export function AdminCalendarView({
 									: "text-[#71717a] hover:text-[#09090b]"
 							}`}
 						>
-							Ruang Rapat
+							Ruangan
 						</button>
 						<button
 							type="button"
@@ -184,6 +192,39 @@ export function AdminCalendarView({
 							}`}
 						>
 							Asrama
+						</button>
+						<button
+							type="button"
+							onClick={() => onAssetTypeChange("vehicle")}
+							className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+								selectedAssetType === "vehicle"
+									? "bg-white shadow-xs text-[#09090b] font-semibold"
+									: "text-[#71717a] hover:text-[#09090b]"
+							}`}
+						>
+							Kendaraan
+						</button>
+						<button
+							type="button"
+							onClick={() => onAssetTypeChange("field")}
+							className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+								selectedAssetType === "field"
+									? "bg-white shadow-xs text-[#09090b] font-semibold"
+									: "text-[#71717a] hover:text-[#09090b]"
+							}`}
+						>
+							Lapangan
+						</button>
+						<button
+							type="button"
+							onClick={() => onAssetTypeChange("equipment")}
+							className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+								selectedAssetType === "equipment"
+									? "bg-white shadow-xs text-[#09090b] font-semibold"
+									: "text-[#71717a] hover:text-[#09090b]"
+							}`}
+						>
+							Peralatan
 						</button>
 					</div>
 				</div>

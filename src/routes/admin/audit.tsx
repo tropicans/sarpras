@@ -1,12 +1,12 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { AlertCircle, RefreshCw, ScrollText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import {
-	AuditTable,
 	type AuditFilterState,
+	AuditTable,
 } from "#/components/admin/audit-table";
-import { getAdminAuditLogsFn } from "#/lib/audit/admin-fns.server";
+import { getAdminAuditLogsFn } from "#/lib/audit/admin-fns.functions";
 
 const AuditSearchSchema = z.object({
 	action: z.string().optional().default("all"),
@@ -22,6 +22,12 @@ const AuditSearchSchema = z.object({
 
 export const Route = createFileRoute("/admin/audit")({
 	validateSearch: (search) => AuditSearchSchema.parse(search),
+	beforeLoad: ({ context }) => {
+		const user = (context as any).user;
+		if (!user || user.role !== "admin") {
+			throw redirect({ to: "/admin" });
+		}
+	},
 	component: AdminAuditRouteComponent,
 });
 

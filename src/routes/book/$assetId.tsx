@@ -1,14 +1,13 @@
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import {
-	Link,
-	createFileRoute,
-	notFound,
-} from "@tanstack/react-router";
-import {
+	Activity,
 	BedDouble,
 	Building2,
+	Car,
 	ChevronRight,
 	DoorOpen,
 	MapPin,
+	Package,
 	Users,
 } from "lucide-react";
 import { useState } from "react";
@@ -22,11 +21,12 @@ import {
 	type ScheduleStepData,
 } from "#/components/booking/schedule-step";
 import { SuccessCard } from "#/components/booking/success-card";
+import { WizardStepper } from "#/components/booking/wizard-stepper";
 import { PublicFooter } from "#/components/public/public-footer";
 import { PublicHeader } from "#/components/public/public-header";
-import { getPublicAssetByIdFn } from "#/lib/booking/public-fns.server";
-import { submitBookingRequestFn } from "#/lib/booking/server-fns.server";
-import { WizardStepper } from "#/components/booking/wizard-stepper";
+import { getPublicAssetByIdFn } from "#/lib/booking/public-fns.functions";
+import { submitBookingRequestFn } from "#/lib/booking/server-fns.functions";
+import { ASSET_TYPE_LABELS, type AssetType } from "#/lib/booking/types";
 
 export const Route = createFileRoute("/book/$assetId")({
 	loader: async ({ params }) => {
@@ -44,6 +44,24 @@ export const Route = createFileRoute("/book/$assetId")({
 function BookingWizardPage() {
 	const { asset } = Route.useLoaderData();
 	const isRoom = asset.type === "room";
+	const typeLabel = ASSET_TYPE_LABELS[asset.type as AssetType] || asset.type;
+
+	const getTypeIcon = () => {
+		switch (asset.type) {
+			case "room":
+				return <DoorOpen className="h-3.5 w-3.5" />;
+			case "dormitory":
+				return <BedDouble className="h-3.5 w-3.5" />;
+			case "vehicle":
+				return <Car className="h-3.5 w-3.5" />;
+			case "field":
+				return <Activity className="h-3.5 w-3.5" />;
+			case "equipment":
+				return <Package className="h-3.5 w-3.5" />;
+			default:
+				return <Building2 className="h-3.5 w-3.5" />;
+		}
+	};
 
 	// Wizard State
 	const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | "success">(1);
@@ -99,8 +117,7 @@ function BookingWizardPage() {
 			setCurrentStep("success");
 		} catch (err: any) {
 			setSubmitError(
-				err.message ||
-					"Terjadi kesalahan saat memproses permohonan. Silakan coba kembali.",
+				err.message || "Terjadi kesalahan saat mengirim pengajuan.",
 			);
 		} finally {
 			setIsSubmitting(false);
@@ -111,15 +128,21 @@ function BookingWizardPage() {
 		<div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-primary/20">
 			<PublicHeader />
 
-			<main className="flex-1 py-8 sm:py-12">
+			<main className="flex-1 py-10 sm:py-14">
 				<div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-8">
-					{/* Breadcrumbs */}
-					<nav className="flex items-center gap-2 text-xs text-muted-foreground">
+					{/* Breadcrumb Nav */}
+					<nav
+						aria-label="Breadcrumb"
+						className="flex items-center gap-2 text-xs text-muted-foreground"
+					>
 						<Link to="/" className="hover:text-foreground transition-colors">
 							Beranda
 						</Link>
 						<ChevronRight className="h-3.5 w-3.5" />
-						<a href="/#katalog" className="hover:text-foreground transition-colors">
+						<a
+							href="/#katalog"
+							className="hover:text-foreground transition-colors"
+						>
 							Katalog Sarana
 						</a>
 						<ChevronRight className="h-3.5 w-3.5" />
@@ -134,19 +157,9 @@ function BookingWizardPage() {
 							<div className="rounded-2xl border border-border/80 bg-gradient-to-r from-primary/5 via-card to-card p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 								<div className="space-y-1.5">
 									<div className="flex items-center gap-2">
-										<span
-											className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-0.5 text-xs font-semibold ${
-												isRoom
-													? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300"
-													: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
-											}`}
-										>
-											{isRoom ? (
-												<DoorOpen className="h-3.5 w-3.5" />
-											) : (
-												<BedDouble className="h-3.5 w-3.5" />
-											)}
-											{isRoom ? "Ruang Rapat" : "Asrama / Wisma"}
+										<span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-0.5 text-xs font-semibold bg-primary/10 text-primary">
+											{getTypeIcon()}
+											{typeLabel}
 										</span>
 										<span className="text-xs text-muted-foreground">
 											&bull; {asset.location || "Gedung Utama PPKASN"}
@@ -160,7 +173,12 @@ function BookingWizardPage() {
 								<div className="flex items-center gap-3">
 									<div className="flex items-center gap-1.5 rounded-xl border border-border bg-background px-3 py-2 text-xs font-semibold">
 										<Users className="h-4 w-4 text-primary" />
-										<span>Kapasitas {asset.capacity} Orang</span>
+										<span>
+											Kapasitas {asset.capacity}{" "}
+											{asset.type === "vehicle" || asset.type === "equipment"
+												? "Unit/Pax"
+												: "Orang"}
+										</span>
 									</div>
 								</div>
 							</div>

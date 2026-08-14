@@ -4,8 +4,8 @@ import { AlertCircle, Calendar, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AdminCalendarView } from "#/components/admin/admin-calendar-view";
 import type { CalendarEventItem } from "#/components/admin/calendar-event-popover";
-import { getAdminCalendarEventsFn } from "#/lib/booking/admin-fns.server";
-import { getPublicAssetsListFn } from "#/lib/booking/public-fns.server";
+import { getAdminCalendarEventsFn } from "#/lib/booking/admin-fns.functions";
+import { getPublicAssetsListFn } from "#/lib/booking/public-fns.functions";
 
 export const Route = createFileRoute("/admin/calendar")({
 	component: AdminCalendarRouteComponent,
@@ -15,7 +15,7 @@ function AdminCalendarRouteComponent() {
 	const [currentDate, setCurrentDate] = useState<Date>(new Date());
 	const [selectedAssetId, setSelectedAssetId] = useState<string | undefined>();
 	const [selectedAssetType, setSelectedAssetType] = useState<
-		"all" | "room" | "dormitory"
+		"all" | "room" | "dormitory" | "vehicle" | "field" | "equipment"
 	>("all");
 
 	const [assetsList, setAssetsList] = useState<Array<any>>([]);

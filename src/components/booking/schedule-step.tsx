@@ -8,7 +8,7 @@ import {
 	Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { checkAvailabilityPreflightFn } from "#/lib/booking/public-fns.server";
+import { checkAvailabilityPreflightFn } from "#/lib/booking/public-fns.functions";
 
 export interface ScheduleStepData {
 	startDate: string; // ISO string
@@ -170,8 +170,8 @@ export function ScheduleStep({
 							: "Tentukan Periode Menginap Asrama"}
 					</h3>
 					<p className="text-xs text-muted-foreground">
-						Sistem akan secara otomatis memeriksa ketersediaan slot dan kapasitas
-						aset secara real-time.
+						Sistem akan secara otomatis memeriksa ketersediaan slot dan
+						kapasitas aset secara real-time.
 					</p>
 				</div>
 
@@ -278,7 +278,9 @@ export function ScheduleStep({
 						min={1}
 						max={asset.capacity}
 						value={attendance}
-						onChange={(e) => setAttendance(Number.parseInt(e.target.value) || 1)}
+						onChange={(e) =>
+							setAttendance(Number.parseInt(e.target.value) || 1)
+						}
 						className="w-full sm:w-48 rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-hidden"
 						required
 					/>

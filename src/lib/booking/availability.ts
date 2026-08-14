@@ -4,7 +4,7 @@ import {
 	getJakartaTimeString,
 	normalizeDate,
 	parseTimeToMinutes,
-} from "#/lib/timezone/datetime";
+} from "../timezone/datetime";
 import type { AvailabilityCheckResult, OperatingHours } from "./types";
 
 /**

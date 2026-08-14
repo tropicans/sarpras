@@ -1,10 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { and, count, desc, eq, gte, ilike, lte, or } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "#/db/client.server";
-import { auditLogs, users } from "#/db/schema";
-import { authMiddleware } from "#/lib/auth.middleware";
-import { normalizeDate } from "#/lib/timezone/datetime";
+import { db } from "../../db/client.server";
+import { auditLogs, users } from "../../db/schema";
+import { authMiddleware, requireMinRole } from "../auth.middleware";
+import { normalizeDate } from "../timezone/datetime";
 
 export const AdminAuditLogsFilterSchema = z.object({
 	action: z.string().optional(),
@@ -28,7 +28,7 @@ export const AuditLogDetailInputSchema = z.object({
  * Admin Server Function: Paginated and filterable query for system audit logs (OPS-04, D-07).
  */
 export const getAdminAuditLogsFn = createServerFn({ method: "GET" })
-	.middleware([authMiddleware])
+	.middleware([requireMinRole("admin")])
 	.validator((data: unknown) => AdminAuditLogsFilterSchema.parse(data))
 	.handler(async ({ data }) => {
 		const page = data.page || 1;
@@ -118,7 +118,7 @@ export const getAdminAuditLogsFn = createServerFn({ method: "GET" })
  * Admin Server Function: Retrieves complete single audit log record with metadata (OPS-04, D-08).
  */
 export const getAuditLogDetailFn = createServerFn({ method: "GET" })
-	.middleware([authMiddleware])
+	.middleware([requireMinRole("admin")])
 	.validator((data: unknown) => AuditLogDetailInputSchema.parse(data))
 	.handler(async ({ data }) => {
 		const [log] = await db

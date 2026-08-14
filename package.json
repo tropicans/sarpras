@@ -9,11 +9,12 @@
     "dev": "vite dev --port 3000",
     "generate-routes": "tsr generate",
     "build": "vite build",
+    "start": "node prod-server.js",
     "preview": "vite preview",
     "format": "biome format",
     "lint": "biome lint",
     "check": "biome check",
-    "test": "node --import tsx --test src/db/migration.test.ts src/db/auth.test.ts src/lib/booking/booking.test.ts",
+    "test": "node --import tsx --test src/db/migration.test.ts src/db/auth.test.ts src/lib/booking/booking.test.ts src/lib/auth/rbac.test.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
     "db:migrate-legacy": "tsx src/db/migrate-legacy.ts"

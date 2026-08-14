@@ -3,7 +3,7 @@ import React from "react";
 
 export interface BookingsFilterState {
 	status: "all" | "pending" | "approved" | "rejected" | "cancelled";
-	assetType: "all" | "room" | "dormitory";
+	assetType: "all" | "room" | "dormitory" | "vehicle" | "field" | "equipment";
 	startDate?: string;
 	endDate?: string;
 	search?: string;
@@ -22,7 +22,7 @@ export function BookingsFilterBar({
 }: BookingsFilterBarProps) {
 	const statusTabs = [
 		{ id: "all", label: "Semua" },
-		{ id: "pending", label: "Pending" },
+		{ id: "pending", label: "Menunggu (Pending)" },
 		{ id: "approved", label: "Disetujui" },
 		{ id: "rejected", label: "Ditolak" },
 		{ id: "cancelled", label: "Dibatalkan" },
@@ -81,7 +81,7 @@ export function BookingsFilterBar({
 					/>
 					<input
 						type="text"
-						placeholder="Cari ref, pemohon, instansi..."
+						placeholder="Cari kode booking, nama pemohon, instansi..."
 						value={filters.search || ""}
 						onChange={(e) => onChange({ search: e.target.value })}
 						className="w-full pl-9 pr-3 py-2 bg-[#fafafa] border border-[#e4e4e7] rounded-lg text-xs text-[#09090b] placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#09090b] focus:bg-white transition-all"
@@ -94,15 +94,18 @@ export function BookingsFilterBar({
 						value={filters.assetType}
 						onChange={(e) =>
 							onChange({
-								assetType: e.target.value as "all" | "room" | "dormitory",
+								assetType: e.target.value as any,
 							})
 						}
 						aria-label="Filter berdasarkan tipe aset"
-						className="w-full px-3 py-2 bg-[#fafafa] border border-[#e4e4e7] rounded-lg text-xs text-[#09090b] focus:outline-none focus:border-[#09090b] focus:bg-white transition-all cursor-pointer"
+						className="w-full px-3 py-2 bg-[#fafafa] border border-[#e4e4e7] rounded-lg text-xs text-[#09090b] focus:outline-none focus:border-[#09090b] focus:bg-white transition-all cursor-pointer font-medium"
 					>
 						<option value="all">Semua Tipe Fasilitas</option>
-						<option value="room">Ruang Rapat & Aula</option>
-						<option value="dormitory">Kamar Asrama</option>
+						<option value="room">Ruangan</option>
+						<option value="dormitory">Asrama</option>
+						<option value="vehicle">Kendaraan</option>
+						<option value="field">Lapangan</option>
+						<option value="equipment">Peralatan</option>
 					</select>
 				</div>
 
@@ -111,7 +114,9 @@ export function BookingsFilterBar({
 					<input
 						type="date"
 						value={filters.startDate || ""}
-						onChange={(e) => onChange({ startDate: e.target.value || undefined })}
+						onChange={(e) =>
+							onChange({ startDate: e.target.value || undefined })
+						}
 						aria-label="Tanggal Mulai"
 						className="w-full px-3 py-2 bg-[#fafafa] border border-[#e4e4e7] rounded-lg text-xs text-[#09090b] focus:outline-none focus:border-[#09090b] focus:bg-white transition-all cursor-pointer"
 					/>

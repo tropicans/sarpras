@@ -1,5 +1,5 @@
-import React from "react";
 import type { LucideIcon } from "lucide-react";
+import React from "react";
 
 interface KpiCardProps {
 	title: string;
@@ -58,7 +58,9 @@ export function KpiCard({
 				<span className={`text-3xl font-bold ${variantStyles.valColor}`}>
 					{value}
 				</span>
-				{subtext && <span className="text-[11px] text-[#71717a]">{subtext}</span>}
+				{subtext && (
+					<span className="text-[11px] text-[#71717a]">{subtext}</span>
+				)}
 			</div>
 			<div className={`p-3 rounded-lg ${variantStyles.iconBg}`}>
 				<Icon size={24} />

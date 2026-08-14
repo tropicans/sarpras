@@ -1,5 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
 	AlertCircle,
 	CheckCircle2,
@@ -94,8 +93,8 @@ function StatusLookupPage() {
 								<span>Di mana saya menemukan kode referensi?</span>
 							</div>
 							<p className="leading-relaxed">
-								Kode referensi berupa UUID 36 karakter yang ditampilkan pada layar
-								konfirmasi setelah Anda mengirim formulir peminjaman.
+								Kode referensi berupa UUID 36 karakter yang ditampilkan pada
+								layar konfirmasi setelah Anda mengirim formulir peminjaman.
 							</p>
 						</div>
 					</div>

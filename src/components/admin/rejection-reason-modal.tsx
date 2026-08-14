@@ -1,5 +1,6 @@
 import { AlertCircle, X } from "lucide-react";
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 
 interface RejectionReasonModalProps {
 	isOpen: boolean;
@@ -85,7 +86,9 @@ export function RejectionReasonModal({
 							Tolak Permohonan Peminjaman
 						</h3>
 						<p className="text-xs text-[#71717a]">
-							Permohonan oleh <span className="font-semibold">{requesterName}</span> ({assetName})
+							Permohonan oleh{" "}
+							<span className="font-semibold">{requesterName}</span> (
+							{assetName})
 						</p>
 					</div>
 					<button

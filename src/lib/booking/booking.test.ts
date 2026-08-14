@@ -1,8 +1,8 @@
 import assert from "node:assert";
 import test from "node:test";
 import { and, eq, like } from "drizzle-orm";
-import { db } from "#/db/client.server";
-import { assets, auditLogs, bookings } from "#/db/schema";
+import { db } from "../../db/client.server";
+import { assets, auditLogs, bookings } from "../../db/schema";
 import { getAuditLogsForEntity } from "../audit/audit.server";
 import {
 	getJakartaDateKey,
@@ -404,150 +404,165 @@ test("Phase 4 Wave 1: Public Discovery, Schedule Projections & Pre-flight Availa
 
 	await cleanup();
 
-	await t.test("ASSET-04 & D-01: Privacy-Safe Public Schedule Projections", async () => {
-		const [room] = await db
-			.insert(assets)
-			.values({
-				name: `${prefix}Auditorium Delta`,
-				type: "room",
-				capacity: 50,
-				status: "active",
-			})
-			.returning();
+	await t.test(
+		"ASSET-04 & D-01: Privacy-Safe Public Schedule Projections",
+		async () => {
+			const [room] = await db
+				.insert(assets)
+				.values({
+					name: `${prefix}Auditorium Delta`,
+					type: "room",
+					capacity: 50,
+					status: "active",
+				})
+				.returning();
 
-		// Create and approve a booking with confidential requester info
-		const bkg = await BookingService.createBookingRequest({
-			assetId: room.id,
-			requesterName: "Budi confidential",
-			requesterEmail: `${prefix}budi@confidential.gov.id`,
-			requesterPhone: "081234567890",
-			requesterOrganization: "Divisi Rahasia",
-			purpose: "Rapat Khusus Tingkat Tinggi",
-			attendance: 30,
-			startDate: new Date("2026-09-01T02:00:00.000Z"),
-			endDate: new Date("2026-09-01T06:00:00.000Z"),
-			timezone: "Asia/Jakarta",
-		});
-		await BookingService.approveBooking(bkg.id, `${prefix}admin`);
+			// Create and approve a booking with confidential requester info
+			const bkg = await BookingService.createBookingRequest({
+				assetId: room.id,
+				requesterName: "Budi confidential",
+				requesterEmail: `${prefix}budi@confidential.gov.id`,
+				requesterPhone: "081234567890",
+				requesterOrganization: "Divisi Rahasia",
+				purpose: "Rapat Khusus Tingkat Tinggi",
+				attendance: 30,
+				startDate: new Date("2026-09-01T02:00:00.000Z"),
+				endDate: new Date("2026-09-01T06:00:00.000Z"),
+				timezone: "Asia/Jakarta",
+			});
+			await BookingService.approveBooking(bkg.id, `${prefix}admin`);
 
-		// Query public schedule via server fn handler logic
-		const approvedBookings = await db
-			.select({
-				startDate: bookings.startDate,
-				endDate: bookings.endDate,
-			})
-			.from(bookings)
-			.where(and(eq(bookings.assetId, room.id), eq(bookings.status, "approved")));
+			// Query public schedule via server fn handler logic
+			const approvedBookings = await db
+				.select({
+					startDate: bookings.startDate,
+					endDate: bookings.endDate,
+				})
+				.from(bookings)
+				.where(
+					and(eq(bookings.assetId, room.id), eq(bookings.status, "approved")),
+				);
 
-		const projection = approvedBookings.map((b) => ({
-			startDate: b.startDate.toISOString(),
-			endDate: b.endDate.toISOString(),
-			status: "booked" as const,
-		}));
+			const projection = approvedBookings.map((b) => ({
+				startDate: b.startDate.toISOString(),
+				endDate: b.endDate.toISOString(),
+				status: "booked" as const,
+			}));
 
-		assert.strictEqual(projection.length, 1);
-		assert.strictEqual(projection[0].status, "booked");
-		assert.strictEqual((projection[0] as any).requesterName, undefined);
-		assert.strictEqual((projection[0] as any).requesterEmail, undefined);
-		assert.strictEqual((projection[0] as any).requesterPhone, undefined);
-		assert.strictEqual((projection[0] as any).requesterOrganization, undefined);
-		assert.strictEqual((projection[0] as any).purpose, undefined);
-	});
+			assert.strictEqual(projection.length, 1);
+			assert.strictEqual(projection[0].status, "booked");
+			assert.strictEqual((projection[0] as any).requesterName, undefined);
+			assert.strictEqual((projection[0] as any).requesterEmail, undefined);
+			assert.strictEqual((projection[0] as any).requesterPhone, undefined);
+			assert.strictEqual(
+				(projection[0] as any).requesterOrganization,
+				undefined,
+			);
+			assert.strictEqual((projection[0] as any).purpose, undefined);
+		},
+	);
 
-	await t.test("BOOK-03 & D-04: Real-Time Availability Pre-flight Checks", async () => {
-		const [room] = await db
-			.insert(assets)
-			.values({
-				name: `${prefix}Classroom Epsilon`,
-				type: "room",
-				capacity: 20,
-				status: "active",
-			})
-			.returning();
+	await t.test(
+		"BOOK-03 & D-04: Real-Time Availability Pre-flight Checks",
+		async () => {
+			const [room] = await db
+				.insert(assets)
+				.values({
+					name: `${prefix}Classroom Epsilon`,
+					type: "room",
+					capacity: 20,
+					status: "active",
+				})
+				.returning();
 
-		// 1. Open slot preflight check -> available: true
-		const check1 = await BookingService.checkPreflightAvailability({
-			assetId: room.id,
-			startDate: new Date("2026-09-02T02:00:00.000Z"),
-			endDate: new Date("2026-09-02T05:00:00.000Z"),
-			attendance: 15,
-		});
-		assert.strictEqual(check1.available, true);
+			// 1. Open slot preflight check -> available: true
+			const check1 = await BookingService.checkPreflightAvailability({
+				assetId: room.id,
+				startDate: new Date("2026-09-02T02:00:00.000Z"),
+				endDate: new Date("2026-09-02T05:00:00.000Z"),
+				attendance: 15,
+			});
+			assert.strictEqual(check1.available, true);
 
-		// 2. Capacity exceeded -> available: false
-		const checkCap = await BookingService.checkPreflightAvailability({
-			assetId: room.id,
-			startDate: new Date("2026-09-02T02:00:00.000Z"),
-			endDate: new Date("2026-09-02T05:00:00.000Z"),
-			attendance: 25,
-		});
-		assert.strictEqual(checkCap.available, false);
-		assert.match(checkCap.reason || "", /kapasitas/i);
+			// 2. Capacity exceeded -> available: false
+			const checkCap = await BookingService.checkPreflightAvailability({
+				assetId: room.id,
+				startDate: new Date("2026-09-02T02:00:00.000Z"),
+				endDate: new Date("2026-09-02T05:00:00.000Z"),
+				attendance: 25,
+			});
+			assert.strictEqual(checkCap.available, false);
+			assert.match(checkCap.reason || "", /kapasitas/i);
 
-		// 3. Create approved booking on slot
-		const bkg = await BookingService.createBookingRequest({
-			assetId: room.id,
-			requesterName: "User 1",
-			requesterEmail: `${prefix}u1@example.com`,
-			attendance: 10,
-			startDate: new Date("2026-09-02T02:00:00.000Z"),
-			endDate: new Date("2026-09-02T05:00:00.000Z"),
-			timezone: "Asia/Jakarta",
-		});
-		await BookingService.approveBooking(bkg.id, `${prefix}admin`);
+			// 3. Create approved booking on slot
+			const bkg = await BookingService.createBookingRequest({
+				assetId: room.id,
+				requesterName: "User 1",
+				requesterEmail: `${prefix}u1@example.com`,
+				attendance: 10,
+				startDate: new Date("2026-09-02T02:00:00.000Z"),
+				endDate: new Date("2026-09-02T05:00:00.000Z"),
+				timezone: "Asia/Jakarta",
+			});
+			await BookingService.approveBooking(bkg.id, `${prefix}admin`);
 
-		// 4. Overlapping preflight check -> available: false
-		const checkOverlap = await BookingService.checkPreflightAvailability({
-			assetId: room.id,
-			startDate: new Date("2026-09-02T04:00:00.000Z"),
-			endDate: new Date("2026-09-02T07:00:00.000Z"),
-			attendance: 10,
-		});
-		assert.strictEqual(checkOverlap.available, false);
-		assert.match(checkOverlap.reason || "", /disetujui|terisi|konflik/i);
-	});
+			// 4. Overlapping preflight check -> available: false
+			const checkOverlap = await BookingService.checkPreflightAvailability({
+				assetId: room.id,
+				startDate: new Date("2026-09-02T04:00:00.000Z"),
+				endDate: new Date("2026-09-02T07:00:00.000Z"),
+				attendance: 10,
+			});
+			assert.strictEqual(checkOverlap.available, false);
+			assert.match(checkOverlap.reason || "", /disetujui|terisi|konflik/i);
+		},
+	);
 
-	await t.test("BOOK-05 & D-06: Sanitized Public Booking Status Lookup", async () => {
-		const [room] = await db
-			.insert(assets)
-			.values({
-				name: `${prefix}Meeting Room Zeta`,
-				type: "room",
-				capacity: 10,
-				status: "active",
-			})
-			.returning();
+	await t.test(
+		"BOOK-05 & D-06: Sanitized Public Booking Status Lookup",
+		async () => {
+			const [room] = await db
+				.insert(assets)
+				.values({
+					name: `${prefix}Meeting Room Zeta`,
+					type: "room",
+					capacity: 10,
+					status: "active",
+				})
+				.returning();
 
-		const bkg = await BookingService.createBookingRequest({
-			assetId: room.id,
-			requesterName: "Private Requester",
-			requesterEmail: `${prefix}private@example.com`,
-			requesterPhone: "0899999999",
-			requesterOrganization: "Org Secret",
-			purpose: "Private Project Discussion",
-			attendance: 5,
-			startDate: new Date("2026-09-03T02:00:00.000Z"),
-			endDate: new Date("2026-09-03T05:00:00.000Z"),
-			timezone: "Asia/Jakarta",
-		});
+			const bkg = await BookingService.createBookingRequest({
+				assetId: room.id,
+				requesterName: "Private Requester",
+				requesterEmail: `${prefix}private@example.com`,
+				requesterPhone: "0899999999",
+				requesterOrganization: "Org Secret",
+				purpose: "Private Project Discussion",
+				attendance: 5,
+				startDate: new Date("2026-09-03T02:00:00.000Z"),
+				endDate: new Date("2026-09-03T05:00:00.000Z"),
+				timezone: "Asia/Jakarta",
+			});
 
-		// Lookup by ID
-		const status = await BookingService.getPublicBookingStatus(bkg.id);
-		assert.ok(status);
-		assert.strictEqual(status.id, bkg.id);
-		assert.strictEqual(status.assetName, `${prefix}Meeting Room Zeta`);
-		assert.strictEqual(status.status, "pending");
-		assert.strictEqual((status as any).requesterName, undefined);
-		assert.strictEqual((status as any).requesterEmail, undefined);
-		assert.strictEqual((status as any).requesterPhone, undefined);
-		assert.strictEqual((status as any).requesterOrganization, undefined);
-		assert.strictEqual((status as any).purpose, undefined);
+			// Lookup by ID
+			const status = await BookingService.getPublicBookingStatus(bkg.id);
+			assert.ok(status);
+			assert.strictEqual(status.id, bkg.id);
+			assert.strictEqual(status.assetName, `${prefix}Meeting Room Zeta`);
+			assert.strictEqual(status.status, "pending");
+			assert.strictEqual((status as any).requesterName, undefined);
+			assert.strictEqual((status as any).requesterEmail, undefined);
+			assert.strictEqual((status as any).requesterPhone, undefined);
+			assert.strictEqual((status as any).requesterOrganization, undefined);
+			assert.strictEqual((status as any).purpose, undefined);
 
-		// Non-existent ID
-		const notFound = await BookingService.getPublicBookingStatus("00000000-0000-0000-0000-000000000000");
-		assert.strictEqual(notFound, null);
-	});
+			// Non-existent ID
+			const notFound = await BookingService.getPublicBookingStatus(
+				"00000000-0000-0000-0000-000000000000",
+			);
+			assert.strictEqual(notFound, null);
+		},
+	);
 
 	await cleanup();
 });
-

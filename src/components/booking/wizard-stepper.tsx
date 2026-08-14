@@ -47,7 +47,11 @@ export function WizardStepper({ currentStep }: WizardStepperProps) {
 											: "border-border bg-card text-muted-foreground"
 								}`}
 							>
-								{isDone ? <Check className="h-5 w-5" /> : <Icon className="h-4 w-4" />}
+								{isDone ? (
+									<Check className="h-5 w-5" />
+								) : (
+									<Icon className="h-4 w-4" />
+								)}
 							</div>
 							<span
 								className={`text-xs font-semibold text-center whitespace-nowrap ${

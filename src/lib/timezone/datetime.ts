@@ -34,7 +34,12 @@ export function formatInJakarta(
 	formatString: string = "yyyy-MM-dd HH:mm:ss",
 ): string {
 	const normalized = normalizeDate(date);
-	return formatInTimeZone(normalized, DEFAULT_TIMEZONE, formatString);
+	// Escape unquoted WIB / WITA / WIT literals to prevent date-fns unescaped latin character errors
+	const safeFormat = formatString.replace(
+		/(?<!')\b(WIB|WITA|WIT)\b(?!')/g,
+		"'$1'",
+	);
+	return formatInTimeZone(normalized, DEFAULT_TIMEZONE, safeFormat);
 }
 
 export const formatJakartaDisplay = formatInJakarta;

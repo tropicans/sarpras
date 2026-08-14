@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
 	ArrowRight,
 	BedDouble,
@@ -22,7 +22,7 @@ import {
 import { PublicFooter } from "#/components/public/public-footer";
 import { PublicHeader } from "#/components/public/public-header";
 import { ScheduleModal } from "#/components/public/schedule-modal";
-import { getPublicAssetsListFn } from "#/lib/booking/public-fns.server";
+import { getPublicAssetsListFn } from "#/lib/booking/public-fns.functions";
 
 export const Route = createFileRoute("/")({
 	loader: async () => {
@@ -164,7 +164,8 @@ function HomePage() {
 									</h4>
 									<p className="text-sm text-muted-foreground leading-relaxed">
 										Lengkapi data identitas pemohon, kontak aktif, tujuan
-										kegiatan, dan perkiraan jumlah peserta dalam 3 tahap singkat.
+										kegiatan, dan perkiraan jumlah peserta dalam 3 tahap
+										singkat.
 									</p>
 								</div>
 							</div>
@@ -219,7 +220,7 @@ function HomePage() {
 								</div>
 
 								{/* Category Filter Pills */}
-								<div className="inline-flex rounded-xl border border-border bg-muted/40 p-1">
+								<div className="inline-flex flex-wrap gap-1 rounded-xl border border-border bg-muted/40 p-1">
 									<button
 										type="button"
 										onClick={() => setTypeFilter("all")}
@@ -240,7 +241,7 @@ function HomePage() {
 												: "text-muted-foreground hover:text-foreground"
 										}`}
 									>
-										Ruang Rapat
+										Ruangan
 									</button>
 									<button
 										type="button"
@@ -252,6 +253,39 @@ function HomePage() {
 										}`}
 									>
 										Asrama
+									</button>
+									<button
+										type="button"
+										onClick={() => setTypeFilter("vehicle")}
+										className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+											typeFilter === "vehicle"
+												? "bg-card text-foreground shadow-2xs"
+												: "text-muted-foreground hover:text-foreground"
+										}`}
+									>
+										Kendaraan
+									</button>
+									<button
+										type="button"
+										onClick={() => setTypeFilter("field")}
+										className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+											typeFilter === "field"
+												? "bg-card text-foreground shadow-2xs"
+												: "text-muted-foreground hover:text-foreground"
+										}`}
+									>
+										Lapangan
+									</button>
+									<button
+										type="button"
+										onClick={() => setTypeFilter("equipment")}
+										className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+											typeFilter === "equipment"
+												? "bg-card text-foreground shadow-2xs"
+												: "text-muted-foreground hover:text-foreground"
+										}`}
+									>
+										Peralatan
 									</button>
 								</div>
 							</div>

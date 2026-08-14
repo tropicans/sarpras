@@ -108,10 +108,8 @@ export function UrgentBookingsWidget({
 								<span>•</span>
 								<span className="flex items-center gap-1">
 									<Calendar size={13} />
-									{formatJakartaDisplay(
-										item.startDate,
-										"dd MMM yyyy, HH:mm",
-									)} - {formatJakartaDisplay(item.endDate, "HH:mm WIB")}
+									{formatJakartaDisplay(item.startDate, "dd MMM yyyy, HH:mm")} -{" "}
+									{formatJakartaDisplay(item.endDate, "HH:mm 'WIB'")}
 								</span>
 								{item.attendance && (
 									<>

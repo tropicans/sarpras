@@ -23,7 +23,8 @@ import {
 	approveBookingAdminFn,
 	getAdminBookingsFn,
 	rejectBookingAdminFn,
-} from "#/lib/booking/admin-fns.server";
+} from "#/lib/booking/admin-fns.functions";
+import { ASSET_TYPE_LABELS, type AssetType } from "#/lib/booking/types";
 import { formatJakartaDisplay } from "#/lib/timezone/datetime";
 
 const BookingsSearchSchema = z.object({
@@ -31,7 +32,10 @@ const BookingsSearchSchema = z.object({
 		.enum(["all", "pending", "approved", "rejected", "cancelled"])
 		.optional()
 		.default("all"),
-	assetType: z.enum(["all", "room", "dormitory"]).optional().default("all"),
+	assetType: z
+		.enum(["all", "room", "dormitory", "vehicle", "field", "equipment"])
+		.optional()
+		.default("all"),
 	startDate: z.string().optional(),
 	endDate: z.string().optional(),
 	search: z.string().optional(),
@@ -44,6 +48,7 @@ export const Route = createFileRoute("/admin/bookings")({
 });
 
 function AdminBookingsComponent() {
+	const { user: currentUser } = Route.useRouteContext();
 	const searchParams = Route.useSearch();
 	const navigate = useNavigate({ from: Route.fullPath });
 
@@ -286,8 +291,9 @@ function AdminBookingsComponent() {
 										<td className="py-3 px-4 font-medium text-[#09090b]">
 											<div className="flex flex-col">
 												<span>{item.assetName}</span>
-												<span className="text-[10px] text-[#71717a] capitalize">
-													{item.assetType === "room" ? "Ruangan" : "Asrama"}
+												<span className="text-[10px] text-[#71717a]">
+													{ASSET_TYPE_LABELS[item.assetType as AssetType] ||
+														item.assetType}
 												</span>
 											</div>
 										</td>
@@ -338,7 +344,13 @@ function AdminBookingsComponent() {
 																: "bg-amber-100 text-amber-800"
 												}`}
 											>
-												{item.status}
+												{item.status === "approved"
+													? "Disetujui"
+													: item.status === "rejected"
+														? "Ditolak"
+														: item.status === "cancelled"
+															? "Dibatalkan"
+															: "Menunggu"}
 											</span>
 										</td>
 										<td className="py-3 px-4 text-right">
@@ -352,33 +364,34 @@ function AdminBookingsComponent() {
 													<span>Tinjau</span>
 												</button>
 
-												{item.status === "pending" && (
-													<>
-														<button
-															type="button"
-															onClick={() => handleApprove(item.id)}
-															className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded transition-colors cursor-pointer"
-															title="Setujui permohonan langsung"
-														>
-															Setujui
-														</button>
-														<button
-															type="button"
-															onClick={() =>
-																setRejectModalState({
-																	isOpen: true,
-																	bookingId: item.id,
-																	requesterName: item.requesterName,
-																	assetName: item.assetName,
-																})
-															}
-															className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-medium rounded transition-colors cursor-pointer"
-															title="Tolak permohonan"
-														>
-															Tolak
-														</button>
-													</>
-												)}
+												{currentUser.role !== "pimpinan" &&
+													item.status === "pending" && (
+														<>
+															<button
+																type="button"
+																onClick={() => handleApprove(item.id)}
+																className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded transition-colors cursor-pointer"
+																title="Setujui permohonan langsung"
+															>
+																Setujui
+															</button>
+															<button
+																type="button"
+																onClick={() =>
+																	setRejectModalState({
+																		isOpen: true,
+																		bookingId: item.id,
+																		requesterName: item.requesterName,
+																		assetName: item.assetName,
+																	})
+																}
+																className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-medium rounded transition-colors cursor-pointer"
+																title="Tolak permohonan"
+															>
+																Tolak
+															</button>
+														</>
+													)}
 											</div>
 										</td>
 									</tr>
@@ -435,6 +448,7 @@ function AdminBookingsComponent() {
 						assetName: booking.assetName,
 					});
 				}}
+				isReadOnly={currentUser.role === "pimpinan"}
 			/>
 
 			{/* Rejection Modal */}

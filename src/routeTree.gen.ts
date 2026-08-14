@@ -14,6 +14,9 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminAssetsRouteImport } from './routes/admin/assets'
+import { Route as AdminAuditRouteImport } from './routes/admin/audit'
+import { Route as AdminBookingsRouteImport } from './routes/admin/bookings'
+import { Route as AdminCalendarRouteImport } from './routes/admin/calendar'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as BookAssetIdRouteImport } from './routes/book/$assetId'
 import { Route as StatusIndexRouteImport } from './routes/status/index'
@@ -43,6 +46,21 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const AdminAssetsRoute = AdminAssetsRouteImport.update({
   id: '/assets',
   path: '/assets',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAuditRoute = AdminAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBookingsRoute = AdminBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCalendarRoute = AdminCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
@@ -76,6 +94,9 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
   '/admin/assets': typeof AdminAssetsRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/calendar': typeof AdminCalendarRoute
   '/admin/users': typeof AdminUsersRoute
   '/book/$assetId': typeof BookAssetIdRoute
   '/status/$ref': typeof StatusRefRoute
@@ -87,6 +108,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/admin/assets': typeof AdminAssetsRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/calendar': typeof AdminCalendarRoute
   '/admin/users': typeof AdminUsersRoute
   '/book/$assetId': typeof BookAssetIdRoute
   '/status/$ref': typeof StatusRefRoute
@@ -100,6 +124,9 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
   '/admin/assets': typeof AdminAssetsRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/calendar': typeof AdminCalendarRoute
   '/admin/users': typeof AdminUsersRoute
   '/book/$assetId': typeof BookAssetIdRoute
   '/status/$ref': typeof StatusRefRoute
@@ -114,6 +141,9 @@ export interface FileRouteTypes {
     | '/admin'
     | '/login'
     | '/admin/assets'
+    | '/admin/audit'
+    | '/admin/bookings'
+    | '/admin/calendar'
     | '/admin/users'
     | '/book/$assetId'
     | '/status/$ref'
@@ -125,6 +155,9 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/admin/assets'
+    | '/admin/audit'
+    | '/admin/bookings'
+    | '/admin/calendar'
     | '/admin/users'
     | '/book/$assetId'
     | '/status/$ref'
@@ -137,6 +170,9 @@ export interface FileRouteTypes {
     | '/admin'
     | '/login'
     | '/admin/assets'
+    | '/admin/audit'
+    | '/admin/bookings'
+    | '/admin/calendar'
     | '/admin/users'
     | '/book/$assetId'
     | '/status/$ref'
@@ -192,6 +228,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAssetsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/bookings': {
+      id: '/admin/bookings'
+      path: '/bookings'
+      fullPath: '/admin/bookings'
+      preLoaderRoute: typeof AdminBookingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/calendar': {
+      id: '/admin/calendar'
+      path: '/calendar'
+      fullPath: '/admin/calendar'
+      preLoaderRoute: typeof AdminCalendarRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/users': {
       id: '/admin/users'
       path: '/users'
@@ -232,12 +289,18 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminAssetsRoute: typeof AdminAssetsRoute
+  AdminAuditRoute: typeof AdminAuditRoute
+  AdminBookingsRoute: typeof AdminBookingsRoute
+  AdminCalendarRoute: typeof AdminCalendarRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAssetsRoute: AdminAssetsRoute,
+  AdminAuditRoute: AdminAuditRoute,
+  AdminBookingsRoute: AdminBookingsRoute,
+  AdminCalendarRoute: AdminCalendarRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
@@ -256,3 +319,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

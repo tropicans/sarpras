@@ -13,7 +13,7 @@ import {
 	X,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { getBookingConflictContextFn } from "#/lib/booking/admin-fns.server";
+import { getBookingConflictContextFn } from "#/lib/booking/admin-fns.functions";
 import { formatJakartaDisplay } from "#/lib/timezone/datetime";
 
 interface BookingReviewDrawerProps {
@@ -25,6 +25,7 @@ interface BookingReviewDrawerProps {
 		requesterName: string;
 		assetName: string;
 	}) => void;
+	isReadOnly?: boolean;
 }
 
 export function BookingReviewDrawer({
@@ -32,6 +33,7 @@ export function BookingReviewDrawer({
 	onClose,
 	onApprove,
 	onOpenRejectModal,
+	isReadOnly = false,
 }: BookingReviewDrawerProps) {
 	const [data, setData] = useState<{
 		target: any;
@@ -170,8 +172,7 @@ export function BookingReviewDrawer({
 															c.startDate,
 															"dd MMM yyyy HH:mm",
 														)}{" "}
-														-{" "}
-														{formatJakartaDisplay(c.endDate, "HH:mm WIB")}
+														- {formatJakartaDisplay(c.endDate, "HH:mm 'WIB'")}
 													</div>
 													{c.purpose && (
 														<div className="text-[11px] text-rose-700 italic">
@@ -188,25 +189,25 @@ export function BookingReviewDrawer({
 									<div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex flex-col gap-2.5 text-amber-900">
 										<div className="flex items-center gap-2 font-bold text-xs">
 											<AlertTriangle size={16} className="text-amber-600" />
-											<span>
-												Kompetisi Jadwal: Ada Permohonan Pending Lain
-											</span>
+											<span>Kompetisi Jadwal: Ada Permohonan Pending Lain</span>
 										</div>
 										<p className="text-xs">
-											Terdapat {data.pendingOverlaps.length} permohonan lain yang
-											juga bersaing meminjam slot waktu ini:
+											Terdapat {data.pendingOverlaps.length} permohonan lain
+											yang juga bersaing meminjam slot waktu ini:
 										</p>
 										<div className="divide-y divide-amber-200 border border-amber-200 rounded-lg bg-white/80 overflow-hidden">
 											{data.pendingOverlaps.map((p) => (
-												<div key={p.id} className="p-2.5 text-xs text-amber-950">
+												<div
+													key={p.id}
+													className="p-2.5 text-xs text-amber-950"
+												>
 													<div className="font-semibold">{p.requesterName}</div>
 													<div className="text-[11px] text-amber-800">
 														{formatJakartaDisplay(
 															p.startDate,
 															"dd MMM yyyy HH:mm",
 														)}{" "}
-														-{" "}
-														{formatJakartaDisplay(p.endDate, "HH:mm WIB")}
+														- {formatJakartaDisplay(p.endDate, "HH:mm 'WIB'")}
 													</div>
 												</div>
 											))}
@@ -296,7 +297,7 @@ export function BookingReviewDrawer({
 												target.startDate,
 												"dd MMMM yyyy, HH:mm",
 											)}{" "}
-											s/d {formatJakartaDisplay(target.endDate, "HH:mm WIB")}
+											s/d {formatJakartaDisplay(target.endDate, "HH:mm 'WIB'")}
 										</span>
 									</div>
 									{target.attendance && (
@@ -328,7 +329,7 @@ export function BookingReviewDrawer({
 				</div>
 
 				{/* Action Footer */}
-				{target && target.status === "pending" && (
+				{target && target.status === "pending" && !isReadOnly && (
 					<div className="p-6 border-t border-[#e4e4e7] bg-[#fafafa] flex items-center justify-end gap-3 sticky bottom-0 z-10">
 						<button
 							type="button"

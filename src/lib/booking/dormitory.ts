@@ -1,6 +1,6 @@
 import { and, eq, gt, lt, ne } from "drizzle-orm";
-import { bookings } from "#/db/schema";
-import { getJakartaDateKey, normalizeDate } from "#/lib/timezone/datetime";
+import { bookings } from "../../db/schema";
+import { getJakartaDateKey, normalizeDate } from "../timezone/datetime";
 import type { AvailabilityCheckResult } from "./types";
 
 export interface DayOccupancy {

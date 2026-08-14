@@ -7,7 +7,7 @@ import {
 	X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getAssetPublicScheduleFn } from "#/lib/booking/public-fns.server";
+import { getAssetPublicScheduleFn } from "#/lib/booking/public-fns.functions";
 
 interface ScheduleModalProps {
 	asset: {
@@ -125,7 +125,8 @@ export function ScheduleModal({ asset, isOpen, onClose }: ScheduleModalProps) {
 								Jadwal Penggunaan Sarana
 							</h3>
 							<p className="text-xs text-muted-foreground">
-								{asset.name} &bull; {asset.type === "room" ? "Ruang Rapat" : "Asrama / Wisma"}
+								{asset.name} &bull;{" "}
+								{asset.type === "room" ? "Ruang Rapat" : "Asrama / Wisma"}
 							</p>
 						</div>
 					</div>
@@ -143,7 +144,9 @@ export function ScheduleModal({ asset, isOpen, onClose }: ScheduleModalProps) {
 				<div className="bg-emerald-500/10 border-b border-emerald-500/20 px-6 py-2.5 flex items-center gap-2.5 text-xs text-emerald-800 dark:text-emerald-300">
 					<ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
 					<span>
-						<strong>Privasi Terlindungi:</strong> Tampilan jadwal publik hanya menampilkan blok waktu ketersediaan tanpa memuat informasi pribadi pemohon.
+						<strong>Privasi Terlindungi:</strong> Tampilan jadwal publik hanya
+						menampilkan blok waktu ketersediaan tanpa memuat informasi pribadi
+						pemohon.
 					</span>
 				</div>
 
@@ -152,7 +155,9 @@ export function ScheduleModal({ asset, isOpen, onClose }: ScheduleModalProps) {
 					{loading && (
 						<div className="py-12 flex flex-col items-center justify-center text-center space-y-3">
 							<div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-							<p className="text-sm text-muted-foreground">Memuat data ketersediaan jadwal...</p>
+							<p className="text-sm text-muted-foreground">
+								Memuat data ketersediaan jadwal...
+							</p>
 						</div>
 					)}
 
@@ -203,7 +208,8 @@ export function ScheduleModal({ asset, isOpen, onClose }: ScheduleModalProps) {
 								</h4>
 								{schedule.bookedSlots.length === 0 ? (
 									<div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-										Belum ada jadwal peminjaman yang disetujui. Sarana saat ini siap dipinjam.
+										Belum ada jadwal peminjaman yang disetujui. Sarana saat ini
+										siap dipinjam.
 									</div>
 								) : (
 									<div className="space-y-2">

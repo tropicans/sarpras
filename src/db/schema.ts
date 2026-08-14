@@ -11,7 +11,9 @@ import {
 
 // --- Users & Auth (Better Auth Schema mapping to "user" table) ---
 export const users = pgTable("user", {
-	id: text("id").primaryKey(),
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
 	name: text("name").notNull(),
 	email: text("email").notNull().unique(),
 	emailVerified: boolean("email_verified").default(false).notNull(),
@@ -29,7 +31,9 @@ export const users = pgTable("user", {
 });
 
 export const sessions = pgTable("session", {
-	id: text("id").primaryKey(),
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
 	expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 	token: text("token").notNull().unique(),
 	createdAt: timestamp("created_at", { withTimezone: true })

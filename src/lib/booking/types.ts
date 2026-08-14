@@ -9,9 +9,23 @@ export const BOOKING_STATUSES = [
 export type BookingStatus = (typeof BOOKING_STATUSES)[number];
 export const BookingStatusSchema = z.enum(BOOKING_STATUSES);
 
-export const ASSET_TYPES = ["room", "dormitory"] as const;
+export const ASSET_TYPES = [
+	"room",
+	"dormitory",
+	"vehicle",
+	"field",
+	"equipment",
+] as const;
 export type AssetType = (typeof ASSET_TYPES)[number];
 export const AssetTypeSchema = z.enum(ASSET_TYPES);
+
+export const ASSET_TYPE_LABELS: Record<AssetType, string> = {
+	room: "Ruangan",
+	dormitory: "Asrama",
+	vehicle: "Kendaraan",
+	field: "Lapangan",
+	equipment: "Peralatan",
+};
 
 export const CreateBookingInputSchema = z
 	.object({

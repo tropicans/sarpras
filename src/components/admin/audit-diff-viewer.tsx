@@ -74,12 +74,8 @@ export function AuditDiffViewer({
 			{action === "booking.create" && (
 				<div className="text-[11px] text-[#71717a]">
 					<span>Peminjaman Baru Dibuat • Pemohon: </span>
-					<strong className="text-[#09090b]">
-						{metadata.requesterEmail}
-					</strong>
-					{metadata.attendance && (
-						<span> ({metadata.attendance} orang)</span>
-					)}
+					<strong className="text-[#09090b]">{metadata.requesterEmail}</strong>
+					{metadata.attendance && <span> ({metadata.attendance} orang)</span>}
 				</div>
 			)}
 

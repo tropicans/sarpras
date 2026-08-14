@@ -103,10 +103,16 @@ export function PublicFooter() {
 						>
 							Katalog
 						</a>
-						<a href="/status" className="hover:text-foreground transition-colors">
+						<a
+							href="/status"
+							className="hover:text-foreground transition-colors"
+						>
 							Status
 						</a>
-						<a href="/login" className="hover:text-foreground transition-colors">
+						<a
+							href="/login"
+							className="hover:text-foreground transition-colors"
+						>
 							Petugas
 						</a>
 					</div>

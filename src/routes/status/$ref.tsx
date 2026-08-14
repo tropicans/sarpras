@@ -1,6 +1,6 @@
 import {
-	Link,
 	createFileRoute,
+	Link,
 	useNavigate,
 	useRouter,
 } from "@tanstack/react-router";
@@ -30,8 +30,9 @@ import {
 import { useState } from "react";
 import { PublicFooter } from "#/components/public/public-footer";
 import { PublicHeader } from "#/components/public/public-header";
-import { getPublicBookingStatusFn } from "#/lib/booking/public-fns.server";
-import { cancelBookingByPublicReferenceFn } from "#/lib/booking/server-fns.server";
+import { getPublicBookingStatusFn } from "#/lib/booking/public-fns.functions";
+import { cancelBookingByPublicReferenceFn } from "#/lib/booking/server-fns.functions";
+import { ASSET_TYPE_LABELS, type AssetType } from "#/lib/booking/types";
 
 export const Route = createFileRoute("/status/$ref")({
 	loader: async ({ params }) => {
@@ -307,14 +308,19 @@ function BookingStatusDetailPage() {
 										</p>
 									</div>
 									<div>
-										<span className="text-muted-foreground">Kategori & Lokasi:</span>
+										<span className="text-muted-foreground">
+											Kategori & Lokasi:
+										</span>
 										<p className="font-medium text-foreground">
-											{isRoom ? "Ruang Rapat" : "Asrama / Wisma"} &bull;{" "}
-											{booking.assetLocation || "Gedung Utama PPKASN"}
+											{ASSET_TYPE_LABELS[booking.assetType as AssetType] ||
+												booking.assetType}{" "}
+											&bull; {booking.assetLocation || "Gedung Utama PPKASN"}
 										</p>
 									</div>
 									<div>
-										<span className="text-muted-foreground">Peserta / Tamu:</span>
+										<span className="text-muted-foreground">
+											Peserta / Tamu:
+										</span>
 										<p className="font-semibold text-primary">
 											{booking.attendance} Orang (Kapasitas Maksimal:{" "}
 											{booking.capacity})
@@ -336,7 +342,9 @@ function BookingStatusDetailPage() {
 										</p>
 									</div>
 									<div>
-										<span className="text-muted-foreground">Waktu Selesai:</span>
+										<span className="text-muted-foreground">
+											Waktu Selesai:
+										</span>
 										<p className="font-semibold text-foreground">
 											{formatDateTime(booking.endDate)} WIB
 										</p>
