@@ -11,6 +11,7 @@ import {
 
 test("WhatsApp Service & Audit Dispatch (WA-01, WA-02, WA-03, WA-08)", async (t) => {
 	const prefix = "test-wa-svc-";
+	process.env.NODE_ENV = "test";
 
 	const cleanup = async () => {
 		await db
@@ -103,6 +104,48 @@ test("WhatsApp Service & Audit Dispatch (WA-01, WA-02, WA-03, WA-08)", async (t)
 		});
 
 		assert.strictEqual(result.success, true);
+	});
+
+	await t.test("Fonnte payload sends countryCode 0 when target is already normalized", async () => {
+		// Mock global fetch to inspect request body
+		const originalFetch = global.fetch;
+		let capturedBody: any = null;
+
+		try {
+			global.fetch = async (_url: any, options: any) => {
+				capturedBody = JSON.parse(options.body);
+				return {
+					ok: true,
+					json: async () => ({ status: true, id: "msg-test-123" }),
+				} as any;
+			};
+
+			// Temporarily simulate non-test environment to test HTTP dispatch
+			const oldEnv = process.env.NODE_ENV;
+			const oldMock = process.env.FONNTE_MOCK;
+			const oldToken = process.env.FONNTE_API_TOKEN;
+
+			(process.env as any).NODE_ENV = "production";
+			process.env.FONNTE_MOCK = "false";
+			process.env.FONNTE_API_TOKEN = "test-token";
+
+			const res = await WhatsAppService.sendWhatsAppMessage({
+				target: "081234567890",
+				message: "Test message",
+				bookingId: booking.id,
+			});
+
+			assert.strictEqual(res.success, true);
+			assert.strictEqual(capturedBody?.target, "6281234567890");
+			assert.strictEqual(capturedBody?.countryCode, "0");
+
+			// Restore
+			(process.env as any).NODE_ENV = oldEnv;
+			process.env.FONNTE_MOCK = oldMock;
+			process.env.FONNTE_API_TOKEN = oldToken;
+		} finally {
+			global.fetch = originalFetch;
+		}
 	});
 
 	await cleanup();

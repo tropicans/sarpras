@@ -1,5 +1,8 @@
 import assert from "node:assert";
 import test from "node:test";
+
+process.env.NODE_ENV = "test";
+
 import { and, eq, like } from "drizzle-orm";
 import { db } from "../../db/client.server";
 import { assets, auditLogs, bookings } from "../../db/schema";
@@ -205,6 +208,8 @@ test("Wave 1: Timezone Normalization & Operating Availability", async (t) => {
 
 test("Wave 2 & Wave 3: Transactional Booking Service, Concurrency & Audit Trail", async (t) => {
 	const prefix = "test-bkg-";
+	const savedAdminTarget = process.env.FONNTE_ADMIN_TARGET;
+	delete process.env.FONNTE_ADMIN_TARGET;
 
 	const cleanup = async () => {
 		await db.delete(auditLogs).where(like(auditLogs.actorId, `${prefix}%`));
@@ -389,6 +394,9 @@ test("Wave 2 & Wave 3: Transactional Booking Service, Concurrency & Audit Trail"
 	});
 
 	await cleanup();
+	if (savedAdminTarget !== undefined) {
+		process.env.FONNTE_ADMIN_TARGET = savedAdminTarget;
+	}
 });
 
 test("Phase 4 Wave 1: Public Discovery, Schedule Projections & Pre-flight Availability", async (t) => {

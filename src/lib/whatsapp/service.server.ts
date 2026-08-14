@@ -112,7 +112,7 @@ export class WhatsAppService {
 				body: JSON.stringify({
 					target,
 					message: params.message,
-					countryCode: "62",
+					countryCode: "0",
 				}),
 				signal: AbortSignal.timeout(10000),
 			});
