@@ -1,165 +1,122 @@
-<!-- refreshed: 2026-08-12 -->
-# Architecture
+# Architectural Patterns & System Design
 
-**Analysis Date:** 2026-08-12
-
-## System Overview
-
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                  TanStack Start application                  │
-├──────────────────┬──────────────────┬───────────────────────┤
-│ Router factory   │ Root document    │ Index route           │
-│ `src/router.tsx` │ `src/routes/     │ `src/routes/index.tsx`│
-│                  │ __root.tsx`      │                       │
-└────────┬─────────┴────────┬─────────┴──────────┬────────────┘
-         │                  │                     │
-         ▼                  ▼                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│             File-route tree and framework runtime            │
-│                    `src/routeTree.gen.ts`                    │
-└─────────────────────────────────────────────────────────────┘
-         │
-         ▼
-┌─────────────────────────────────────────────────────────────┐
-│                         Browser output                        │
-│ `src/styles.css`; document head, page markup, devtools panel │
-└─────────────────────────────────────────────────────────────┘
-```
-
-## Component Responsibilities
-
-| Component | Responsibility | File |
-|-----------|----------------|------|
-| Router factory | Creates and registers the typed TanStack Router instance, including scroll restoration and preload defaults. | `src/router.tsx` |
-| Root route and shell | Defines document metadata, loads the global stylesheet, renders route children, scripts, and TanStack devtools. | `src/routes/__root.tsx` |
-| Index route | Registers `/` and renders the starter home screen. | `src/routes/index.tsx` |
-| Generated route tree | Connects filesystem route modules to a type-safe route hierarchy. | `src/routeTree.gen.ts` |
-| Global styling | Imports Tailwind CSS and defines document-wide box-sizing, minimum-height, and body-margin rules. | `src/styles.css` |
-
-## Pattern Overview
-
-**Overall:** File-based, route-centric TanStack Start React application.
-
-**Key Characteristics:**
-- Define each URL route as a module exporting `Route` from `createFileRoute`, as in `src/routes/index.tsx`.
-- Keep document-level head, shell, assets, and shared developer tooling in the root route at `src/routes/__root.tsx`.
-- Let TanStack Router generate `src/routeTree.gen.ts`; application code consumes its `routeTree` through `src/router.tsx`.
-
-## Layers
-
-**Route definition layer:**
-- Purpose: Declares pages and shared document composition.
-- Location: `src/routes/`
-- Contains: `createRootRoute` and `createFileRoute` modules.
-- Depends on: `@tanstack/react-router`, developer-tool packages, and stylesheet URL imports.
-- Used by: `src/routeTree.gen.ts` and the TanStack Start runtime.
-
-**Routing composition layer:**
-- Purpose: Builds the router with generated route metadata and runtime navigation settings.
-- Location: `src/router.tsx`
-- Contains: `getRouter` factory and the router `Register` module augmentation.
-- Depends on: `src/routeTree.gen.ts` and `@tanstack/react-router`.
-- Used by: TanStack Start runtime discovery.
-
-**Generated routing metadata layer:**
-- Purpose: Represents the discovered filesystem route hierarchy and TypeScript route mappings.
-- Location: `src/routeTree.gen.ts`
-- Contains: generated imports, route IDs, full-path maps, and `routeTree`.
-- Depends on: `src/routes/__root.tsx` and `src/routes/index.tsx`.
-- Used by: `src/router.tsx`.
-
-**Presentation layer:**
-- Purpose: Provides global CSS and route-local Tailwind utility markup.
-- Location: `src/styles.css` and `src/routes/index.tsx`
-- Contains: Tailwind import, base document rules, and page JSX.
-- Depends on: Tailwind CSS processed by `vite.config.ts`.
-- Used by: `src/routes/__root.tsx` through `../styles.css?url`.
-
-## Data Flow
-
-### Primary Request Path
-
-1. TanStack Start invokes `getRouter` to create the registered router (`src/router.tsx:4`).
-2. The router receives `routeTree`, which links the root and `/` route modules (`src/router.tsx:5`, `src/routeTree.gen.ts:57`).
-3. The root route provides the document shell and renders matched children (`src/routes/__root.tsx:28`, `src/routes/__root.tsx:31`).
-4. The `/` route renders the home content (`src/routes/index.tsx:3`, `src/routes/index.tsx:5`).
-
-### Styling and Document Metadata Flow
-
-1. The root route imports the stylesheet as a Vite URL asset (`src/routes/__root.tsx:5`).
-2. Its `head` configuration attaches that asset and metadata to the document (`src/routes/__root.tsx:7`).
-3. `RootDocument` renders `HeadContent` and `Scripts` around every matched route (`src/routes/__root.tsx:34`, `src/routes/__root.tsx:50`).
-
-**State Management:**
-- No application state store, server data loader, or persistence layer is implemented in `src/`.
-- Router state is managed by TanStack Router via the instance returned from `src/router.tsx`.
-
-## Key Abstractions
-
-**Route module:**
-- Purpose: Couples a filesystem route path to route configuration and UI.
-- Examples: `src/routes/__root.tsx`, `src/routes/index.tsx`.
-- Pattern: Export a `Route` constant created with `createRootRoute` or `createFileRoute`.
-
-**Router factory:**
-- Purpose: Supplies the framework with a typed router instance.
-- Examples: `src/router.tsx`.
-- Pattern: `getRouter` returns `createRouter({ routeTree, ...options })`, then augments the TanStack `Register` interface.
-
-## Entry Points
-
-**Router factory:**
-- Location: `src/router.tsx`
-- Triggers: TanStack Start runtime requests the application's router.
-- Responsibilities: Creates the router, supplies the generated tree, enables scroll restoration, and configures intent preloading.
-
-**Root route:**
-- Location: `src/routes/__root.tsx`
-- Triggers: The generated route tree matches every application route beneath the root.
-- Responsibilities: Sets metadata, attaches global CSS, wraps route children in the HTML document, and mounts devtools.
-
-**Index route:**
-- Location: `src/routes/index.tsx`
-- Triggers: Navigation to `/`.
-- Responsibilities: Renders the current starter home screen.
-
-## Architectural Constraints
-
-- **Threading:** The active application code is browser/React code running through the JavaScript event loop; no worker-thread or background-worker code exists in `src/`.
-- **Global state:** No module-level mutable application state or singleton outside the router created by `getRouter` in `src/router.tsx` is present.
-- **Circular imports:** No circular import chain is present in the active source graph: routes feed `src/routeTree.gen.ts`, which feeds `src/router.tsx`.
-- **Generated routing:** Do not hand-edit `src/routeTree.gen.ts`; its header identifies it as TanStack Router-generated and it is regenerated from route files.
-- **Route contract:** New pages must follow TanStack Router file-route conventions in `src/routes/` so the generated tree can discover them.
-
-## Anti-Patterns
-
-### Editing generated route metadata
-
-**What happens:** Application changes are made directly in `src/routeTree.gen.ts`.
-**Why it's wrong:** The file states it is generated and will be overwritten, so manual route changes are not durable.
-**Do this instead:** Define or modify route modules in `src/routes/`, then run `npm run generate-routes` to update `src/routeTree.gen.ts`.
-
-### Putting document shell concerns in leaf routes
-
-**What happens:** Shared metadata, stylesheet links, or persistent tooling are duplicated in files such as `src/routes/index.tsx`.
-**Why it's wrong:** Leaf route configuration only applies to that route and duplicates shared document concerns.
-**Do this instead:** Keep shared shell behavior in `src/routes/__root.tsx` and leave leaf routes focused on their page UI.
-
-## Error Handling
-
-**Strategy:** No application-specific error boundary, route error component, server function, or API handler is implemented in `src/`.
-
-**Patterns:**
-- Use TanStack Router route-level error configuration when routes that can fail are added under `src/routes/`.
-- Keep framework setup errors localized to the router and route modules at `src/router.tsx` and `src/routes/`.
-
-## Cross-Cutting Concerns
-
-**Logging:** No application logging implementation is present in `src/`.
-**Validation:** No input, schema, or request validation implementation is present in `src/`.
-**Authentication:** No authentication implementation is present in `src/`.
+**Analysis Date:** 2026-08-14
 
 ---
 
-*Architecture analysis: 2026-08-12*
+## 1. High-Level Architectural Pattern
+
+The application follows an **Isomorphic Full-Stack TypeScript Architecture** powered by **TanStack Start**, **React 19**, and **Drizzle ORM**. It utilizes RPC-style Server Functions (`createServerFn`) to provide end-to-end type safety between client components and backend services without manual REST API route boilerplate.
+
+```
+┌────────────────────────────────────────────────────────┐
+│               Client / UI Layer (React 19)              │
+│  - Public Catalog & Stepper Booking Wizard              │
+│  - Admin Operations Dashboard, Calendar & Audit Table  │
+└──────────────────────────┬─────────────────────────────┘
+                           │ TanStack Router / RPC
+┌──────────────────────────▼─────────────────────────────┐
+│           Server Functions & Middleware Layer          │
+│  - Auth Middleware (Session validation, Status check)   │
+│  - RBAC Middleware (Role hierarchy: Admin/Pimpinan/Op) │
+│  - Zod Input Validation & CSRF Protection               │
+└──────────────────────────┬─────────────────────────────┘
+                           │
+┌──────────────────────────▼─────────────────────────────┐
+│             Domain & Business Logic Layer              │
+│  - Booking Engine (Availability, Dormitory, Overlap)   │
+│  - WhatsApp Notification Dispatcher (Fonnte / Mock)    │
+│  - Audit Logging Subsystem                             │
+│  - Timezone Normalization Engine (Asia/Jakarta)        │
+└──────────────────────────┬─────────────────────────────┘
+                           │
+┌──────────────────────────▼─────────────────────────────┐
+│            Data Persistence Layer (Drizzle ORM)        │
+│  - PostgreSQL Pool (pg)                                │
+│  - Relational Schema & Strong Foreign Key Constraints  │
+└────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 2. Core Architectural Layers
+
+### 1. Presentation & Routing Layer (`src/routes/` & `src/components/`)
+- **Route Definitions:** Built with TanStack Router file-based route definitions (`createFileRoute`).
+- **Layouts & Guards:**
+  - `src/routes/__root.tsx`: Document shell with Geist variable fonts, meta tags, and DevTools.
+  - `src/routes/admin.tsx`: Authenticated admin layout with role-aware navigation bar, user session badge, and route protection.
+  - `src/routes/index.tsx`: Public portal with asset cards, category filtering, and direct availability inspection modal.
+  - `src/routes/book/$assetId.tsx`: 4-step wizard stepper for creating bookings.
+  - `src/routes/status/index.tsx` & `src/routes/status/$ref.tsx`: Public tracking portal to search and view reservation status by UUID.
+
+### 2. Server Functions & RPC Layer (`src/lib/**/*.functions.ts`)
+- **Pattern:** Declarative `createServerFn({ method: "GET" | "POST" })` endpoints with `.validator(zodSchema)` and `.middleware([authMiddleware])`.
+- **Key Modules:**
+  - `src/lib/booking/public-fns.functions.ts`: Public actions (fetch public assets, submit booking, check reference status).
+  - `src/lib/booking/admin-fns.functions.ts`: Admin actions (list bookings with filters, approve/reject/cancel, KPI metrics).
+  - `src/lib/assets/assets.functions.ts`: Asset catalog management (CRUD, availability rules, closure dates, archiving).
+  - `src/lib/auth/auth.functions.ts`: Authentication management (password change, user account status).
+  - `src/lib/audit/admin-fns.functions.ts`: Audit trail retrieval with actor and date filters.
+
+### 3. Middleware & Security Layer (`src/lib/auth.middleware.ts`)
+- **Session Enforcement:** Validates Better Auth session cookies on every protected RPC call.
+- **Account Inactivity Guard:** Rejects suspended or inactive accounts immediately.
+- **RBAC Hierarchy:**
+  - `admin` (Rank 3): Full administrative privileges, user management, and configuration.
+  - `pimpinan` (Rank 2): Executive oversight, approval review, and audit trail inspection.
+  - `operator` (Rank 1): Day-to-day facility monitoring and booking operations.
+
+### 4. Domain & Business Logic Services (`src/lib/`)
+- **Booking Engine (`src/lib/booking/service.server.ts`):**
+  - **Availability Validation:** Prevents double-booking for rooms by verifying time slot overlap (`src/lib/booking/availability.ts`).
+  - **Dormitory Capacity Management:** Tracks bed/room occupancy limits (`src/lib/booking/dormitory.ts`).
+  - **Closure Dates Enforcement:** Blocks bookings on blacklisted dates (`asset_closures`).
+  - **State Machine Transitions:** Governs transitions across `pending` -> `approved` / `rejected` / `cancelled`.
+- **Notification Subsystem (`src/lib/whatsapp/service.server.ts`):**
+  - Sends transactional WhatsApp notifications on submission, approval, rejection, and cancellation.
+  - Fail-safe non-blocking execution with audit trail recording.
+- **Timezone Management (`src/lib/timezone/datetime.ts`):**
+  - Enforces `Asia/Jakarta` (WIB) across date parsing, UI formatting, and database storage.
+
+### 5. Data Access Layer (`src/db/`)
+- **ORM:** Drizzle ORM configured with relational queries (`db.query.*`) and typed SQL builders.
+- **Connection Management:** Connection pool singleton via `pg.Pool`.
+
+---
+
+## 3. Data Flow & Request Lifecycle
+
+```
+[User Browser]
+      │
+      │ (1) User Submits Booking Form / Admin Approves
+      ▼
+[TanStack Router Route Component]
+      │
+      │ (2) Invokes Server Function (e.g. submitBookingFn / approveBookingFn)
+      ▼
+[Server Function Middleware]
+      │ - Validates Request Payload via Zod
+      │ - Checks Auth & RBAC Permissions
+      ▼
+[Domain Service (e.g. BookingService)]
+      │ - Validates asset active status & operating hours
+      │ - Checks overlapping bookings & closures
+      │ - Inserts / Updates booking record
+      │ - Dispatches Audit Log Entry (AuditService)
+      │ - Dispatches WhatsApp Notification asynchronously (WhatsAppService)
+      ▼
+[Drizzle ORM -> PostgreSQL]
+      │ - Executes transactional SQL query
+      ▼
+[Client Response]
+      │ - Returns typed result to TanStack Router
+      ▼
+[React UI Update]
+        - Renders confirmation or updates UI state
+```
+
+---
+
+*Codebase architecture analysis: 2026-08-14*

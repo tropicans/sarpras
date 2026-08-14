@@ -1,88 +1,61 @@
-# Coding Conventions
+# Coding Conventions & Design Patterns
 
-**Analysis Date:** 2026-08-12
-
-## Naming Patterns
-
-**Files:**
-- Use lowercase route filenames in `src/routes/`, such as `src/routes/index.tsx`; the TanStack Router generator produces `src/routeTree.gen.ts`.
-- Use camelCase filenames for general TypeScript modules, as in `src/router.tsx`.
-
-**Functions:**
-- Use camelCase for functions, including the exported router factory `getRouter` in `src/router.tsx` and local React components such as `RootDocument` and `Home` in `src/routes/__root.tsx` and `src/routes/index.tsx`.
-
-**Variables:**
-- Use camelCase for local values, such as `router` in `src/router.tsx` and `appCss` in `src/routes/__root.tsx`.
-
-**Types:**
-- Use PascalCase for TypeScript and React types. `React.ReactNode` is used inline for the `children` prop in `src/routes/__root.tsx`.
-
-## Code Style
-
-**Formatting:**
-- Biome is configured in `biome.json`.
-- Use tabs for indentation and double quotes for JavaScript/TypeScript strings, as configured by `biome.json`.
-- `biome.json` excludes generated `src/routeTree.gen.ts` and stylesheet `src/styles.css` from its file set; do not use these exclusions as a reason to manually reformat generated router output.
-
-**Linting:**
-- Biome linting is enabled with the recommended rule set in `biome.json`.
-- Run `npm run check` from `package.json` for Biome’s combined checks when Node/npm is available.
-- TypeScript compiler options in `tsconfig.json` enforce `strict`, unused-local/parameter checks, no switch fallthrough, and unchecked-side-effect-import detection.
-
-## Import Organization
-
-**Order:**
-1. Third-party package imports, as in `src/router.tsx` and `src/routes/__root.tsx`.
-2. Relative application and generated-module imports, as in `src/router.tsx` and `src/routes/__root.tsx`.
-3. Keep stylesheet URL imports with the application imports that consume them, as `src/routes/__root.tsx` imports `../styles.css?url`.
-
-**Path Aliases:**
-- `#/*` and `@/*` both resolve to `src/*` in `tsconfig.json`; `package.json` also declares the `#/*` import mapping.
-- Existing application modules currently use relative imports (`./routeTree.gen` and `../styles.css?url`); use aliases only when they improve a non-local import.
-
-## Error Handling
-
-**Patterns:**
-- No application-specific error-handling code is present in `src/router.tsx`, `src/routes/__root.tsx`, or `src/routes/index.tsx`.
-- Use TanStack Router’s route-level error patterns when adding failures; avoid inventing a global error utility until application code requires one.
-
-## Logging
-
-**Framework:** Not detected in `src/`.
-
-**Patterns:**
-- No `console` calls or logging abstraction are present in `src/router.tsx`, `src/routes/__root.tsx`, or `src/routes/index.tsx`.
-
-## Comments
-
-**When to Comment:**
-- Application source currently uses no explanatory comments in `src/router.tsx`, `src/routes/__root.tsx`, or `src/routes/index.tsx`.
-- Prefer self-explanatory names and add comments only where routing or framework behavior is not clear from the code.
-
-**JSDoc/TSDoc:**
-- Not detected in the handwritten source files under `src/`.
-
-## Function Design
-
-**Size:**
-- Keep route modules small and focused: `src/routes/index.tsx` contains a single `Home` component, while `src/router.tsx` contains one router factory.
-
-**Parameters:**
-- Use inline object prop typing for small React components, as `RootDocument({ children }: { children: React.ReactNode })` does in `src/routes/__root.tsx`.
-
-**Return Values:**
-- Return configured framework objects directly from factories, as `getRouter` returns the constructed router in `src/router.tsx`.
-- Return JSX directly from route components in `src/routes/__root.tsx` and `src/routes/index.tsx`.
-
-## Module Design
-
-**Exports:**
-- Export TanStack Router route definitions as named `Route` constants in `src/routes/__root.tsx` and `src/routes/index.tsx`.
-- Export reusable setup functions as named exports, as with `getRouter` in `src/router.tsx`.
-
-**Barrel Files:**
-- Not used in the handwritten `src/` modules. `src/routeTree.gen.ts` is generated route-tree output, not a handwritten barrel file.
+**Analysis Date:** 2026-08-14
 
 ---
 
-*Convention analysis: 2026-08-12*
+## 1. Code Style & Formatting
+
+- **Linter & Formatter:** Configured via Biome (`biome.json`).
+  - **Indentation:** Tabs (`indentStyle: "tab"`).
+  - **Line Width:** 80 characters.
+  - **Quotes:** Double quotes (`quoteStyle: "double"`).
+  - **Semicolons:** Required (`semicolons: "always"`).
+  - **Trailing Commas:** ES5 style (`trailingCommas: "es5"`).
+- **Import Ordering & Aliasing:**
+  - Standard/third-party imports at top.
+  - Subpath imports use `#/*` alias pointing to `src/*` (e.g. `import { db } from "#/db/client.server"`).
+
+---
+
+## 2. Server Functions & RPC Patterns
+
+- **Definition:** Use TanStack Start `createServerFn` with explicit HTTP methods:
+  ```typescript
+  export const updateAssetFn = createServerFn({ method: "POST" })
+    .middleware([requireRoleMiddleware("admin")])
+    .validator((data: unknown) => updateAssetSchema.parse(data))
+    .handler(async ({ data, context }) => {
+      // implementation
+    });
+  ```
+- **Validation:** All incoming request payloads must be validated using `zod` schemas.
+- **Middleware Stacking:** Authenticated functions must be chained with `authMiddleware` or `requireRoleMiddleware(role)` to guarantee security at the RPC boundary.
+
+---
+
+## 3. Timezone & DateTime Standards
+
+- **Standard Timezone:** All business operations, operating hours, closures, and calendar views are anchored to `Asia/Jakarta` (WIB, UTC+7).
+- **Database Storage:** All timestamp columns use `withTimezone: true` (`timestamp("column", { withTimezone: true })`).
+- **Formatting Utilities:** Always use helpers from `src/lib/timezone/datetime.ts` (`formatWibDate`, `formatWibTime`, `formatWibDateTime`) to avoid client-side timezone drift.
+
+---
+
+## 4. Error Handling & Resilience
+
+- **Public Endpoints:** Catch unhandled exceptions and return structured `{ success: false, error: "Friendly message" }` objects to avoid leaking server internals.
+- **Side-Effect Resilience:** Auxiliary operations (such as sending WhatsApp notifications via `safeDispatchNotification`) must run non-blocking and catch all errors internally so they never abort core database transactions.
+- **Audit Tracking:** Critical actions (mutations, approvals, rejections, status transitions, and notification dispatches) must call `recordAuditEvent()` with relevant actor ID and metadata payload.
+
+---
+
+## 5. UI & State Management
+
+- **Client Navigation:** Use TanStack Router's typed `<Link to="...">` and `useNavigate()` rather than raw `window.location`.
+- **Styling Patterns:** Use Tailwind CSS v4 utility classes composed with `cn(...)` from `src/lib/utils.ts`.
+- **Forms & Inputs:** Controlled inputs with immediate client-side validation feedback before RPC invocation.
+
+---
+
+*Codebase conventions and practices analysis: 2026-08-14*

@@ -1,70 +1,72 @@
-# External Integrations
+# External Integrations & Services
 
-**Analysis Date:** 2026-08-12
-
-## APIs & External Services
-
-**Application APIs:**
-- Not detected - application source in `src/` contains no outbound HTTP client, API SDK, server function, or API route implementation.
-  - SDK/Client: Not detected in `package.json` or `src/`.
-  - Auth: Not applicable; no application API integration is implemented in `src/`.
-
-**Developer tooling:**
-- TanStack Devtools - Development-time inspection is enabled by `devtools()` in `vite.config.ts` and rendered with `TanStackDevtools` in `src/routes/__root.tsx`.
-  - SDK/Client: `@tanstack/devtools-vite`, `@tanstack/react-devtools`, and `@tanstack/react-router-devtools` from `package.json`.
-  - Auth: Not applicable; no credentials or environment variables are referenced by `vite.config.ts` or `src/routes/__root.tsx`.
-
-## Data Storage
-
-**Databases:**
-- Not detected - `package.json` and application source under `src/` contain no database provider, connection configuration, ORM, or client.
-  - Connection: Not applicable.
-  - Client: Not detected.
-
-**File Storage:**
-- Local application source only - no external file-storage SDK or storage calls are present in `package.json` or `src/`.
-
-**Caching:**
-- Not detected - no cache provider or client is configured in `package.json` or `src/`.
-
-## Authentication & Identity
-
-**Auth Provider:**
-- Not detected - no identity provider, authentication library, middleware, or session handling is implemented in `package.json` or `src/`.
-  - Implementation: Not applicable.
-
-## Monitoring & Observability
-
-**Error Tracking:**
-- None detected - no error-tracking SDK appears in `package.json` or `src/`.
-
-**Logs:**
-- No application logging integration is implemented in `src/`; Vite and TanStack Devtools tooling are configured in `vite.config.ts`.
-
-## CI/CD & Deployment
-
-**Hosting:**
-- Not specified - no hosting adapter or platform configuration exists in `package.json`, `vite.config.ts`, or `README.md`.
-
-**CI Pipeline:**
-- None detected - no workflow configuration is present in the repository root or `.github/`.
-
-## Environment Configuration
-
-**Required env vars:**
-- None detected - no environment-variable references occur in `src/`, `package.json`, or `vite.config.ts`.
-
-**Secrets location:**
-- No secrets location is configured. `.gitignore` designates `.env` as an ignored environment configuration filename; no such file is present at the repository root.
-
-## Webhooks & Callbacks
-
-**Incoming:**
-- None detected - no webhook endpoint or server route is implemented under `src/routes/`.
-
-**Outgoing:**
-- None detected - no webhook client or outbound callback implementation is present under `src/`.
+**Analysis Date:** 2026-08-14
 
 ---
 
-*Integration audit: 2026-08-12*
+## 1. Database & Persistence Layer
+
+- **Database Engine:** PostgreSQL (v14+ recommended)
+- **Driver:** Node `pg` client (`pg.Pool`) configured in `src/db/client.server.ts`
+- **Configuration:** Controlled by `DATABASE_URL` environment variable:
+  - Example: `postgres://user:password@localhost:5432/sarpras_db`
+- **Schema Management:** Drizzle ORM migrations located in `drizzle/` and executed via `src/db/migrate.ts`
+- **Connection Lifecycle:** Singleton connection pool with automatic release and parameter binding.
+
+---
+
+## 2. WhatsApp Notification Gateway (Fonnte API)
+
+- **Service Module:** `src/lib/whatsapp/service.server.ts`
+- **API Endpoint:** `https://api.fonnte.com/send` (HTTP POST)
+- **Authentication:** `FONNTE_API_TOKEN` header (`Authorization: <token>`)
+- **Key Features:**
+  - **Phone Normalization:** `src/lib/whatsapp/phone.ts` normalizes Indonesian phone numbers (`08xx`, `+628xx`, `628xx`) to standard `628xx` format and supports WhatsApp group IDs (`123456789-987654@g.us`).
+  - **Resilience & Fallback:** When `FONNTE_API_TOKEN` is unset, `FONNTE_MOCK=true`, or `NODE_ENV=test`, dispatch falls back to formatted console mock logging without throwing errors.
+  - **Non-blocking Dispatch:** `safeDispatchNotification()` wraps all API dispatches in background side-effects to ensure gateway outages never block booking operations.
+  - **Audit Logging:** Every WhatsApp notification attempt (success, mock, or failure) is logged to `audit_logs` table with template metadata and payload response.
+- **Notification Templates (`src/lib/whatsapp/templates.ts`):**
+  - `BOOKING_CREATED_REQUESTER`: Confirmation message to user with booking reference & details.
+  - `BOOKING_CREATED_ADMIN`: Operational alert sent to administrator recipient list (`WHATSAPP_ADMIN_RECIPIENTS`).
+  - `BOOKING_APPROVED`: Approval notification sent to user with facility usage guidance.
+  - `BOOKING_REJECTED`: Rejection notification with mandatory reason text.
+  - `BOOKING_CANCELLED`: Notification when a reservation is cancelled.
+
+---
+
+## 3. Better Auth Authentication Provider
+
+- **Auth Server Handler:** `src/db/auth.server.ts`
+- **API Catch-all Route:** `src/routes/api/auth/$.ts`
+- **Authentication Methods:**
+  - Email & Password credentials with Scrypt password hashing.
+  - Session tokens stored with `userId`, `expiresAt`, `ipAddress`, and `userAgent`.
+- **RBAC Extension:** Custom user schema extensions for `role` (`admin`, `operator`, `pimpinan`), `status` (`active`, `inactive`), and `mustResetPassword`.
+
+---
+
+## 4. Legacy Data Ingestion Pipeline
+
+- **Migration Script:** `src/db/migrate-legacy.ts`
+- **Legacy Source:** JSON / SQL dumps in `legacy-data/` from legacy PHP/MySQL Sarpras system.
+- **Features:**
+  - Idempotent upserts linking `legacyId` across users, assets, and booking records.
+  - Historical timezone normalization to `Asia/Jakarta`.
+  - Comprehensive audit event recording (`migration.import`).
+
+---
+
+## 5. Audit Logging System
+
+- **Audit Service:** `src/lib/audit/audit.server.ts`
+- **Target Table:** `audit_logs`
+- **Actions Recorded:**
+  - Auth: `auth.login`, `auth.logout`, `user.create`, `user.update_status`, `user.reset_password`
+  - Bookings: `booking.create`, `booking.approve`, `booking.reject`, `booking.cancel`
+  - Assets: `asset.create`, `asset.update`, `asset.archive`, `asset.availability_update`
+  - WhatsApp: `notification.whatsapp_dispatch`
+  - System: `migration.import`
+
+---
+
+*Codebase integrations analysis: 2026-08-14*

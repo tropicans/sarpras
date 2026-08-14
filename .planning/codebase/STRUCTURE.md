@@ -1,116 +1,86 @@
-# Codebase Structure
+# Directory Layout & Structure
 
-**Analysis Date:** 2026-08-12
-
-## Directory Layout
-
-```
-sarpras/
-├── src/                         # Application source
-│   ├── routes/                   # Filesystem route modules
-│   │   ├── __root.tsx            # Root route and HTML document shell
-│   │   └── index.tsx             # `/` page route
-│   ├── router.tsx                # Typed TanStack Router factory
-│   ├── routeTree.gen.ts          # Generated route hierarchy; do not edit
-│   └── styles.css                # Tailwind import and global CSS
-├── .planning/codebase/           # Generated codebase mapping documents
-├── .tanstack/                    # TanStack Router tooling state; ignored by Git
-├── .vscode/                      # Editor configuration
-├── package.json                  # npm scripts and dependency manifest
-├── package-lock.json             # npm dependency lockfile
-├── vite.config.ts                # Vite, TanStack Start, React, Tailwind setup
-├── tsconfig.json                 # TypeScript compiler and alias configuration
-├── tsr.config.json               # TanStack Router CLI target configuration
-├── biome.json                    # Biome formatter and linter configuration
-└── README.md                     # Starter setup and framework usage notes
-```
-
-## Directory Purposes
-
-**`src/`:**
-- Purpose: Contains all active application source.
-- Contains: Router composition, generated router metadata, styles, and route modules.
-- Key files: `src/router.tsx`, `src/routeTree.gen.ts`, `src/styles.css`.
-
-**`src/routes/`:**
-- Purpose: Holds filesystem-defined TanStack Router routes.
-- Contains: One root route and one leaf route.
-- Key files: `src/routes/__root.tsx`, `src/routes/index.tsx`.
-
-**`.planning/codebase/`:**
-- Purpose: Stores architecture and codebase mapping artifacts.
-- Contains: Mapping Markdown documents including `ARCHITECTURE.md` and `STRUCTURE.md`.
-- Key files: `.planning/codebase/ARCHITECTURE.md`, `.planning/codebase/STRUCTURE.md`.
-
-## Key File Locations
-
-**Entry Points:**
-- `src/router.tsx`: Exports `getRouter`, the TanStack Start router factory.
-- `src/routes/__root.tsx`: Defines the shared HTML document shell and root route.
-- `src/routes/index.tsx`: Defines the route for `/`.
-
-**Configuration:**
-- `vite.config.ts`: Registers TanStack devtools, Tailwind, TanStack Start, and React Vite plugins.
-- `tsconfig.json`: Enables strict TypeScript settings and maps `#/*` and `@/*` to `src/*`.
-- `tsr.config.json`: Sets TanStack Router CLI generation target to React.
-- `biome.json`: Controls formatting and linting for active source and selected configuration files.
-- `package.json`: Defines npm development, build, route-generation, and Biome scripts.
-
-**Core Logic:**
-- `src/router.tsx`: Central router options and type registration.
-- `src/routes/__root.tsx`: Shared document, metadata, stylesheet, and developer-tool composition.
-- `src/routeTree.gen.ts`: Generated route connections and typed route maps.
-
-**Testing:**
-- Not detected: no test directory, test files, or test-runner configuration exists in the current repository.
-
-## Naming Conventions
-
-**Files:**
-- Route modules use TanStack file-route names: `__root.tsx` for the root and `index.tsx` for the index route, as in `src/routes/`.
-- TypeScript React modules use `.tsx`, as in `src/router.tsx` and `src/routes/index.tsx`.
-- Generated router output uses the `.gen.ts` suffix, as in `src/routeTree.gen.ts`; treat this suffix as generated-only.
-- Global stylesheet uses `styles.css` at `src/styles.css`.
-
-**Directories:**
-- Route nesting belongs under the lowercase `src/routes/` directory.
-- Application source uses the lowercase `src/` directory.
-- Planning artifacts use the dot-prefixed `.planning/codebase/` directory.
-
-## Where to Add New Code
-
-**New Feature:**
-- Primary code: Add a page or layout route in `src/routes/`; extract feature-specific modules into a new directory under `src/` only when a route needs them.
-- Tests: No existing test location is established. Introduce a project-level test convention before adding the first tests.
-
-**New Component/Module:**
-- Implementation: Place route-owned markup in the relevant `src/routes/<route>.tsx`; place shared modules in a purpose-named directory under `src/` once shared usage exists.
-
-**Utilities:**
-- Shared helpers: No utility directory exists. Add shared helpers under a new `src/` subdirectory with a purpose-specific name, and import them through the configured `@/*` or `#/*` aliases from `tsconfig.json` when appropriate.
-
-## Special Directories
-
-**`src/routes/`:**
-- Purpose: Source of truth for the filesystem route hierarchy.
-- Generated: No.
-- Committed: Yes.
-
-**`src/routeTree.gen.ts`:**
-- Purpose: Generated TanStack Router route tree consumed by `src/router.tsx`.
-- Generated: Yes.
-- Committed: Yes; the file is present in the repository and excluded from Biome in `biome.json`.
-
-**`.tanstack/`:**
-- Purpose: TanStack Router tooling state.
-- Generated: Yes.
-- Committed: No; `.gitignore` excludes `.tanstack`.
-
-**`.planning/codebase/`:**
-- Purpose: Generated repository reference documents.
-- Generated: Yes.
-- Committed: Repository commit status is not determined by the active source configuration; do not infer it from the current files.
+**Analysis Date:** 2026-08-14
 
 ---
 
-*Structure analysis: 2026-08-12*
+## 1. Project Directory Layout
+
+```
+sarpras/
+├── .agents/                 # GSD core workflows, skills, and agent profiles
+├── .planning/               # GSD project plans, roadmap, state, and codebase maps
+│   └── codebase/            # Codebase mapping documents (STACK, ARCHITECTURE, etc.)
+├── drizzle/                 # Drizzle schema migrations and SQL snapshots
+├── legacy-data/             # Seed data and migration dumps from legacy PHP/MySQL
+├── src/                     # Application source root
+│   ├── components/          # Reusable React components
+│   │   ├── admin/           # Admin dashboard, calendar, audit viewers, KPI widgets
+│   │   ├── booking/         # Public booking wizard steps & review components
+│   │   ├── public/          # Public header, footer, asset card, schedule modal
+│   │   └── ui/              # Base UI primitives & button styling
+│   ├── db/                  # Database connectivity, Drizzle schema, migrations & seed
+│   │   ├── auth.server.ts   # Better Auth server initialization & Drizzle adapter
+│   │   ├── client.server.ts # Drizzle ORM client & PostgreSQL pool connection
+│   │   ├── migrate.ts       # Migration executor script
+│   │   ├── migrate-legacy.ts# Legacy data migration & import script
+│   │   ├── schema.ts        # Canonical Drizzle database schema & relations
+│   │   └── seed-admin.ts    # Initial admin user seeding script
+│   ├── lib/                 # Shared utilities, services, and server functions
+│   │   ├── assets/          # Asset management server functions
+│   │   ├── audit/           # Audit trail logging server functions & server logger
+│   │   ├── auth/            # Auth server functions, RBAC helpers, role utilities
+│   │   ├── auth-client.ts   # Better Auth client instance for browser UI
+│   │   ├── auth.middleware.ts# Server function authentication & RBAC middleware
+│   │   ├── booking/         # Booking domain engine, validation, availability & RPCs
+│   │   ├── timezone/        # Date-fns timezone utilities (Asia/Jakarta)
+│   │   ├── utils.ts         # Tailwind class merging utility (`cn`)
+│   │   └── whatsapp/        # Fonnte WhatsApp client, phone normalizer, templates
+│   ├── routes/              # TanStack Router file-based route tree
+│   │   ├── __root.tsx       # Root document layout, HTML shell, and DevTools
+│   │   ├── index.tsx        # Public landing page and asset catalog
+│   │   ├── login.tsx        # Admin login & authentication page
+│   │   ├── admin.tsx        # Authenticated admin layout shell & navigation
+│   │   ├── admin/           # Admin sub-routes
+│   │   │   ├── index.tsx    # Dashboard overview with KPI summary cards & urgent widget
+│   │   │   ├── assets.tsx   # Asset inventory, operating hours, & closures management
+│   │   │   ├── bookings.tsx # Booking approval management with filter bar & review drawer
+│   │   │   ├── calendar.tsx # Master visual calendar view with interactive popovers
+│   │   │   ├── users.tsx    # User account management, roles, and status controls
+│   │   │   └── audit.tsx    # Comprehensive audit log browser with diff viewer
+│   │   ├── book/            # Public booking workflow
+│   │   │   └── $assetId.tsx # Multi-step booking wizard for selected facility
+│   │   ├── status/          # Public booking lookup & verification
+│   │   │   ├── index.tsx    # Search form for tracking booking by code/reference
+│   │   │   └── $ref.tsx     # Booking detail view & status timeline
+│   │   └── api/             # API routes
+│   │       └── auth/        # Better Auth catch-all API endpoint
+│   │           └── $.ts     # `/api/auth/*` handler bridge
+│   ├── routeTree.gen.ts     # Auto-generated TanStack Router route tree
+│   ├── router.tsx           # Router factory function (`createRouter`)
+│   └── styles.css           # Global stylesheet with Tailwind v4 & custom utilities
+├── Dockerfile               # Production multi-stage Docker build configuration
+├── docker-compose.yml       # Docker Compose setup for local containerized environment
+├── drizzle.config.ts        # Drizzle Kit CLI configuration
+├── package.json             # Package configuration, scripts, and dependencies
+├── prod-server.js           # Production Node.js server wrapper
+├── tsconfig.json            # TypeScript configuration
+└── vite.config.ts           # Vite bundler configuration with TanStack Start plugin
+```
+
+---
+
+## 2. Key File Conventions
+
+- **Server-Only Files (`*.server.ts`):** Files containing direct database connections, secret keys, or Node-specific logic (e.g. `client.server.ts`, `service.server.ts`). These files are tree-shaken and excluded from client bundles.
+- **Server Functions (`*.functions.ts`):** Files exposing RPC endpoints using `createServerFn`.
+- **Test Files (`*.test.ts`):** Co-located or domain-grouped test suites run with Node native test runner and `tsx`.
+- **Routes (`src/routes/**/*.tsx`):** File-based routes matching TanStack Router naming conventions:
+  - `__root.tsx`: Document root.
+  - `index.tsx`: Index route for a directory segment.
+  - `$param.tsx`: Dynamic route parameters (e.g. `$assetId.tsx`, `$ref.tsx`).
+  - `$.ts`: Splat / catch-all routes.
+
+---
+
+*Codebase directory layout and structure analysis: 2026-08-14*
