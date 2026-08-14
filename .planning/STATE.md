@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Dual-Channel Notification Integration
 status: planning
-last_updated: "2026-08-14T04:42:00.000Z"
+last_updated: "2026-08-14T04:45:00.000Z"
 last_activity: 2026-08-14
 progress:
   total_phases: 1
@@ -28,16 +28,18 @@ See: .planning/PROJECT.md (updated 2026-08-14)
 
 Phase: 08 (dual-channel-notification-integration)
 Plan: Not started
-Status: Ready to plan
-Last activity: 2026-08-14 — Milestone v1.3 started, Phase 8 defined
+Status: Context gathered, ready for planning
+Last activity: 2026-08-14 — Phase 8 context gathered (08-CONTEXT.md)
 
 ## Accumulated Context
 
 ### Decisions
 
 - Dual-channel delivery: Email via Resend + WhatsApp via Fonnte.
-- Asynchronous non-blocking dispatch: notifications execute post-commit and never block or fail database booking transactions.
-- Graceful mock fallbacks: local development and testing log payloads safely without network calls or API keys.
+- Asynchronous non-blocking dispatch: `Promise.allSettled` executes post-commit and never blocks or fails database booking transactions.
+- Graceful mock fallbacks: Resend & Fonnte mock loggers safely output ASCII preview boxes during dev & test.
+- Channel-specific audit actions: `notification.email_dispatch` and `notification.whatsapp_dispatch`.
+- Multi-recipient Admin Email: comma-separated `ADMIN_DEFAULT_EMAIL` parsed and alerted.
 
 ### Pending Todos
 
@@ -50,7 +52,9 @@ None.
 | Future | Requester edits, advanced analytics | Backlog | 2026-08-14 |
 | Future | WhatsApp interactive bot / 2-way conversation | Backlog | 2026-08-14 |
 | Future | Inbound email parsing & reply handling | Backlog | 2026-08-14 |
+| Future | PDF e-ticket / surat izin email attachments | Backlog | 2026-08-14 |
 
 ## Next Steps
 
-Phase 8 ready. Proceed with `/gsd-discuss-phase 8` or `/gsd-plan-phase 8`.
+Phase 8 context gathered. Proceed with `/gsd-plan-phase 8`.
+
