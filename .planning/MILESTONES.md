@@ -1,5 +1,19 @@
 # Milestones
 
+## v1.2 WhatsApp Integration (Shipped: 2026-08-14)
+
+**Phases completed:** 1 phase (Phase 7), 2 plans, 5 tasks, 22 automated tests (53 total passing)
+
+**Key accomplishments:**
+
+1. Built core Fonnte WhatsApp API gateway client with Indonesian phone number normalizer (`phone.ts`), safe mock logger fallback for dev/test environments, and robust audit dispatch logging (`service.ts`).
+2. Engineered Indonesian markdown message template engine (`templates.ts`) with Asia/Jakarta WIB wall-clock time formatting, deep tracking URLs, and mandatory rejection reason formatting.
+3. Integrated non-blocking post-commit async notification triggers into `BookingService.createBookingRequest` sending confirmation messages to requesters and operational alerts to administrators.
+4. Integrated requester approval and rejection WhatsApp notifications into `BookingService.approveBooking` and `BookingService.rejectBooking` with structured status tracking links and rejection reasons.
+5. Implemented comprehensive test suites (`phone.test.ts`, `templates.test.ts`, `service.test.ts`) validating 100% pass rate across mock fallbacks, phone sanitization, template builders, and non-blocking lifecycle hooks.
+
+---
+
 ## v1.1 RBAC Enforcement (Shipped: 2026-08-14)
 
 **Phases completed:** 1 phase (Phase 6), 1 plan, 6 automated tests

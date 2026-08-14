@@ -53,6 +53,29 @@
 ### Key Lessons
 - **View-only constraints:** Conditionally hiding actions in layout files is helpful for UX, but backend checks are the only way to enforce security policies.
 
+## Milestone: v1.2 — WhatsApp Notification & Integration
+
+**Shipped:** 2026-08-14  
+**Phases:** 1 | **Plans:** 2 | **Automated Tests:** 53 / 53 Passing (100%)
+
+### What Was Built
+- **WhatsApp Gateway & Client Core (Phase 7 Plan 1):** Configured Fonnte API integration, robust Indonesian phone number normalization (`08...`, `+628...`, `628...` and group IDs), safe mock/logger fallback for test/dev modes, Asia/Jakarta timestamp formatting in Indonesian markdown templates, and audit dispatch logging.
+- **Lifecycle Notification Triggers (Phase 7 Plan 2):** Wired non-blocking post-commit async dispatches into all `BookingService` transition mutations (`createBookingRequest`, `approveBooking`, `rejectBooking`, `cancelBooking`) for requesters and operational alerts to administrators.
+
+### What Worked
+- **Non-blocking Post-Commit Hook Pattern:** Wrapping external gateway calls with `safeDispatchNotification` outside database transactions ensured zero latency impact and 100% transaction resilience against gateway failure or network timeout.
+- **Mock Fallback Strategy:** Clear visual console boxes for mock WhatsApp notifications made local development and automated testing instant and reproducible without sending live messages or incurring gateway costs.
+
+### What Was Inefficient
+- Initial trigger integration needed careful handling of asset relation names and phone fallback when requesters omitted contact numbers.
+
+### Patterns Established
+- **Non-blocking external side-effects:** External communication providers (WhatsApp, Email, Webhooks) must always be dispatched after database transaction commits with complete try/catch isolation.
+- **Structured notification templates:** Rejection messages strictly mandate rejection reasons, while submission/approval messages include deep status links and reference numbers.
+
+### Key Lessons
+- **Graceful degradation on missing contact info:** When user phone numbers are null or invalid, the core booking lifecycle proceeds seamlessly while logging a dispatch warning.
+
 ---
 
 ## Cross-Milestone Trends
@@ -61,6 +84,7 @@
 
 | Milestone | Phases | Plans | Tests | Key Change |
 |-----------|--------|-------|-------|------------|
+| v1.2 | 1 | 2 | 53 | Added asynchronous WhatsApp notifications and operational alert pipelines |
 | v1.1 | 1 | 1 | 31 | Implemented secure role hierarchy and route-level authorization |
 | v1.0 | 5 | 13 | 33 | Initial greenfield-to-production build with full GSD pipeline |
 
@@ -68,6 +92,7 @@
 
 | Milestone | Tests | Pass Rate | Gaps |
 |-----------|-------|-----------|------|
+| v1.2 | 53 | 100% | 0 |
 | v1.1 | 31 | 100% | 0 |
 | v1.0 | 33 | 100% | 0 |
 
@@ -76,3 +101,4 @@
 1. Transactional concurrency control paired with audit logging guarantees clean operational history and prevents booking collisions.
 2. Privacy-safe public API boundaries eliminate data leakage risks from the start.
 3. View-only constraints on the UI should always be coupled with strict min-role boundary checks on the server.
+4. Asynchronous post-commit dispatch guarantees third-party API reliability without compromising core database transaction integrity.
