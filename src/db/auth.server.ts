@@ -5,21 +5,19 @@ import { db } from "./client.server";
 import * as schema from "./schema";
 
 export const auth = betterAuth({
-  database: drizzleAdapter(db, {
-    provider: "pg",
-    schema,
-  }),
-  plugins: [
-    tanstackStartCookies()
-  ],
-  user: {
-    fields: {
-      role: "role",
-      status: "status",
-    },
-  },
-  signUp: {
-    enabled: false,
-  },
+	database: drizzleAdapter(db, {
+		provider: "pg",
+		schema,
+	}),
+	plugins: [tanstackStartCookies()],
+	user: {
+		fields: {
+			role: "role",
+			status: "status",
+		},
+	},
+	signUp: {
+		enabled: false,
+	},
 });
 export type Auth = typeof auth;
