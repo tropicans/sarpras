@@ -1,9 +1,9 @@
 ---
 phase: "07"
 slug: whatsapp-notification-integration
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: compliant
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-08-14
 ---
 
@@ -38,11 +38,11 @@ created: 2026-08-14
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 07-01-01 | 01 | 1 | WA-01, WA-02 | — | Sanitize phone inputs, handle mock fallback safely | unit | `node --import tsx --test src/lib/whatsapp/phone.test.ts` | ❌ W0 | ⬜ pending |
-| 07-01-02 | 01 | 1 | WA-04, WA-05, WA-06, WA-08 | — | Sanitize template interpolation, escape markdown properly | unit | `node --import tsx --test src/lib/whatsapp/templates.test.ts` | ❌ W0 | ⬜ pending |
-| 07-01-03 | 01 | 1 | WA-01, WA-02, WA-03 | — | Asynchronous non-blocking dispatch with audit logging | unit | `node --import tsx --test src/lib/whatsapp/service.test.ts` | ❌ W0 | ⬜ pending |
-| 07-02-01 | 02 | 2 | WA-04, WA-07, WA-08 | — | Non-blocking trigger on booking creation without holding tx lock | integration | `node --import tsx --test src/lib/booking/booking.test.ts` | ✅ | ⬜ pending |
-| 07-02-02 | 02 | 2 | WA-05, WA-06 | — | Non-blocking trigger on approve/reject with rejection reason | integration | `node --import tsx --test src/lib/booking/booking.test.ts` | ✅ | ⬜ pending |
+| 07-01-01 | 01 | 1 | WA-01, WA-02 | — | Sanitize phone inputs, handle mock fallback safely | unit | `node --import tsx --test src/lib/whatsapp/phone.test.ts` | ✅ | ✅ green |
+| 07-01-02 | 01 | 1 | WA-04, WA-05, WA-06, WA-08 | T-07-01 | Sanitize template interpolation, escape markdown properly | unit | `node --import tsx --test src/lib/whatsapp/templates.test.ts` | ✅ | ✅ green |
+| 07-01-03 | 01 | 1 | WA-01, WA-02, WA-03 | T-07-02, T-07-03, T-07-04 | Asynchronous non-blocking dispatch with audit logging | unit | `node --import tsx --test src/lib/whatsapp/service.test.ts` | ✅ | ✅ green |
+| 07-02-01 | 02 | 2 | WA-04, WA-07, WA-08 | T-07-02 | Non-blocking trigger on booking creation without holding tx lock | integration | `node --import tsx --test src/lib/booking/booking.test.ts` | ✅ | ✅ green |
+| 07-02-02 | 02 | 2 | WA-05, WA-06 | T-07-01, T-07-02 | Non-blocking trigger on approve/reject with rejection reason | integration | `node --import tsx --test src/lib/booking/booking.test.ts` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -50,9 +50,9 @@ created: 2026-08-14
 
 ## Wave 0 Requirements
 
-- [ ] `src/lib/whatsapp/phone.test.ts` — stubs for phone sanitization (WA-01, WA-02)
-- [ ] `src/lib/whatsapp/templates.test.ts` — stubs for message templates (WA-04, WA-05, WA-06, WA-08)
-- [ ] `src/lib/whatsapp/service.test.ts` — stubs for gateway client, mock provider & audit trail (WA-01, WA-02, WA-03)
+- [x] `src/lib/whatsapp/phone.test.ts` — stubs for phone sanitization (WA-01, WA-02)
+- [x] `src/lib/whatsapp/templates.test.ts` — stubs for message templates (WA-04, WA-05, WA-06, WA-08)
+- [x] `src/lib/whatsapp/service.test.ts` — stubs for gateway client, mock provider & audit trail (WA-01, WA-02, WA-03)
 
 ---
 
@@ -66,11 +66,11 @@ created: 2026-08-14
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 10s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 10s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending 2026-08-14
+**Approval:** verified 2026-08-14
