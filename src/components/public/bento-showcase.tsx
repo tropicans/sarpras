@@ -24,13 +24,17 @@ export function BentoShowcase() {
 				<div className="text-center max-w-2xl mx-auto space-y-2">
 					<div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 font-mono text-[11px] text-muted-foreground shadow-2xs">
 						<Sparkles className="h-3.5 w-3.5 text-primary" />
-						<span className="font-semibold text-foreground">ARSITEKTUR & FITUR UNGGULAN</span>
+						<span className="font-semibold text-foreground">
+							ARSITEKTUR & FITUR UNGGULAN
+						</span>
 					</div>
 					<h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
 						Standar Digitalisasi Fasilitas Terpadu
 					</h2>
 					<p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-						Infrastruktur peminjaman sarana PPKASN Kemensetneg dengan kendali jadwal real-time, verifikasi keamanan digital, dan notifikasi instan.
+						Infrastruktur peminjaman sarana PPKASN Kemensetneg dengan kendali
+						jadwal real-time, verifikasi keamanan digital, dan notifikasi
+						instan.
 					</p>
 				</div>
 
@@ -58,7 +62,9 @@ export function BentoShowcase() {
 									Validasi Jadwal Real-Time Bebas Bentrok
 								</h3>
 								<p className="text-xs text-muted-foreground mt-1 max-w-xl">
-									Setiap pengajuan divalidasi langsung terhadap kalender terpusat. Mengeliminasi tumpang tindih waktu antar unit kerja secara otomatis.
+									Setiap pengajuan divalidasi langsung terhadap kalender
+									terpusat. Mengeliminasi tumpang tindih waktu antar unit kerja
+									secara otomatis.
 								</p>
 							</div>
 
@@ -66,13 +72,17 @@ export function BentoShowcase() {
 							<div className="rounded-lg border border-border/80 bg-muted/40 p-3.5 space-y-2.5 font-mono text-xs">
 								<div className="flex items-center justify-between text-[11px] text-muted-foreground">
 									<span>Timeline Audit Hari Ini</span>
-									<span className="text-emerald-600 dark:text-emerald-400 font-medium">● 3 Sesi Terkonfirmasi</span>
+									<span className="text-emerald-600 dark:text-emerald-400 font-medium">
+										● 3 Sesi Terkonfirmasi
+									</span>
 								</div>
 
 								{/* Timeline visual bars */}
 								<div className="space-y-2">
 									<div className="flex items-center gap-2">
-										<span className="w-20 text-[10px] text-muted-foreground truncate">Auditorium</span>
+										<span className="w-20 text-[10px] text-muted-foreground truncate">
+											Auditorium
+										</span>
 										<div className="flex-1 flex gap-1 h-6 bg-card rounded border border-border/70 p-0.5">
 											<div className="w-1/3 bg-sky-500/20 text-sky-700 dark:text-sky-300 rounded text-[9px] flex items-center justify-center font-bold border border-sky-500/30">
 												08:00 - 11:30 (Rapat Utama)
@@ -84,7 +94,9 @@ export function BentoShowcase() {
 									</div>
 
 									<div className="flex items-center gap-2">
-										<span className="w-20 text-[10px] text-muted-foreground truncate">Ruang Garuda</span>
+										<span className="w-20 text-[10px] text-muted-foreground truncate">
+											Ruang Garuda
+										</span>
 										<div className="flex-1 flex gap-1 h-6 bg-card rounded border border-border/70 p-0.5">
 											<div className="w-1/2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded text-[9px] flex items-center justify-center font-semibold border border-emerald-500/20">
 												Tersedia Pagi
@@ -119,7 +131,8 @@ export function BentoShowcase() {
 									E-Tiket & Verifikasi QR
 								</h3>
 								<p className="text-xs text-muted-foreground mt-1">
-									Tiket digital berenkripsi dengan kode referensi unik untuk izin akses pengamanan gedung dan teknisi.
+									Tiket digital berenkripsi dengan kode referensi unik untuk
+									izin akses pengamanan gedung dan teknisi.
 								</p>
 							</div>
 
@@ -138,8 +151,12 @@ export function BentoShowcase() {
 										<QrCode className="h-8 w-8 text-slate-950" />
 									</div>
 									<div className="text-[11px] space-y-0.5">
-										<p className="font-semibold text-foreground">Ruang Rapat Utama</p>
-										<p className="text-[10px] text-muted-foreground">Otorisasi Satpam & Teknisi</p>
+										<p className="font-semibold text-foreground">
+											Ruang Rapat Utama
+										</p>
+										<p className="text-[10px] text-muted-foreground">
+											Otorisasi Satpam & Teknisi
+										</p>
 									</div>
 								</div>
 							</div>
@@ -166,18 +183,23 @@ export function BentoShowcase() {
 									WhatsApp & Email Real-time
 								</h3>
 								<p className="text-xs text-muted-foreground mt-1">
-									Notifikasi instan dikirim ke pemohon saat pengajuan disetujui, direvisi, atau dibatalkan.
+									Notifikasi instan dikirim ke pemohon saat pengajuan disetujui,
+									direvisi, atau dibatalkan.
 								</p>
 							</div>
 
 							<div className="space-y-2 font-mono text-[11px]">
 								<div className="flex items-center gap-2 rounded border border-border bg-muted/40 p-2 text-foreground">
 									<MessageSquare className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-									<span className="truncate">WA: "Status Booking #BK-91 telah disetujui"</span>
+									<span className="truncate">
+										WA: "Status Booking #BK-91 telah disetujui"
+									</span>
 								</div>
 								<div className="flex items-center gap-2 rounded border border-border bg-muted/40 p-2 text-foreground">
 									<Mail className="h-3.5 w-3.5 text-sky-500 shrink-0" />
-									<span className="truncate">Email: Lampiran E-Tiket & Tata Tertib</span>
+									<span className="truncate">
+										Email: Lampiran E-Tiket & Tata Tertib
+									</span>
 								</div>
 							</div>
 						</div>
@@ -205,7 +227,9 @@ export function BentoShowcase() {
 									Kesiapan Audio Visual & Fasilitas Terstandar
 								</h3>
 								<p className="text-xs text-muted-foreground mt-1 max-w-xl">
-									Setiap ruangan dirancang untuk mendukung rapat hybrid Zoom/Teams dengan dukungan teknisi sarana yang bersiap di lokasi.
+									Setiap ruangan dirancang untuk mendukung rapat hybrid
+									Zoom/Teams dengan dukungan teknisi sarana yang bersiap di
+									lokasi.
 								</p>
 							</div>
 
@@ -214,7 +238,9 @@ export function BentoShowcase() {
 								<div className="rounded-lg border border-border bg-muted/30 p-2.5 space-y-1">
 									<div className="flex items-center gap-1.5 text-sky-500">
 										<Tv className="h-3.5 w-3.5" />
-										<span className="font-mono text-[11px] font-bold">Display 4K UHD</span>
+										<span className="font-mono text-[11px] font-bold">
+											Display 4K UHD
+										</span>
 									</div>
 									<p className="text-[10px] text-muted-foreground font-sans">
 										Videowall & Proyektor Laser
@@ -224,7 +250,9 @@ export function BentoShowcase() {
 								<div className="rounded-lg border border-border bg-muted/30 p-2.5 space-y-1">
 									<div className="flex items-center gap-1.5 text-indigo-500">
 										<Mic className="h-3.5 w-3.5" />
-										<span className="font-mono text-[11px] font-bold">Audio Multi-Mic</span>
+										<span className="font-mono text-[11px] font-bold">
+											Audio Multi-Mic
+										</span>
 									</div>
 									<p className="text-[10px] text-muted-foreground font-sans">
 										Mic Wireless & Ceiling Array
@@ -234,7 +262,9 @@ export function BentoShowcase() {
 								<div className="rounded-lg border border-border bg-muted/30 p-2.5 space-y-1">
 									<div className="flex items-center gap-1.5 text-emerald-500">
 										<Wifi className="h-3.5 w-3.5" />
-										<span className="font-mono text-[11px] font-bold">Wi-Fi 6 Highspeed</span>
+										<span className="font-mono text-[11px] font-bold">
+											Wi-Fi 6 Highspeed
+										</span>
 									</div>
 									<p className="text-[10px] text-muted-foreground font-sans">
 										Dedicated Bandwidth Kemensetneg
@@ -244,7 +274,9 @@ export function BentoShowcase() {
 								<div className="rounded-lg border border-border bg-muted/30 p-2.5 space-y-1">
 									<div className="flex items-center gap-1.5 text-amber-500">
 										<Cpu className="h-3.5 w-3.5" />
-										<span className="font-mono text-[11px] font-bold">Genset Backup</span>
+										<span className="font-mono text-[11px] font-bold">
+											Genset Backup
+										</span>
 									</div>
 									<p className="text-[10px] text-muted-foreground font-sans">
 										Daya Listrik Tanpa Terputus

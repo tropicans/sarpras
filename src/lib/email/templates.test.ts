@@ -52,7 +52,9 @@ describe("Email Templates Engine (EMAIL-01, EMAIL-05, EMAIL-06, EMAIL-07, EMAIL-
 		assert.ok(result.html.includes("SARPRAS PPKASN"));
 		assert.ok(result.html.includes("Budi Santoso"));
 		assert.ok(result.html.includes("Auditorium Utama"));
-		assert.ok(result.html.includes("20/08/2026 08:00 s.d. 20/08/2026 16:00 WIB"));
+		assert.ok(
+			result.html.includes("20/08/2026 08:00 s.d. 20/08/2026 16:00 WIB"),
+		);
 		assert.ok(result.html.includes("Cek Status Permohonan"));
 		assert.ok(result.html.includes("/status/bkg-req-001"));
 
@@ -122,12 +124,16 @@ describe("Email Templates Engine (EMAIL-01, EMAIL-05, EMAIL-06, EMAIL-07, EMAIL-
 		assert.ok(result.subject.includes("#bkg-rej-004"));
 		assert.ok(result.html.includes("Ditolak"));
 		assert.ok(
-			result.html.includes("Fasilitas sedang dalam perbaikan drainase &amp; lampu."),
+			result.html.includes(
+				"Fasilitas sedang dalam perbaikan drainase &amp; lampu.",
+			),
 		);
 
 		assert.ok(result.text.includes("PERMOHONAN BOOKING DITOLAK"));
 		assert.ok(
-			result.text.includes("Fasilitas sedang dalam perbaikan drainase & lampu."),
+			result.text.includes(
+				"Fasilitas sedang dalam perbaikan drainase & lampu.",
+			),
 		);
 	});
 

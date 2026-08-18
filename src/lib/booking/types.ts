@@ -116,8 +116,7 @@ export const CreateBatchBookingInputSchema = z.object({
 		.optional()
 		.nullable()
 		.refine(
-			(val) =>
-				!val || val.trim() === "" || normalizePhoneNumber(val) !== null,
+			(val) => !val || val.trim() === "" || normalizePhoneNumber(val) !== null,
 			{
 				message: "Format nomor WhatsApp tidak valid (contoh: 08123456789)",
 			},
@@ -142,7 +141,6 @@ export const BatchApproveBookingsInputSchema = z.object({
 export type BatchApproveBookingsInput = z.infer<
 	typeof BatchApproveBookingsInputSchema
 >;
-
 
 export const RejectBookingInputSchema = z.object({
 	bookingId: z.string().uuid("Invalid booking ID"),

@@ -240,7 +240,11 @@ function BookingWizardPage() {
 		<div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-primary/20">
 			<PublicHeader />
 
-			<main className="flex-1 py-8 sm:py-12">
+			<main
+				id="main-content"
+				tabIndex={-1}
+				className="flex-1 py-8 sm:py-12 outline-hidden"
+			>
 				<div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-6">
 					{/* Breadcrumb Nav */}
 					<nav

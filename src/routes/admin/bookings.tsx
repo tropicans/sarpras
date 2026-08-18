@@ -201,7 +201,10 @@ function AdminBookingsComponent() {
 				>
 					<div className="flex items-center gap-2">
 						{notification.type === "success" ? (
-							<CheckCircle size={16} className="text-emerald-600 dark:text-emerald-400" />
+							<CheckCircle
+								size={16}
+								className="text-emerald-600 dark:text-emerald-400"
+							/>
 						) : (
 							<AlertCircle size={16} />
 						)}
@@ -259,7 +262,10 @@ function AdminBookingsComponent() {
 
 							{!loading && data?.items.length === 0 && (
 								<tr>
-									<td colSpan={7} className="py-16 text-center text-muted-foreground">
+									<td
+										colSpan={7}
+										className="py-16 text-center text-muted-foreground"
+									>
 										<div className="flex flex-col items-center justify-center gap-2">
 											<Inbox size={32} className="text-muted-foreground/60" />
 											<span className="font-medium text-sm text-foreground">

@@ -76,7 +76,9 @@ function AdminLayout() {
 						</div>
 
 						<div className="mt-2 rounded border border-border/60 bg-muted/40 p-2 font-mono">
-							<p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+							<p className="text-[10px] text-muted-foreground truncate">
+								{user.email}
+							</p>
 							<div className="mt-1 flex items-center justify-between">
 								<span className="inline-flex items-center rounded border border-primary/30 bg-primary/10 px-1.5 py-0.2 text-[9px] font-bold uppercase tracking-wider text-primary">
 									{user.role === "admin"
@@ -98,7 +100,10 @@ function AdminLayout() {
 						<Link
 							to="/admin"
 							activeOptions={{ exact: true }}
-							activeProps={{ className: "bg-primary text-primary-foreground font-semibold shadow-2xs!" }}
+							activeProps={{
+								className:
+									"bg-primary text-primary-foreground font-semibold shadow-2xs!",
+							}}
 							inactiveProps={{
 								className:
 									"text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -111,7 +116,10 @@ function AdminLayout() {
 
 						<Link
 							to="/admin/bookings"
-							activeProps={{ className: "bg-primary text-primary-foreground font-semibold shadow-2xs!" }}
+							activeProps={{
+								className:
+									"bg-primary text-primary-foreground font-semibold shadow-2xs!",
+							}}
 							inactiveProps={{
 								className:
 									"text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -124,7 +132,10 @@ function AdminLayout() {
 
 						<Link
 							to="/admin/calendar"
-							activeProps={{ className: "bg-primary text-primary-foreground font-semibold shadow-2xs!" }}
+							activeProps={{
+								className:
+									"bg-primary text-primary-foreground font-semibold shadow-2xs!",
+							}}
 							inactiveProps={{
 								className:
 									"text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -137,7 +148,10 @@ function AdminLayout() {
 
 						<Link
 							to="/admin/assets"
-							activeProps={{ className: "bg-primary text-primary-foreground font-semibold shadow-2xs!" }}
+							activeProps={{
+								className:
+									"bg-primary text-primary-foreground font-semibold shadow-2xs!",
+							}}
 							inactiveProps={{
 								className:
 									"text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -151,7 +165,10 @@ function AdminLayout() {
 						{user.role === "admin" && (
 							<Link
 								to="/admin/users"
-								activeProps={{ className: "bg-primary text-primary-foreground font-semibold shadow-2xs!" }}
+								activeProps={{
+									className:
+										"bg-primary text-primary-foreground font-semibold shadow-2xs!",
+								}}
 								inactiveProps={{
 									className:
 										"text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -166,7 +183,10 @@ function AdminLayout() {
 						{user.role === "admin" && (
 							<Link
 								to="/admin/audit"
-								activeProps={{ className: "bg-primary text-primary-foreground font-semibold shadow-2xs!" }}
+								activeProps={{
+									className:
+										"bg-primary text-primary-foreground font-semibold shadow-2xs!",
+								}}
 								inactiveProps={{
 									className:
 										"text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -187,7 +207,12 @@ function AdminLayout() {
 						className="flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors w-full text-left cursor-pointer"
 					>
 						<div className="flex items-center gap-2">
-							<ShieldCheck size={15} className={isTwoFactorEnabled ? "text-emerald-500" : "text-zinc-400"} />
+							<ShieldCheck
+								size={15}
+								className={
+									isTwoFactorEnabled ? "text-emerald-500" : "text-zinc-400"
+								}
+							/>
 							<span>KEAMANAN 2FA</span>
 						</div>
 						<span
@@ -213,7 +238,11 @@ function AdminLayout() {
 			</aside>
 
 			{/* Main Content */}
-			<main className="flex-1 bg-background p-6 lg:p-8 overflow-y-auto">
+			<main
+				id="main-content"
+				tabIndex={-1}
+				className="flex-1 bg-background p-6 lg:p-8 overflow-y-auto outline-hidden"
+			>
 				<Outlet />
 			</main>
 

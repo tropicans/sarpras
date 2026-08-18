@@ -315,7 +315,9 @@ test("Wave 2 & Wave 3: Transactional Booking Service, Concurrency & Audit Trail"
 
 			// Verify booking.create audit event
 			const logsAfterCreate = await getAuditLogsForEntity("booking", reqA.id);
-			const createLog = logsAfterCreate.find((l) => l.action === "booking.create");
+			const createLog = logsAfterCreate.find(
+				(l) => l.action === "booking.create",
+			);
 			assert.ok(createLog);
 			assert.strictEqual(createLog.metadata.newStatus, "pending");
 
@@ -337,7 +339,9 @@ test("Wave 2 & Wave 3: Transactional Booking Service, Concurrency & Audit Trail"
 
 			// Verify booking.approve audit event
 			const logsAfterApprove = await getAuditLogsForEntity("booking", reqA.id);
-			const approveLog = logsAfterApprove.find((l) => l.action === "booking.approve");
+			const approveLog = logsAfterApprove.find(
+				(l) => l.action === "booking.approve",
+			);
 			assert.ok(approveLog);
 			assert.strictEqual(approveLog.metadata.oldStatus, "pending");
 			assert.strictEqual(approveLog.metadata.newStatus, "approved");
@@ -589,7 +593,10 @@ test("Phase 4 Wave 1: Public Discovery, Schedule Projections & Pre-flight Availa
 			assert.strictEqual(status.assetName, `${prefix}Meeting Room Zeta`);
 			assert.strictEqual(status.status, "pending");
 			assert.strictEqual(status.letterFileName, "surat_rahasia.pdf");
-			assert.strictEqual(status.letterFileUrl, "/uploads/letters/surat_rahasia.pdf");
+			assert.strictEqual(
+				status.letterFileUrl,
+				"/uploads/letters/surat_rahasia.pdf",
+			);
 			assert.strictEqual((status as any).requesterName, undefined);
 			assert.strictEqual((status as any).requesterEmail, undefined);
 			assert.strictEqual((status as any).requesterPhone, undefined);
@@ -1080,5 +1087,3 @@ test("Phase Multi-Room: Batch / Multi-Room Booking Verification", async (t) => {
 
 	await cleanup();
 });
-
-

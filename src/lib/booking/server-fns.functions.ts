@@ -36,7 +36,10 @@ export const batchApproveBookingsFn = createServerFn({ method: "POST" })
 	.middleware([requireMinRole("operator")])
 	.validator((data: unknown) => BatchApproveBookingsInputSchema.parse(data))
 	.handler(async ({ data, context }) => {
-		return await BookingService.batchApproveBookings(data.groupId, context.user.id);
+		return await BookingService.batchApproveBookings(
+			data.groupId,
+			context.user.id,
+		);
 	});
 
 /**

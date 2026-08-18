@@ -1,8 +1,5 @@
 import { recordAuditEvent } from "../audit/audit.server";
-import type {
-	EmailDispatchResult,
-	SendEmailParams,
-} from "./types";
+import type { EmailDispatchResult, SendEmailParams } from "./types";
 
 const RFC_5322_EMAIL_REGEX =
 	/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
@@ -51,7 +48,9 @@ export class EmailService {
 	 * Sends a transactional email via Resend API, falling back to structured console mock
 	 * when in test/development mode or when RESEND_API_KEY is not configured.
 	 */
-	static async sendEmail(params: SendEmailParams): Promise<EmailDispatchResult> {
+	static async sendEmail(
+		params: SendEmailParams,
+	): Promise<EmailDispatchResult> {
 		const sanitizedTo = sanitizeEmailList(params.to);
 
 		if (sanitizedTo.length === 0) {
@@ -164,7 +163,11 @@ export class EmailService {
 				signal: AbortSignal.timeout(10000),
 			});
 
-			const data = (await response.json()) as { id?: string; message?: string; name?: string };
+			const data = (await response.json()) as {
+				id?: string;
+				message?: string;
+				name?: string;
+			};
 			const isSuccess = response.ok && !!data?.id;
 			const errorReason = isSuccess
 				? undefined
@@ -211,7 +214,10 @@ export class EmailService {
 		} catch (err: any) {
 			const errorMsg =
 				err?.message || "Unknown network error during email dispatch";
-			console.error("[EmailService] Error dispatching email to Resend:", errorMsg);
+			console.error(
+				"[EmailService] Error dispatching email to Resend:",
+				errorMsg,
+			);
 
 			if (params.bookingId) {
 				try {

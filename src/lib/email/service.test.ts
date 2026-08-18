@@ -17,9 +17,7 @@ test("Resend Email Service & Audit Dispatch (EMAIL-01, EMAIL-02, EMAIL-03, EMAIL
 	process.env.NODE_ENV = "test";
 
 	const cleanup = async () => {
-		await db
-			.delete(auditLogs)
-			.where(like(auditLogs.actorId, "system:email"));
+		await db.delete(auditLogs).where(like(auditLogs.actorId, "system:email"));
 		await db
 			.delete(bookings)
 			.where(like(bookings.requesterEmail, `${prefix}%`));
@@ -67,47 +65,58 @@ test("Resend Email Service & Audit Dispatch (EMAIL-01, EMAIL-02, EMAIL-03, EMAIL
 		assert.strictEqual(sanitizeEmail(undefined), null);
 	});
 
-	await t.test("sanitizes comma-separated and array email lists with deduplication", () => {
-		const rawCsv =
-			"admin@ppkasn.go.id,  operator@ppkasn.go.id , admin@ppkasn.go.id, invalid-mail";
-		const sanitized = sanitizeEmailList(rawCsv);
-		assert.deepStrictEqual(sanitized, [
-			"admin@ppkasn.go.id",
-			"operator@ppkasn.go.id",
-		]);
+	await t.test(
+		"sanitizes comma-separated and array email lists with deduplication",
+		() => {
+			const rawCsv =
+				"admin@ppkasn.go.id,  operator@ppkasn.go.id , admin@ppkasn.go.id, invalid-mail";
+			const sanitized = sanitizeEmailList(rawCsv);
+			assert.deepStrictEqual(sanitized, [
+				"admin@ppkasn.go.id",
+				"operator@ppkasn.go.id",
+			]);
 
-		const rawArr = ["user1@test.com", "user2@test.com, user1@test.com", ""];
-		const sanitizedArr = sanitizeEmailList(rawArr);
-		assert.deepStrictEqual(sanitizedArr, ["user1@test.com", "user2@test.com"]);
-	});
+			const rawArr = ["user1@test.com", "user2@test.com, user1@test.com", ""];
+			const sanitizedArr = sanitizeEmailList(rawArr);
+			assert.deepStrictEqual(sanitizedArr, [
+				"user1@test.com",
+				"user2@test.com",
+			]);
+		},
+	);
 
-	await t.test("returns mock success when in test mode or API key missing (EMAIL-02)", async () => {
-		const result = await sendEmail({
-			to: "pemohon@example.com",
-			subject: "Konfirmasi Pengajuan Booking #BKG-001",
-			html: "<h1>Konfirmasi</h1><p>Permohonan booking diterima.</p>",
-			text: "Konfirmasi: Permohonan booking diterima.",
-			bookingId: booking.id,
-			templateType: "BOOKING_SUBMITTED_REQUESTER",
-		});
+	await t.test(
+		"returns mock success when in test mode or API key missing (EMAIL-02)",
+		async () => {
+			const result = await sendEmail({
+				to: "pemohon@example.com",
+				subject: "Konfirmasi Pengajuan Booking #BKG-001",
+				html: "<h1>Konfirmasi</h1><p>Permohonan booking diterima.</p>",
+				text: "Konfirmasi: Permohonan booking diterima.",
+				bookingId: booking.id,
+				templateType: "BOOKING_SUBMITTED_REQUESTER",
+			});
 
-		assert.strictEqual(result.success, true);
-		assert.strictEqual(result.mock, true);
-		assert.ok(result.messageId?.startsWith("mock-email-"));
+			assert.strictEqual(result.success, true);
+			assert.strictEqual(result.mock, true);
+			assert.ok(result.messageId?.startsWith("mock-email-"));
 
-		// Verify audit log
-		const logs = await getAuditLogsForEntity("booking", booking.id);
-		assert.strictEqual(logs.length, 1);
-		assert.strictEqual(logs[0].action, "notification.email_dispatch");
-		assert.strictEqual(logs[0].actorId, "system:email");
-		assert.deepStrictEqual((logs[0].metadata as any).target, ["pemohon@example.com"]);
-		assert.strictEqual(
-			(logs[0].metadata as any).template,
-			"BOOKING_SUBMITTED_REQUESTER",
-		);
-		assert.strictEqual((logs[0].metadata as any).status, "mock");
-		assert.strictEqual((logs[0].metadata as any).provider, "resend_mock");
-	});
+			// Verify audit log
+			const logs = await getAuditLogsForEntity("booking", booking.id);
+			assert.strictEqual(logs.length, 1);
+			assert.strictEqual(logs[0].action, "notification.email_dispatch");
+			assert.strictEqual(logs[0].actorId, "system:email");
+			assert.deepStrictEqual((logs[0].metadata as any).target, [
+				"pemohon@example.com",
+			]);
+			assert.strictEqual(
+				(logs[0].metadata as any).template,
+				"BOOKING_SUBMITTED_REQUESTER",
+			);
+			assert.strictEqual((logs[0].metadata as any).status, "mock");
+			assert.strictEqual((logs[0].metadata as any).provider, "resend_mock");
+		},
+	);
 
 	await t.test(
 		"returns failure when recipient email list is invalid or empty without throwing (EMAIL-03)",
@@ -132,71 +141,80 @@ test("Resend Email Service & Audit Dispatch (EMAIL-01, EMAIL-02, EMAIL-03, EMAIL
 		},
 	);
 
-	await t.test("safeDispatchEmail never throws and catches unexpected exceptions (EMAIL-04)", async () => {
-		const result = await safeDispatchEmail({
-			to: "valid@test.com",
-			subject: "Safe Dispatch Test",
-			html: "<p>Safe</p>",
-			text: "Safe",
-		});
-
-		assert.strictEqual(result.success, true);
-	});
-
-	await t.test("formats real Resend API HTTP request correctly when API key provided", async () => {
-		const originalFetch = globalThis.fetch;
-		const originalKey = process.env.RESEND_API_KEY;
-		const originalMock = process.env.RESEND_MOCK;
-		const originalEnv = process.env.NODE_ENV;
-
-		try {
-			process.env.RESEND_API_KEY = "re_test_123456789";
-			process.env.RESEND_MOCK = "false";
-			(process.env as any).NODE_ENV = "production";
-
-			let capturedUrl = "";
-			let capturedOptions: RequestInit | undefined;
-
-			globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-				capturedUrl = String(input);
-				capturedOptions = init;
-				return new Response(JSON.stringify({ id: "resend_msg_98765" }), {
-					status: 200,
-					headers: { "Content-Type": "application/json" },
-				});
-			};
-
-			const result = await EmailService.sendEmail({
-				to: "target@ppkasn.go.id",
-				subject: "Real API Test",
-				html: "<p>Real HTML</p>",
-				text: "Real text",
-				bookingId: booking.id,
-				templateType: "BOOKING_APPROVED",
+	await t.test(
+		"safeDispatchEmail never throws and catches unexpected exceptions (EMAIL-04)",
+		async () => {
+			const result = await safeDispatchEmail({
+				to: "valid@test.com",
+				subject: "Safe Dispatch Test",
+				html: "<p>Safe</p>",
+				text: "Safe",
 			});
 
 			assert.strictEqual(result.success, true);
-			assert.strictEqual(result.mock, false);
-			assert.strictEqual(result.messageId, "resend_msg_98765");
-			assert.strictEqual(capturedUrl, "https://api.resend.com/emails");
-			assert.strictEqual(capturedOptions?.method, "POST");
+		},
+	);
 
-			const headers = capturedOptions?.headers as Record<string, string>;
-			assert.strictEqual(headers.Authorization, "Bearer re_test_123456789");
-			assert.strictEqual(headers["Content-Type"], "application/json");
+	await t.test(
+		"formats real Resend API HTTP request correctly when API key provided",
+		async () => {
+			const originalFetch = globalThis.fetch;
+			const originalKey = process.env.RESEND_API_KEY;
+			const originalMock = process.env.RESEND_MOCK;
+			const originalEnv = process.env.NODE_ENV;
 
-			const body = JSON.parse(String(capturedOptions?.body));
-			assert.deepStrictEqual(body.to, ["target@ppkasn.go.id"]);
-			assert.strictEqual(body.subject, "Real API Test");
-			assert.strictEqual(body.html, "<p>Real HTML</p>");
-			assert.strictEqual(body.text, "Real text");
-		} finally {
-			globalThis.fetch = originalFetch;
-			process.env.RESEND_API_KEY = originalKey;
-			process.env.RESEND_MOCK = originalMock;
-			process.env.NODE_ENV = originalEnv;
-		}
-	});
+			try {
+				process.env.RESEND_API_KEY = "re_test_123456789";
+				process.env.RESEND_MOCK = "false";
+				(process.env as any).NODE_ENV = "production";
+
+				let capturedUrl = "";
+				let capturedOptions: RequestInit | undefined;
+
+				globalThis.fetch = async (
+					input: RequestInfo | URL,
+					init?: RequestInit,
+				) => {
+					capturedUrl = String(input);
+					capturedOptions = init;
+					return new Response(JSON.stringify({ id: "resend_msg_98765" }), {
+						status: 200,
+						headers: { "Content-Type": "application/json" },
+					});
+				};
+
+				const result = await EmailService.sendEmail({
+					to: "target@ppkasn.go.id",
+					subject: "Real API Test",
+					html: "<p>Real HTML</p>",
+					text: "Real text",
+					bookingId: booking.id,
+					templateType: "BOOKING_APPROVED",
+				});
+
+				assert.strictEqual(result.success, true);
+				assert.strictEqual(result.mock, false);
+				assert.strictEqual(result.messageId, "resend_msg_98765");
+				assert.strictEqual(capturedUrl, "https://api.resend.com/emails");
+				assert.strictEqual(capturedOptions?.method, "POST");
+
+				const headers = capturedOptions?.headers as Record<string, string>;
+				assert.strictEqual(headers.Authorization, "Bearer re_test_123456789");
+				assert.strictEqual(headers["Content-Type"], "application/json");
+
+				const body = JSON.parse(String(capturedOptions?.body));
+				assert.deepStrictEqual(body.to, ["target@ppkasn.go.id"]);
+				assert.strictEqual(body.subject, "Real API Test");
+				assert.strictEqual(body.html, "<p>Real HTML</p>");
+				assert.strictEqual(body.text, "Real text");
+			} finally {
+				globalThis.fetch = originalFetch;
+				process.env.RESEND_API_KEY = originalKey;
+				process.env.RESEND_MOCK = originalMock;
+				process.env.NODE_ENV = originalEnv;
+			}
+		},
+	);
 
 	await cleanup();
 });

@@ -10,7 +10,10 @@ test("Two-Factor Authentication (TOTP) Server Configuration & Schema Tests", () 
 	// 1. Verify twoFactor plugin is registered
 	const plugins = options.plugins || [];
 	const twoFactorPlugin = plugins.find((p: any) => p.id === "two-factor");
-	assert.ok(twoFactorPlugin, "twoFactor plugin must be registered in Better Auth");
+	assert.ok(
+		twoFactorPlugin,
+		"twoFactor plugin must be registered in Better Auth",
+	);
 
 	// 2. Verify issuer and allowPasswordless are configured
 	assert.strictEqual(

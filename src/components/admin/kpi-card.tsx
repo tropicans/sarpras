@@ -53,7 +53,9 @@ export function KpiCard({
 			className={`p-5 rounded-xl border ${variantStyles.border} ${variantStyles.bg} flex items-center justify-between shadow-xs transition-all hover:shadow-sm`}
 		>
 			<div className="flex flex-col gap-1">
-				<span className="text-xs font-medium text-muted-foreground">{title}</span>
+				<span className="text-xs font-medium text-muted-foreground">
+					{title}
+				</span>
 				<span className={`text-3xl font-bold ${variantStyles.valColor}`}>
 					{value}
 				</span>

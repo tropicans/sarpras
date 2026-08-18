@@ -1,8 +1,4 @@
-import {
-	createFileRoute,
-	Link,
-	useRouter,
-} from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import {
 	AlertCircle,
 	AlertTriangle,
@@ -42,6 +38,17 @@ function BookingStatusDetailPage() {
 	const [cancelReason, setCancelReason] = useState("");
 	const [cancelling, setCancelling] = useState(false);
 	const [cancelError, setCancelError] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (!cancelModalOpen) return;
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === "Escape" && !cancelling) {
+				setCancelModalOpen(false);
+			}
+		};
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [cancelModalOpen, cancelling]);
 
 	const formatDateTime = (isoString?: string) => {
 		if (!isoString) return "-";
@@ -94,7 +101,11 @@ function BookingStatusDetailPage() {
 		return (
 			<div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-primary/20">
 				<PublicHeader />
-				<main className="flex-1 py-16 sm:py-20">
+				<main
+					id="main-content"
+					tabIndex={-1}
+					className="flex-1 py-16 sm:py-20 outline-hidden"
+				>
 					<div className="mx-auto max-w-md px-4 text-center space-y-4">
 						<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400">
 							<AlertCircle className="h-6 w-6" />
@@ -108,7 +119,8 @@ function BookingStatusDetailPage() {
 							</p>
 						</div>
 						<p className="text-xs text-muted-foreground leading-relaxed">
-							Kode referensi tidak sesuai dengan data permohonan peminjaman di sistem. Pastikan UUID lengkap telah dimasukkan dengan benar.
+							Kode referensi tidak sesuai dengan data permohonan peminjaman di
+							sistem. Pastikan UUID lengkap telah dimasukkan dengan benar.
 						</p>
 						<div className="pt-2 flex items-center justify-center gap-2 font-mono text-xs">
 							<Link
@@ -141,7 +153,11 @@ function BookingStatusDetailPage() {
 		<div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-primary/20">
 			<PublicHeader />
 
-			<main className="flex-1 py-8 sm:py-12">
+			<main
+				id="main-content"
+				tabIndex={-1}
+				className="flex-1 py-8 sm:py-12 outline-hidden"
+			>
 				<div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-6">
 					{/* Breadcrumbs */}
 					<nav className="flex items-center gap-1.5 font-mono text-[11px] text-muted-foreground">
@@ -149,11 +165,16 @@ function BookingStatusDetailPage() {
 							ROOT
 						</Link>
 						<span>/</span>
-						<Link to="/status" className="hover:text-foreground transition-colors">
+						<Link
+							to="/status"
+							className="hover:text-foreground transition-colors"
+						>
 							STATUS
 						</Link>
 						<span>/</span>
-						<span className="text-foreground font-semibold truncate">{booking.id.slice(0, 8)}...</span>
+						<span className="text-foreground font-semibold truncate">
+							{booking.id.slice(0, 8)}...
+						</span>
 					</nav>
 
 					{/* Top Header Card */}
@@ -163,7 +184,9 @@ function BookingStatusDetailPage() {
 								<div className="flex items-center gap-2 font-mono text-[10px] uppercase text-muted-foreground">
 									<span>STATUS // TIKET PEMINJAMAN</span>
 									<span className="text-border">•</span>
-									<span className="text-foreground font-mono font-medium">#{booking.id}</span>
+									<span className="text-foreground font-mono font-medium">
+										#{booking.id}
+									</span>
 								</div>
 								<h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
 									{booking.assetName}
@@ -288,7 +311,8 @@ function BookingStatusDetailPage() {
 								<div className="flex items-center justify-between">
 									<span className="text-[11px] uppercase font-bold text-foreground flex items-center gap-1.5">
 										<Building className="h-3.5 w-3.5 text-primary" />
-										RINCIAN SELURUH FASILITAS DALAM GRUP ({booking.items.length} RUANGAN)
+										RINCIAN SELURUH FASILITAS DALAM GRUP ({booking.items.length}{" "}
+										RUANGAN)
 									</span>
 									<span className="text-[10px] text-muted-foreground">
 										Group Ref: {booking.groupId}
@@ -340,7 +364,10 @@ function BookingStatusDetailPage() {
 													<div className="flex justify-between text-muted-foreground">
 														<span>Jadwal:</span>
 														<span className="text-foreground">
-															{formatScheduleRange(item.startDate, item.endDate)}
+															{formatScheduleRange(
+																item.startDate,
+																item.endDate,
+															)}
 														</span>
 													</div>
 													<div className="flex justify-between text-muted-foreground">
@@ -380,12 +407,15 @@ function BookingStatusDetailPage() {
 								<div className="space-y-1.5 pt-1">
 									<div className="flex justify-between border-b border-border/40 pb-1">
 										<span className="text-muted-foreground">Sarana</span>
-										<span className="font-semibold text-foreground">{booking.assetName}</span>
+										<span className="font-semibold text-foreground">
+											{booking.assetName}
+										</span>
 									</div>
 									<div className="flex justify-between border-b border-border/40 pb-1">
 										<span className="text-muted-foreground">Kategori</span>
 										<span className="font-semibold text-foreground">
-											{ASSET_TYPE_LABELS[booking.assetType as AssetType] || booking.assetType}
+											{ASSET_TYPE_LABELS[booking.assetType as AssetType] ||
+												booking.assetType}
 										</span>
 									</div>
 									<div className="flex justify-between border-b border-border/40 pb-1">
@@ -396,13 +426,21 @@ function BookingStatusDetailPage() {
 									</div>
 									{booking.roomLayout && (
 										<div className="flex justify-between border-b border-border/40 pb-1">
-											<span className="text-muted-foreground">Layout Ruangan</span>
-											<span className="font-bold text-primary">{booking.roomLayout}</span>
+											<span className="text-muted-foreground">
+												Layout Ruangan
+											</span>
+											<span className="font-bold text-primary">
+												{booking.roomLayout}
+											</span>
 										</div>
 									)}
 									<div className="flex justify-between">
-										<span className="text-muted-foreground">Jumlah Peserta</span>
-										<span className="font-bold text-primary">{booking.attendance} Pax</span>
+										<span className="text-muted-foreground">
+											Jumlah Peserta
+										</span>
+										<span className="font-bold text-primary">
+											{booking.attendance} Pax
+										</span>
 									</div>
 								</div>
 							</div>
@@ -415,15 +453,23 @@ function BookingStatusDetailPage() {
 								<div className="space-y-1.5 pt-1">
 									<div className="flex justify-between border-b border-border/40 pb-1">
 										<span className="text-muted-foreground">Mulai</span>
-										<span className="font-semibold text-foreground">{formatDateTime(booking.startDate)} WIB</span>
+										<span className="font-semibold text-foreground">
+											{formatDateTime(booking.startDate)} WIB
+										</span>
 									</div>
 									<div className="flex justify-between border-b border-border/40 pb-1">
 										<span className="text-muted-foreground">Selesai</span>
-										<span className="font-semibold text-foreground">{formatDateTime(booking.endDate)} WIB</span>
+										<span className="font-semibold text-foreground">
+											{formatDateTime(booking.endDate)} WIB
+										</span>
 									</div>
 									<div className="flex justify-between">
-										<span className="text-muted-foreground">Update Terakhir</span>
-										<span className="text-muted-foreground">{formatDateTime(booking.updatedAt)} WIB</span>
+										<span className="text-muted-foreground">
+											Update Terakhir
+										</span>
+										<span className="text-muted-foreground">
+											{formatDateTime(booking.updatedAt)} WIB
+										</span>
 									</div>
 								</div>
 							</div>
@@ -463,7 +509,9 @@ function BookingStatusDetailPage() {
 							<div className="pt-3 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 font-mono text-xs">
 								<div className="text-muted-foreground flex items-center gap-1.5">
 									<ShieldAlert className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-									<span>Perlu membatalkan jadwal ini sebelum waktu pelaksanaan?</span>
+									<span>
+										Perlu membatalkan jadwal ini sebelum waktu pelaksanaan?
+									</span>
 								</div>
 								<button
 									type="button"
@@ -486,13 +534,17 @@ function BookingStatusDetailPage() {
 						className="relative w-full max-w-md rounded-lg border border-border bg-card p-5 shadow-2xl space-y-4 font-mono text-xs"
 						role="dialog"
 						aria-modal="true"
+						aria-labelledby="cancel-modal-title"
 					>
 						<div className="flex items-center gap-2.5 text-destructive border-b border-border pb-3">
 							<div className="flex h-7 w-7 items-center justify-center rounded border border-destructive/30 bg-destructive/10">
 								<AlertTriangle className="h-4 w-4" />
 							</div>
 							<div>
-								<h3 className="font-bold text-sm text-foreground">
+								<h3
+									id="cancel-modal-title"
+									className="font-bold text-sm text-foreground"
+								>
 									KONFIRMASI PEMBATALAN
 								</h3>
 								<p className="text-[11px] text-muted-foreground">
@@ -502,7 +554,10 @@ function BookingStatusDetailPage() {
 						</div>
 
 						{cancelError && (
-							<div className="rounded bg-destructive/10 border border-destructive/20 p-2.5 text-destructive text-[11px]">
+							<div
+								role="alert"
+								className="rounded bg-destructive/10 border border-destructive/20 p-2.5 text-destructive text-[11px]"
+							>
 								{cancelError}
 							</div>
 						)}
@@ -514,10 +569,14 @@ function BookingStatusDetailPage() {
 						</p>
 
 						<div className="space-y-1">
-							<label className="text-[11px] font-semibold text-foreground block uppercase">
+							<label
+								htmlFor="cancel-reason-input"
+								className="text-[11px] font-semibold text-foreground block uppercase"
+							>
 								Alasan Pembatalan <span className="text-destructive">*</span>:
 							</label>
 							<textarea
+								id="cancel-reason-input"
 								rows={3}
 								value={cancelReason}
 								onChange={(e) => {

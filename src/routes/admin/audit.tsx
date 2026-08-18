@@ -10,9 +10,7 @@ import { getAdminAuditLogsFn } from "#/lib/audit/admin-fns.functions";
 
 const AuditSearchSchema = z.object({
 	action: z.string().optional(),
-	entityType: z
-		.enum(["all", "booking", "asset", "user"])
-		.optional(),
+	entityType: z.enum(["all", "booking", "asset", "user"]).optional(),
 	actorId: z.string().optional(),
 	startDate: z.string().optional(),
 	endDate: z.string().optional(),
@@ -115,7 +113,14 @@ function AdminAuditRouteComponent() {
 					onClick={fetchAuditLogs}
 					className="self-start md:self-auto px-3.5 py-2 bg-card border border-border text-xs font-semibold text-foreground rounded-lg hover:bg-muted transition-colors flex items-center gap-2 shadow-xs cursor-pointer"
 				>
-					<RefreshCw size={14} className={loading ? "animate-spin text-muted-foreground" : "text-muted-foreground"} />
+					<RefreshCw
+						size={14}
+						className={
+							loading
+								? "animate-spin text-muted-foreground"
+								: "text-muted-foreground"
+						}
+					/>
 					<span>Segarkan Log</span>
 				</button>
 			</div>

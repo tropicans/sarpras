@@ -51,7 +51,12 @@ export const uploadBookingLetterFn = createServerFn({ method: "POST" })
 			throw new Error("Berkas yang diunggah bukan dokumen PDF yang valid.");
 		}
 
-		const uploadDir = path.resolve(process.cwd(), "public", "uploads", "letters");
+		const uploadDir = path.resolve(
+			process.cwd(),
+			"public",
+			"uploads",
+			"letters",
+		);
 		await fs.mkdir(uploadDir, { recursive: true });
 
 		const safeOriginalName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");

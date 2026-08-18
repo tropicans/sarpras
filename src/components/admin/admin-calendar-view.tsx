@@ -13,11 +13,7 @@ import {
 	subMonths,
 	subWeeks,
 } from "date-fns";
-import {
-	Building2,
-	ChevronLeft,
-	ChevronRight,
-} from "lucide-react";
+import { Building2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import {
 	type CalendarEventItem,
@@ -334,7 +330,9 @@ export function AdminCalendarView({
 								<div
 									key={day.toISOString()}
 									className={`min-h-[110px] p-1.5 flex flex-col gap-1 transition-colors ${
-										!isCurrentMonth ? "bg-muted/30 text-muted-foreground/50" : ""
+										!isCurrentMonth
+											? "bg-muted/30 text-muted-foreground/50"
+											: ""
 									} ${today ? "bg-primary/5" : ""}`}
 								>
 									<div className="flex items-center justify-between">

@@ -90,7 +90,8 @@ export function TwoFactorSetupModal({
 
 			if (res.error) {
 				throw new Error(
-					res.error.message || "Kode 6-digit tidak valid. Pastikan waktu di HP Anda akurat.",
+					res.error.message ||
+						"Kode 6-digit tidak valid. Pastikan waktu di HP Anda akurat.",
 				);
 			}
 
@@ -116,11 +117,24 @@ export function TwoFactorSetupModal({
 			onStatusChange(false);
 			onClose();
 		} catch (err: any) {
-			setError(err?.message || "Gagal menonaktifkan Two-Factor Authentication.");
+			setError(
+				err?.message || "Gagal menonaktifkan Two-Factor Authentication.",
+			);
 		} finally {
 			setLoading(false);
 		}
 	};
+
+	React.useEffect(() => {
+		if (!isOpen) return;
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === "Escape" && !loading) {
+				onClose();
+			}
+		};
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [isOpen, loading, onClose]);
 
 	const handleCopySecret = () => {
 		if (!secret) return;
@@ -138,15 +152,30 @@ export function TwoFactorSetupModal({
 
 	return (
 		<div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in">
-			<div className="w-full max-w-[480px] bg-card text-foreground border border-border rounded-2xl shadow-2xl p-6 flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
+			{/* Screen reader live announcements for copy feedback */}
+			<div role="status" aria-live="polite" className="sr-only">
+				{copiedSecret && "Kunci rahasia 2FA berhasil disalin ke papan klip."}
+				{copiedBackup &&
+					"Seluruh kode cadangan darurat 2FA berhasil disalin ke papan klip."}
+			</div>
+
+			<div
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="two-factor-modal-title"
+				className="w-full max-w-[480px] bg-card text-foreground border border-border rounded-2xl shadow-2xl p-6 flex flex-col gap-5 max-h-[90vh] overflow-y-auto"
+			>
 				{/* Modal Header */}
 				<div className="flex items-center justify-between border-b border-border pb-4">
 					<div className="flex items-center gap-3">
 						<div className="p-2.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl">
-							<ShieldCheck size={22} />
+							<ShieldCheck size={22} aria-hidden="true" />
 						</div>
 						<div>
-							<h3 className="text-base font-bold text-foreground">
+							<h3
+								id="two-factor-modal-title"
+								className="text-base font-bold text-foreground"
+							>
 								Google Authenticator (2FA)
 							</h3>
 							<p className="text-xs text-muted-foreground">
@@ -158,15 +187,23 @@ export function TwoFactorSetupModal({
 						type="button"
 						onClick={onClose}
 						className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors cursor-pointer"
+						aria-label="Tutup dialog 2FA"
 					>
-						<X size={18} />
+						<X size={18} aria-hidden="true" />
 					</button>
 				</div>
 
 				{/* Error Alert */}
 				{error && (
-					<div className="p-3.5 bg-destructive/10 border border-destructive/20 text-destructive text-xs rounded-xl flex items-start gap-2.5">
-						<AlertCircle size={16} className="shrink-0 mt-0.5" />
+					<div
+						role="alert"
+						className="p-3.5 bg-destructive/10 border border-destructive/20 text-destructive text-xs rounded-xl flex items-start gap-2.5"
+					>
+						<AlertCircle
+							size={16}
+							className="shrink-0 mt-0.5"
+							aria-hidden="true"
+						/>
 						<span>{error}</span>
 					</div>
 				)}
@@ -176,13 +213,18 @@ export function TwoFactorSetupModal({
 					<div className="flex flex-col gap-4">
 						<div className="p-4 bg-muted/40 border border-border rounded-xl flex flex-col gap-2.5">
 							<div className="flex items-center gap-2 font-semibold text-xs text-foreground">
-								<Shield size={16} className="text-blue-600 dark:text-blue-400" />
+								<Shield
+									size={16}
+									className="text-blue-600 dark:text-blue-400"
+									aria-hidden="true"
+								/>
 								<span>Mengapa Mengaktifkan 2FA?</span>
 							</div>
 							<p className="text-xs text-muted-foreground leading-relaxed">
-								Dengan 2FA, setiap kali Anda login dengan akun Google, sistem akan meminta
-								kode verifikasi 6-digit dari aplikasi authenticator di ponsel Anda (Google
-								Authenticator, Microsoft Authenticator, atau Authy) untuk mencegah akses tidak sah.
+								Dengan 2FA, setiap kali Anda login dengan akun Google, sistem
+								akan meminta kode verifikasi 6-digit dari aplikasi authenticator
+								di ponsel Anda (Google Authenticator, Microsoft Authenticator,
+								atau Authy) untuk mencegah akses tidak sah.
 							</p>
 						</div>
 
@@ -200,7 +242,7 @@ export function TwoFactorSetupModal({
 								disabled={loading}
 								className="px-4 py-2.5 bg-primary text-primary-foreground text-xs font-semibold rounded-xl hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer shadow-xs"
 							>
-								<QrCode size={16} />
+								<QrCode size={16} aria-hidden="true" />
 								<span>{loading ? "Menyiapkan..." : "Mulai Aktivasi 2FA"}</span>
 							</button>
 						</div>
@@ -209,10 +251,18 @@ export function TwoFactorSetupModal({
 
 				{/* STEP: Scan QR Code & Confirm */}
 				{step === "scan" && (
-					<form onSubmit={handleVerifyAndConfirm} className="flex flex-col gap-4">
+					<form
+						onSubmit={handleVerifyAndConfirm}
+						className="flex flex-col gap-4"
+					>
 						<div className="text-xs text-muted-foreground space-y-1">
-							<p className="font-semibold text-foreground">1. Pindai QR Code di Ponsel Anda:</p>
-							<p>Buka Google Authenticator &rarr; Tambah Akun (+) &rarr; Scan QR Code.</p>
+							<p className="font-semibold text-foreground">
+								1. Pindai QR Code di Ponsel Anda:
+							</p>
+							<p>
+								Buka Google Authenticator &rarr; Tambah Akun (+) &rarr; Scan QR
+								Code.
+							</p>
 						</div>
 
 						{/* QR Code Container */}
@@ -222,7 +272,7 @@ export function TwoFactorSetupModal({
 									src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
 										totpUri,
 									)}`}
-									alt="TOTP QR Code"
+									alt="QR Code untuk autentikasi dua faktor TOTP"
 									className="w-44 h-44 rounded-lg bg-white p-2 border border-border shadow-2xs"
 								/>
 							) : (
@@ -241,12 +291,17 @@ export function TwoFactorSetupModal({
 										type="button"
 										onClick={handleCopySecret}
 										className="p-1 text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
+										aria-label="Salin Secret Key 2FA"
 										title="Salin Secret Key"
 									>
 										{copiedSecret ? (
-											<Check size={14} className="text-emerald-600 dark:text-emerald-400" />
+											<Check
+												size={14}
+												className="text-emerald-600 dark:text-emerald-400"
+												aria-hidden="true"
+											/>
 										) : (
-											<Copy size={14} />
+											<Copy size={14} aria-hidden="true" />
 										)}
 									</button>
 								</div>
@@ -255,10 +310,14 @@ export function TwoFactorSetupModal({
 
 						{/* Verification Code Input */}
 						<div className="flex flex-col gap-1.5">
-							<label className="text-xs font-semibold text-foreground">
+							<label
+								htmlFor="totp-verify-input"
+								className="text-xs font-semibold text-foreground"
+							>
 								2. Masukkan 6-Digit Kode Konfirmasi dari Aplikasi:
 							</label>
 							<input
+								id="totp-verify-input"
 								type="text"
 								inputMode="numeric"
 								required
@@ -266,7 +325,7 @@ export function TwoFactorSetupModal({
 								value={verifyCode}
 								onChange={(e) => setVerifyCode(e.target.value)}
 								placeholder="Misal: 482910"
-								className="px-3.5 py-2.5 bg-background border border-border text-foreground rounded-xl text-center text-base font-mono tracking-widest focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-muted-foreground/60"
+								className="px-3.5 py-2.5 bg-background border border-border text-foreground rounded-xl text-center text-base font-mono tracking-widest focus:ring-2 focus:ring-primary focus:outline-hidden placeholder:text-muted-foreground/60"
 							/>
 						</div>
 
@@ -284,7 +343,9 @@ export function TwoFactorSetupModal({
 								className="px-4 py-2.5 bg-emerald-600 text-white text-xs font-semibold rounded-xl hover:bg-emerald-700 transition-all flex items-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
 							>
 								<CheckCircle2 size={16} />
-								<span>{loading ? "Memverifikasi..." : "Verifikasi & Aktifkan"}</span>
+								<span>
+									{loading ? "Memverifikasi..." : "Verifikasi & Aktifkan"}
+								</span>
 							</button>
 						</div>
 					</form>
@@ -294,12 +355,18 @@ export function TwoFactorSetupModal({
 				{step === "backup" && (
 					<div className="flex flex-col gap-4">
 						<div className="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 rounded-xl flex items-start gap-3">
-							<CheckCircle2 size={20} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+							<CheckCircle2
+								size={20}
+								className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"
+							/>
 							<div className="space-y-1">
-								<p className="font-bold text-xs text-emerald-900 dark:text-emerald-200">2FA Berhasil Diaktifkan!</p>
+								<p className="font-bold text-xs text-emerald-900 dark:text-emerald-200">
+									2FA Berhasil Diaktifkan!
+								</p>
 								<p className="text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed">
-									Simpan kode cadangan darurat (Backup Codes) di bawah ini di tempat aman. Kode
-									ini dapat digunakan jika Anda kehilangan akses ke ponsel.
+									Simpan kode cadangan darurat (Backup Codes) di bawah ini di
+									tempat aman. Kode ini dapat digunakan jika Anda kehilangan
+									akses ke ponsel.
 								</p>
 							</div>
 						</div>
@@ -314,16 +381,23 @@ export function TwoFactorSetupModal({
 								<button
 									type="button"
 									onClick={handleCopyBackupCodes}
+									aria-label="Salin seluruh Kode Cadangan 2FA"
 									className="inline-flex items-center gap-1 text-primary hover:underline font-semibold cursor-pointer"
 								>
 									{copiedBackup ? (
 										<>
-											<Check size={13} className="text-emerald-600 dark:text-emerald-400" />
-											<span className="text-emerald-600 dark:text-emerald-400">Tersalin!</span>
+											<Check
+												size={13}
+												className="text-emerald-600 dark:text-emerald-400"
+												aria-hidden="true"
+											/>
+											<span className="text-emerald-600 dark:text-emerald-400">
+												Tersalin!
+											</span>
 										</>
 									) : (
 										<>
-											<Copy size={13} />
+											<Copy size={13} aria-hidden="true" />
 											<span>Salin Semua</span>
 										</>
 									)}
@@ -332,7 +406,10 @@ export function TwoFactorSetupModal({
 
 							<div className="grid grid-cols-2 gap-2 font-mono text-xs text-foreground bg-background p-3 rounded-lg border border-border select-all">
 								{backupCodes.map((c, i) => (
-									<div key={i} className="p-1.5 bg-muted/40 rounded text-center border border-border/50">
+									<div
+										key={i}
+										className="p-1.5 bg-muted/40 rounded text-center border border-border/50"
+									>
 										{c}
 									</div>
 								))}
@@ -355,13 +432,18 @@ export function TwoFactorSetupModal({
 				{step === "disable" && (
 					<div className="flex flex-col gap-4">
 						<div className="p-4 bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 rounded-xl flex items-start gap-3">
-							<ShieldAlert size={20} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+							<ShieldAlert
+								size={20}
+								className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
+							/>
 							<div className="space-y-1">
-								<p className="font-bold text-xs text-amber-900 dark:text-amber-200">2FA Sedang Aktif pada Akun Anda</p>
+								<p className="font-bold text-xs text-amber-900 dark:text-amber-200">
+									2FA Sedang Aktif pada Akun Anda
+								</p>
 								<p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
-									Akun Anda saat ini dilindungi dengan Google Authenticator. Jika Anda
-									menonaktifkannya, login Google Anda tidak akan lagi memerlukan verifikasi
-									PIN 6-digit.
+									Akun Anda saat ini dilindungi dengan Google Authenticator.
+									Jika Anda menonaktifkannya, login Google Anda tidak akan lagi
+									memerlukan verifikasi PIN 6-digit.
 								</p>
 							</div>
 						</div>

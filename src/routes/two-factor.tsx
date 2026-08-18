@@ -46,7 +46,8 @@ function TwoFactorVerificationComponent() {
 				});
 				if (res.error) {
 					throw new Error(
-						res.error.message || "Kode verifikasi 6-digit tidak valid atau sudah kedaluwarsa.",
+						res.error.message ||
+							"Kode verifikasi 6-digit tidak valid atau sudah kedaluwarsa.",
 					);
 				}
 			}
@@ -89,7 +90,11 @@ function TwoFactorVerificationComponent() {
 					{/* Header */}
 					<div className="flex flex-col items-center text-center gap-2.5">
 						<div className="h-12 w-12 rounded-xl border border-primary/30 bg-primary/10 flex items-center justify-center text-primary shadow-xs">
-							{useBackupCode ? <KeyRound size={24} /> : <ShieldAlert size={24} />}
+							{useBackupCode ? (
+								<KeyRound size={24} />
+							) : (
+								<ShieldAlert size={24} />
+							)}
 						</div>
 						<div className="space-y-1">
 							<div className="inline-flex items-center gap-1 font-mono text-[10px] text-muted-foreground uppercase">
@@ -98,7 +103,9 @@ function TwoFactorVerificationComponent() {
 								<span className="text-primary font-bold">TWO-FACTOR AUTH</span>
 							</div>
 							<h1 className="text-xl font-bold tracking-tight text-foreground">
-								{useBackupCode ? "Verifikasi Kode Cadangan" : "Verifikasi Authenticator"}
+								{useBackupCode
+									? "Verifikasi Kode Cadangan"
+									: "Verifikasi Authenticator"}
 							</h1>
 							<p className="text-xs text-muted-foreground leading-relaxed">
 								{useBackupCode
@@ -123,7 +130,9 @@ function TwoFactorVerificationComponent() {
 					<form onSubmit={handleVerify} className="flex flex-col gap-4">
 						<div className="flex flex-col gap-1.5">
 							<label className="text-xs font-semibold text-foreground font-mono">
-								{useBackupCode ? "KODE CADANGAN (BACKUP CODE)" : "KODE 6-DIGIT TOTP"}
+								{useBackupCode
+									? "KODE CADANGAN (BACKUP CODE)"
+									: "KODE 6-DIGIT TOTP"}
 							</label>
 							<input
 								type="text"
@@ -193,7 +202,8 @@ function TwoFactorVerificationComponent() {
 
 			{/* Footer */}
 			<div className="py-3 text-center text-[11px] font-mono text-muted-foreground border-t border-border bg-background/80">
-				&copy; {new Date().getFullYear()} PPKASN KEMENTERIAN SEKRETARIAT NEGARA RI
+				&copy; {new Date().getFullYear()} PPKASN KEMENTERIAN SEKRETARIAT NEGARA
+				RI
 			</div>
 		</div>
 	);

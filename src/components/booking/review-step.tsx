@@ -66,7 +66,8 @@ export function ReviewStep({
 						KONFIRMASI AKHIR // REVIEW DATA PERMOHONAN
 					</h3>
 					<p className="text-[11px] text-muted-foreground mt-0.5 font-sans">
-						Pastikan rincian sarana, waktu pelaksanaan, dan kontak pemohon telah benar sebelum mengirimkan permohonan.
+						Pastikan rincian sarana, waktu pelaksanaan, dan kontak pemohon telah
+						benar sebelum mengirimkan permohonan.
 					</p>
 				</div>
 
@@ -123,7 +124,9 @@ export function ReviewStep({
 
 									{room.schedule.roomLayout && (
 										<div className="flex justify-between text-[11px]">
-											<span className="text-muted-foreground">Layout Ruangan:</span>
+											<span className="text-muted-foreground">
+												Layout Ruangan:
+											</span>
 											<span className="font-semibold text-foreground">
 												{room.schedule.roomLayout}
 											</span>
@@ -151,17 +154,23 @@ export function ReviewStep({
 						<div className="space-y-1.5 pt-1 text-xs">
 							<div className="flex justify-between border-b border-border/40 pb-1">
 								<span className="text-muted-foreground">Nama</span>
-								<span className="font-semibold text-foreground">{requester.requesterName}</span>
+								<span className="font-semibold text-foreground">
+									{requester.requesterName}
+								</span>
 							</div>
 
 							<div className="flex justify-between border-b border-border/40 pb-1">
 								<span className="text-muted-foreground">Email</span>
-								<span className="font-semibold text-foreground">{requester.requesterEmail}</span>
+								<span className="font-semibold text-foreground">
+									{requester.requesterEmail}
+								</span>
 							</div>
 
 							<div className="flex justify-between border-b border-border/40 pb-1">
 								<span className="text-muted-foreground">WhatsApp</span>
-								<span className="font-semibold text-foreground">{requester.requesterPhone}</span>
+								<span className="font-semibold text-foreground">
+									{requester.requesterPhone}
+								</span>
 							</div>
 
 							<div className="flex justify-between border-b border-border/40 pb-1">
@@ -199,7 +208,9 @@ export function ReviewStep({
 							className="mt-0.5 h-3.5 w-3.5 rounded border-border text-primary focus:ring-primary"
 						/>
 						<span className="text-[11px] text-foreground/90 leading-relaxed">
-							Saya menyatakan bahwa data yang diisikan adalah benar dan bersedia mematuhi seluruh tata tertib penggunaan fasilitas PPKASN Kementerian Sekretariat Negara RI.
+							Saya menyatakan bahwa data yang diisikan adalah benar dan bersedia
+							mematuhi seluruh tata tertib penggunaan fasilitas PPKASN
+							Kementerian Sekretariat Negara RI.
 						</span>
 					</label>
 				</div>

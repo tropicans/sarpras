@@ -73,6 +73,17 @@ export function ScheduleModal({ asset, isOpen, onClose }: ScheduleModalProps) {
 		};
 	}, [isOpen, asset]);
 
+	useEffect(() => {
+		if (!isOpen) return;
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				onClose();
+			}
+		};
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [isOpen, onClose]);
+
 	if (!isOpen || !asset) return null;
 
 	const facilities = getAssetFacilities(asset);
@@ -105,16 +116,20 @@ export function ScheduleModal({ asset, isOpen, onClose }: ScheduleModalProps) {
 				className="relative w-full max-w-xl rounded-lg border border-border bg-card shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
 				role="dialog"
 				aria-modal="true"
+				aria-labelledby="schedule-modal-title"
 			>
 				{/* Modal Header */}
 				<div className="border-b border-border px-5 py-3.5 bg-muted/30 space-y-2.5">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-2.5">
 							<div className="flex h-7 w-7 items-center justify-center rounded-md border border-primary/30 bg-primary/10 text-primary">
-								<Calendar className="h-3.5 w-3.5" />
+								<Calendar className="h-3.5 w-3.5" aria-hidden="true" />
 							</div>
 							<div>
-								<h3 className="font-mono text-xs font-bold uppercase tracking-wider text-foreground">
+								<h3
+									id="schedule-modal-title"
+									className="font-mono text-xs font-bold uppercase tracking-wider text-foreground"
+								>
 									JADWAL FASILITAS // {asset.name}
 								</h3>
 								<p className="text-[11px] text-muted-foreground">
@@ -127,9 +142,9 @@ export function ScheduleModal({ asset, isOpen, onClose }: ScheduleModalProps) {
 							type="button"
 							onClick={onClose}
 							className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
-							aria-label="Tutup Modal"
+							aria-label="Tutup dialog jadwal fasilitas"
 						>
-							<X className="h-4 w-4" />
+							<X className="h-4 w-4" aria-hidden="true" />
 						</button>
 					</div>
 

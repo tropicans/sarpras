@@ -75,7 +75,11 @@ function LoginComponent() {
 			</div>
 
 			{/* Main Login Card (Aside/Linear style) */}
-			<div className="flex-1 flex items-center justify-center p-4">
+			<main
+				id="main-content"
+				tabIndex={-1}
+				className="flex-1 flex items-center justify-center p-4 outline-hidden"
+			>
 				<div className="w-full max-w-[400px] bg-card border border-border rounded-lg shadow-xl p-6 sm:p-8 flex flex-col gap-6 animate-in fade-in duration-200">
 					{/* Logo & Header */}
 					<div className="flex flex-col items-center text-center gap-2.5">
@@ -92,18 +96,19 @@ function LoginComponent() {
 								Portal Masuk Petugas
 							</h1>
 							<p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
-								Platform Digital Layanan & Fasilitas Kedinasan Terintegrasi PPKASN Kemensetneg
+								Platform Digital Layanan & Fasilitas Kedinasan Terintegrasi
+								PPKASN Kemensetneg
 							</p>
 						</div>
 					</div>
 
 					{/* Error Alert */}
 					{error && (
-						<div className="p-3 bg-destructive/10 border border-destructive/20 text-destructive text-xs rounded-md flex items-start gap-2 font-mono">
-							<AlertCircle
-								size={15}
-								className="shrink-0 mt-0.5"
-							/>
+						<div
+							role="alert"
+							className="p-3 bg-destructive/10 border border-destructive/20 text-destructive text-xs rounded-md flex items-start gap-2 font-mono"
+						>
+							<AlertCircle size={15} className="shrink-0 mt-0.5" />
 							<div>
 								<span className="font-bold">[AKSES DITOLAK]: </span>
 								<span>{error}</span>
@@ -122,6 +127,7 @@ function LoginComponent() {
 							{loading ? (
 								<>
 									<svg
+										aria-hidden="true"
 										className="animate-spin h-4 w-4 text-foreground"
 										fill="none"
 										viewBox="0 0 24 24"
@@ -144,7 +150,11 @@ function LoginComponent() {
 								</>
 							) : (
 								<>
-									<svg className="h-4 w-4" viewBox="0 0 24 24">
+									<svg
+										aria-hidden="true"
+										className="h-4 w-4"
+										viewBox="0 0 24 24"
+									>
 										<path
 											fill="#4285F4"
 											d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -173,16 +183,18 @@ function LoginComponent() {
 								<span>AKSES KHUSUS OPERATOR & PIMPINAN</span>
 							</div>
 							<p className="leading-relaxed font-sans text-[11px]">
-								Gunakan akun Gmail / Google Workspace yang telah terdaftar di database pengguna administrator.
+								Gunakan akun Gmail / Google Workspace yang telah terdaftar di
+								database pengguna administrator.
 							</p>
 						</div>
 					</div>
 				</div>
-			</div>
+			</main>
 
 			{/* Footer */}
 			<div className="py-3 text-center text-[11px] font-mono text-muted-foreground border-t border-border bg-background/80">
-				&copy; {new Date().getFullYear()} PPKASN KEMENTERIAN SEKRETARIAT NEGARA RI
+				&copy; {new Date().getFullYear()} PPKASN KEMENTERIAN SEKRETARIAT NEGARA
+				RI
 			</div>
 		</div>
 	);

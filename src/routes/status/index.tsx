@@ -1,9 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import {
-	HelpCircle,
-	Search,
-	Terminal,
-} from "lucide-react";
+import { HelpCircle, Search, Terminal } from "lucide-react";
 import { useState } from "react";
 import { PublicFooter } from "#/components/public/public-footer";
 import { PublicHeader } from "#/components/public/public-header";
@@ -44,7 +40,8 @@ function StatusLookupPage() {
 							Cek Status Permohonan
 						</h1>
 						<p className="text-xs text-muted-foreground leading-relaxed">
-							Pantau proses verifikasi berkas, persetujuan pimpinan, dan status jadwal peminjaman secara real-time.
+							Pantau proses verifikasi berkas, persetujuan pimpinan, dan status
+							jadwal peminjaman secara real-time.
 						</p>
 					</div>
 
@@ -69,7 +66,9 @@ function StatusLookupPage() {
 									/>
 								</div>
 								{inputError && (
-									<p className="font-mono text-[11px] text-destructive">{inputError}</p>
+									<p className="font-mono text-[11px] text-destructive">
+										{inputError}
+									</p>
 								)}
 							</div>
 
@@ -89,7 +88,9 @@ function StatusLookupPage() {
 								<span>DI MANA KODE REFERENSI SAYA?</span>
 							</div>
 							<p className="text-[11px] leading-relaxed">
-								Kode referensi berupa UUID 36 karakter yang diterbitkan saat pengajuan selesai atau tertera pada notifikasi WhatsApp / Email Anda.
+								Kode referensi berupa UUID 36 karakter yang diterbitkan saat
+								pengajuan selesai atau tertera pada notifikasi WhatsApp / Email
+								Anda.
 							</p>
 						</div>
 					</div>

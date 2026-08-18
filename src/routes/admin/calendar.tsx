@@ -83,7 +83,14 @@ function AdminCalendarRouteComponent() {
 					onClick={fetchEvents}
 					className="self-start md:self-auto px-3.5 py-2 bg-card border border-border text-xs font-semibold text-foreground rounded-lg hover:bg-muted transition-colors flex items-center gap-2 shadow-xs cursor-pointer"
 				>
-					<RefreshCw size={14} className={loading ? "animate-spin text-muted-foreground" : "text-muted-foreground"} />
+					<RefreshCw
+						size={14}
+						className={
+							loading
+								? "animate-spin text-muted-foreground"
+								: "text-muted-foreground"
+						}
+					/>
 					<span>Segarkan Jadwal</span>
 				</button>
 			</div>

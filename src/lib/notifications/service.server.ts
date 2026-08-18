@@ -161,16 +161,17 @@ export async function dispatchBookingCreatedNotifications(
 				},
 	);
 
-	const whatsappResults: WhatsAppDispatchResult[] = whatsappSettled.map((res) =>
-		res.status === "fulfilled"
-			? res.value
-			: {
-					success: false,
-					error:
-						res.reason instanceof Error
-							? res.reason.message
-							: String(res.reason),
-				},
+	const whatsappResults: WhatsAppDispatchResult[] = whatsappSettled.map(
+		(res) =>
+			res.status === "fulfilled"
+				? res.value
+				: {
+						success: false,
+						error:
+							res.reason instanceof Error
+								? res.reason.message
+								: String(res.reason),
+					},
 	);
 
 	return { emailResults, whatsappResults };
@@ -246,16 +247,17 @@ export async function dispatchBookingApprovedNotifications(
 				},
 	);
 
-	const whatsappResults: WhatsAppDispatchResult[] = whatsappSettled.map((res) =>
-		res.status === "fulfilled"
-			? res.value
-			: {
-					success: false,
-					error:
-						res.reason instanceof Error
-							? res.reason.message
-							: String(res.reason),
-				},
+	const whatsappResults: WhatsAppDispatchResult[] = whatsappSettled.map(
+		(res) =>
+			res.status === "fulfilled"
+				? res.value
+				: {
+						success: false,
+						error:
+							res.reason instanceof Error
+								? res.reason.message
+								: String(res.reason),
+					},
 	);
 
 	return { emailResults, whatsappResults };
@@ -331,16 +333,17 @@ export async function dispatchBookingRejectedNotifications(
 				},
 	);
 
-	const whatsappResults: WhatsAppDispatchResult[] = whatsappSettled.map((res) =>
-		res.status === "fulfilled"
-			? res.value
-			: {
-					success: false,
-					error:
-						res.reason instanceof Error
-							? res.reason.message
-							: String(res.reason),
-				},
+	const whatsappResults: WhatsAppDispatchResult[] = whatsappSettled.map(
+		(res) =>
+			res.status === "fulfilled"
+				? res.value
+				: {
+						success: false,
+						error:
+							res.reason instanceof Error
+								? res.reason.message
+								: String(res.reason),
+					},
 	);
 
 	return { emailResults, whatsappResults };
@@ -418,16 +421,17 @@ export async function dispatchBookingCancelledNotifications(
 				},
 	);
 
-	const whatsappResults: WhatsAppDispatchResult[] = whatsappSettled.map((res) =>
-		res.status === "fulfilled"
-			? res.value
-			: {
-					success: false,
-					error:
-						res.reason instanceof Error
-							? res.reason.message
-							: String(res.reason),
-				},
+	const whatsappResults: WhatsAppDispatchResult[] = whatsappSettled.map(
+		(res) =>
+			res.status === "fulfilled"
+				? res.value
+				: {
+						success: false,
+						error:
+							res.reason instanceof Error
+								? res.reason.message
+								: String(res.reason),
+					},
 	);
 
 	return { emailResults, whatsappResults };

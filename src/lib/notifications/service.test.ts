@@ -19,9 +19,7 @@ test("Unified Dual-Channel Notification Orchestrator (NOTIF-01, NOTIF-02, EMAIL-
 	process.env.RESEND_MOCK = "true";
 
 	const cleanup = async () => {
-		await db
-			.delete(auditLogs)
-			.where(like(auditLogs.actorId, "system:%"));
+		await db.delete(auditLogs).where(like(auditLogs.actorId, "system:%"));
 		await db
 			.delete(bookings)
 			.where(like(bookings.requesterEmail, `${prefix}%`));
@@ -54,87 +52,97 @@ test("Unified Dual-Channel Notification Orchestrator (NOTIF-01, NOTIF-02, EMAIL-
 		})
 		.returning();
 
-	await t.test("dispatches to both Email and WhatsApp when both exist (NOTIF-01)", async () => {
-		const origAdminEmail = process.env.ADMIN_DEFAULT_EMAIL;
-		const origAdminWa = process.env.FONNTE_ADMIN_TARGET;
+	await t.test(
+		"dispatches to both Email and WhatsApp when both exist (NOTIF-01)",
+		async () => {
+			const origAdminEmail = process.env.ADMIN_DEFAULT_EMAIL;
+			const origAdminWa = process.env.FONNTE_ADMIN_TARGET;
 
-		try {
-			process.env.ADMIN_DEFAULT_EMAIL = "admin1@ppkasn.go.id, admin2@ppkasn.go.id";
-			process.env.FONNTE_ADMIN_TARGET = "08111268777";
+			try {
+				process.env.ADMIN_DEFAULT_EMAIL =
+					"admin1@ppkasn.go.id, admin2@ppkasn.go.id";
+				process.env.FONNTE_ADMIN_TARGET = "08111268777";
 
-			const summary = await dispatchBookingCreatedNotifications({
+				const summary = await dispatchBookingCreatedNotifications({
+					bookingId: booking.id,
+					bookingRef: booking.id,
+					requesterName: booking.requesterName,
+					requesterEmail: booking.requesterEmail,
+					requesterPhone: booking.requesterPhone,
+					requesterOrganization: "Bagian Umum",
+					assetName: asset.name,
+					startDate: booking.startDate,
+					endDate: booking.endDate,
+					attendance: 50,
+					purpose: booking.purpose,
+				});
+
+				// Requester email + 2 Admin emails = 3 email dispatches
+				assert.strictEqual(summary.emailResults.length, 3);
+				assert.ok(summary.emailResults.every((r) => r.success && r.mock));
+
+				// Requester WA + 1 Admin WA = 2 WA dispatches
+				assert.strictEqual(summary.whatsappResults.length, 2);
+				assert.ok(summary.whatsappResults.every((r) => r.success && r.mock));
+
+				// Verify audit logs recorded across both channels (NOTIF-02)
+				const logs = await getAuditLogsForEntity("booking", booking.id);
+				const emailLogs = logs.filter(
+					(l) => l.action === "notification.email_dispatch",
+				);
+				const waLogs = logs.filter(
+					(l) => l.action === "notification.whatsapp_dispatch",
+				);
+
+				assert.ok(emailLogs.length >= 1);
+				assert.ok(waLogs.length >= 1);
+			} finally {
+				process.env.ADMIN_DEFAULT_EMAIL = origAdminEmail;
+				process.env.FONNTE_ADMIN_TARGET = origAdminWa;
+			}
+		},
+	);
+
+	await t.test(
+		"gracefully handles email-only recipient without phone",
+		async () => {
+			const summary = await dispatchBookingApprovedNotifications({
 				bookingId: booking.id,
 				bookingRef: booking.id,
-				requesterName: booking.requesterName,
-				requesterEmail: booking.requesterEmail,
-				requesterPhone: booking.requesterPhone,
-				requesterOrganization: "Bagian Umum",
+				requesterName: "Hendra",
+				requesterEmail: "hendra@ppkasn.go.id",
+				requesterPhone: null,
 				assetName: asset.name,
 				startDate: booking.startDate,
 				endDate: booking.endDate,
-				attendance: 50,
-				purpose: booking.purpose,
 			});
 
-			// Requester email + 2 Admin emails = 3 email dispatches
-			assert.strictEqual(summary.emailResults.length, 3);
-			assert.ok(summary.emailResults.every((r) => r.success && r.mock));
+			assert.strictEqual(summary.emailResults.length, 1);
+			assert.strictEqual(summary.emailResults[0].success, true);
+			assert.strictEqual(summary.whatsappResults.length, 0);
+		},
+	);
 
-			// Requester WA + 1 Admin WA = 2 WA dispatches
-			assert.strictEqual(summary.whatsappResults.length, 2);
-			assert.ok(summary.whatsappResults.every((r) => r.success && r.mock));
+	await t.test(
+		"gracefully handles phone-only recipient without email",
+		async () => {
+			const summary = await dispatchBookingRejectedNotifications({
+				bookingId: booking.id,
+				bookingRef: booking.id,
+				requesterName: "Siti",
+				requesterEmail: null,
+				requesterPhone: "081298765432",
+				assetName: asset.name,
+				startDate: booking.startDate,
+				endDate: booking.endDate,
+				rejectionReason: "Jadwal bertabrakan dengan acara pimpinan.",
+			});
 
-			// Verify audit logs recorded across both channels (NOTIF-02)
-			const logs = await getAuditLogsForEntity("booking", booking.id);
-			const emailLogs = logs.filter(
-				(l) => l.action === "notification.email_dispatch",
-			);
-			const waLogs = logs.filter(
-				(l) => l.action === "notification.whatsapp_dispatch",
-			);
-
-			assert.ok(emailLogs.length >= 1);
-			assert.ok(waLogs.length >= 1);
-		} finally {
-			process.env.ADMIN_DEFAULT_EMAIL = origAdminEmail;
-			process.env.FONNTE_ADMIN_TARGET = origAdminWa;
-		}
-	});
-
-	await t.test("gracefully handles email-only recipient without phone", async () => {
-		const summary = await dispatchBookingApprovedNotifications({
-			bookingId: booking.id,
-			bookingRef: booking.id,
-			requesterName: "Hendra",
-			requesterEmail: "hendra@ppkasn.go.id",
-			requesterPhone: null,
-			assetName: asset.name,
-			startDate: booking.startDate,
-			endDate: booking.endDate,
-		});
-
-		assert.strictEqual(summary.emailResults.length, 1);
-		assert.strictEqual(summary.emailResults[0].success, true);
-		assert.strictEqual(summary.whatsappResults.length, 0);
-	});
-
-	await t.test("gracefully handles phone-only recipient without email", async () => {
-		const summary = await dispatchBookingRejectedNotifications({
-			bookingId: booking.id,
-			bookingRef: booking.id,
-			requesterName: "Siti",
-			requesterEmail: null,
-			requesterPhone: "081298765432",
-			assetName: asset.name,
-			startDate: booking.startDate,
-			endDate: booking.endDate,
-			rejectionReason: "Jadwal bertabrakan dengan acara pimpinan.",
-		});
-
-		assert.strictEqual(summary.emailResults.length, 0);
-		assert.strictEqual(summary.whatsappResults.length, 1);
-		assert.strictEqual(summary.whatsappResults[0].success, true);
-	});
+			assert.strictEqual(summary.emailResults.length, 0);
+			assert.strictEqual(summary.whatsappResults.length, 1);
+			assert.strictEqual(summary.whatsappResults[0].success, true);
+		},
+	);
 
 	await t.test("handles cancellation notification dispatches", async () => {
 		const summary = await dispatchBookingCancelledNotifications({
@@ -156,13 +164,16 @@ test("Unified Dual-Channel Notification Orchestrator (NOTIF-01, NOTIF-02, EMAIL-
 		assert.strictEqual(summary.whatsappResults[0].success, true);
 	});
 
-	await t.test("safeDispatchBookingNotifications catches and isolates errors (EMAIL-04)", async () => {
-		const result = await safeDispatchBookingNotifications(async () => {
-			throw new Error("Simulated critical gateway exception");
-		});
+	await t.test(
+		"safeDispatchBookingNotifications catches and isolates errors (EMAIL-04)",
+		async () => {
+			const result = await safeDispatchBookingNotifications(async () => {
+				throw new Error("Simulated critical gateway exception");
+			});
 
-		assert.strictEqual(result, null);
-	});
+			assert.strictEqual(result, null);
+		},
+	);
 
 	await cleanup();
 });

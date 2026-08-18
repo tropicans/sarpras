@@ -321,11 +321,18 @@ export function ScheduleStep({
 					/* Time-Slot Schedule Inputs (Tanggal Mulai & Tanggal Selesai) */
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
 						<div className="space-y-1">
-							<label className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
-								<Calendar className="h-3.5 w-3.5 text-primary" />
+							<label
+								htmlFor="primary-start-date"
+								className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase"
+							>
+								<Calendar
+									className="h-3.5 w-3.5 text-primary"
+									aria-hidden="true"
+								/>
 								Tanggal Mulai
 							</label>
 							<input
+								id="primary-start-date"
 								type="date"
 								value={startDateStr}
 								min={new Date().toISOString().split("T")[0]}
@@ -347,11 +354,18 @@ export function ScheduleStep({
 						</div>
 
 						<div className="space-y-1">
-							<label className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
-								<Clock className="h-3.5 w-3.5 text-primary" />
+							<label
+								htmlFor="primary-start-time"
+								className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase"
+							>
+								<Clock
+									className="h-3.5 w-3.5 text-primary"
+									aria-hidden="true"
+								/>
 								Waktu Mulai
 							</label>
 							<input
+								id="primary-start-time"
 								type="time"
 								value={startTime}
 								onClick={(e) => {
@@ -366,11 +380,18 @@ export function ScheduleStep({
 						</div>
 
 						<div className="space-y-1">
-							<label className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
-								<Calendar className="h-3.5 w-3.5 text-primary" />
+							<label
+								htmlFor="primary-end-date"
+								className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase"
+							>
+								<Calendar
+									className="h-3.5 w-3.5 text-primary"
+									aria-hidden="true"
+								/>
 								Tanggal Selesai
 							</label>
 							<input
+								id="primary-end-date"
 								type="date"
 								value={endDateStr}
 								min={startDateStr}
@@ -386,11 +407,18 @@ export function ScheduleStep({
 						</div>
 
 						<div className="space-y-1">
-							<label className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
-								<Clock className="h-3.5 w-3.5 text-primary" />
+							<label
+								htmlFor="primary-end-time"
+								className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase"
+							>
+								<Clock
+									className="h-3.5 w-3.5 text-primary"
+									aria-hidden="true"
+								/>
 								Waktu Selesai
 							</label>
 							<input
+								id="primary-end-time"
 								type="time"
 								value={endTime}
 								onClick={(e) => {
@@ -408,11 +436,18 @@ export function ScheduleStep({
 					/* Dormitory Schedule Inputs */
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 						<div className="space-y-1">
-							<label className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
-								<Calendar className="h-3.5 w-3.5 text-primary" />
+							<label
+								htmlFor="dorm-checkin-date"
+								className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase"
+							>
+								<Calendar
+									className="h-3.5 w-3.5 text-primary"
+									aria-hidden="true"
+								/>
 								Tanggal Check-in
 							</label>
 							<input
+								id="dorm-checkin-date"
 								type="date"
 								value={checkInStr}
 								min={new Date().toISOString().split("T")[0]}
@@ -426,11 +461,18 @@ export function ScheduleStep({
 						</div>
 
 						<div className="space-y-1">
-							<label className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
-								<Calendar className="h-3.5 w-3.5 text-primary" />
+							<label
+								htmlFor="dorm-checkout-date"
+								className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase"
+							>
+								<Calendar
+									className="h-3.5 w-3.5 text-primary"
+									aria-hidden="true"
+								/>
 								Tanggal Check-out
 							</label>
 							<input
+								id="dorm-checkout-date"
 								type="date"
 								value={checkOutStr}
 								min={checkInStr}
@@ -449,8 +491,14 @@ export function ScheduleStep({
 				{isRoom && (
 					<div className="space-y-1.5 pt-2 border-t border-border">
 						<div className="flex items-center justify-between">
-							<label className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
-								<Building2 className="h-3.5 w-3.5 text-primary" />
+							<label
+								htmlFor="room-layout-select"
+								className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase"
+							>
+								<Building2
+									className="h-3.5 w-3.5 text-primary"
+									aria-hidden="true"
+								/>
 								<span>Pengaturan Ruangan</span>
 								<span className="text-destructive">*</span>
 							</label>
@@ -468,6 +516,7 @@ export function ScheduleStep({
 							)}
 						</div>
 						<select
+							id="room-layout-select"
 							value={roomLayout}
 							onChange={(e) => {
 								const val = e.target.value;
@@ -492,8 +541,11 @@ export function ScheduleStep({
 				{/* Attendance Input */}
 				<div className="space-y-1 pt-2 border-t border-border">
 					<div className="flex items-center justify-between">
-						<label className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
-							<Users className="h-3.5 w-3.5 text-primary" />
+						<label
+							htmlFor="attendance-count-input"
+							className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase"
+						>
+							<Users className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
 							{isRoom ? "Jumlah Peserta Rapat" : "Jumlah Tamu Menginap"}
 						</label>
 						<span className="font-mono text-[10px] text-muted-foreground">
@@ -502,6 +554,7 @@ export function ScheduleStep({
 						</span>
 					</div>
 					<input
+						id="attendance-count-input"
 						type="number"
 						min={1}
 						max={maxAttendance}
@@ -515,24 +568,36 @@ export function ScheduleStep({
 				</div>
 
 				{/* Live Preflight Status Feedback */}
-				<div>
+				<div role="status" aria-live="polite">
 					{checking ? (
 						<div className="flex items-center gap-2 rounded-md border border-border bg-muted/40 p-3 font-mono text-xs text-muted-foreground">
-							<Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+							<Loader2
+								className="h-3.5 w-3.5 animate-spin text-primary"
+								aria-hidden="true"
+							/>
 							<span>MEMERIKSA KETERSEDIAAN JADWAL...</span>
 						</div>
 					) : availabilityResult ? (
 						availabilityResult.available ? (
 							<div className="flex items-center gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-3 font-mono text-xs text-emerald-800 dark:text-emerald-300">
-								<CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+								<CheckCircle2
+									className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400"
+									aria-hidden="true"
+								/>
 								<span>
 									<strong>[TERSEDIA]:</strong> Jadwal siap diajukan untuk{" "}
 									{asset.name}.
 								</span>
 							</div>
 						) : (
-							<div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 p-3 font-mono text-xs text-destructive">
-								<AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+							<div
+								role="alert"
+								className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 p-3 font-mono text-xs text-destructive"
+							>
+								<AlertCircle
+									className="h-3.5 w-3.5 shrink-0 mt-0.5"
+									aria-hidden="true"
+								/>
 								<div>
 									<strong>[TIDAK TERSEDIA]: </strong>
 									<span>

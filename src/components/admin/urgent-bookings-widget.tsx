@@ -1,11 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import {
-	ArrowRight,
-	Calendar,
-	CheckCircle2,
-	Clock,
-	Users,
-} from "lucide-react";
+import { ArrowRight, Calendar, CheckCircle2, Clock, Users } from "lucide-react";
 import { formatJakartaDisplay } from "#/lib/timezone/datetime";
 
 interface UrgentBookingItem {
@@ -29,9 +23,7 @@ interface UrgentBookingsWidgetProps {
 	onReview?: (bookingId: string) => void;
 }
 
-export function UrgentBookingsWidget({
-	items,
-}: UrgentBookingsWidgetProps) {
+export function UrgentBookingsWidget({ items }: UrgentBookingsWidgetProps) {
 	if (!items || items.length === 0) {
 		return (
 			<div className="p-6 bg-card border border-border rounded-xl shadow-xs flex flex-col items-center justify-center text-center gap-3 py-10">

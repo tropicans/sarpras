@@ -81,7 +81,8 @@ function AdminAssetsComponent() {
 	const [formLayoutIslandCap, setFormLayoutIslandCap] = useState(35);
 	const [formLayoutUshapeEnabled, setFormLayoutUshapeEnabled] = useState(true);
 	const [formLayoutUshapeCap, setFormLayoutUshapeCap] = useState(25);
-	const [formLayoutClassroomEnabled, setFormLayoutClassroomEnabled] = useState(true);
+	const [formLayoutClassroomEnabled, setFormLayoutClassroomEnabled] =
+		useState(true);
 	const [formLayoutClassroomCap, setFormLayoutClassroomCap] = useState(42);
 
 	// Scheduling State
@@ -158,13 +159,20 @@ function AdminAssetsComponent() {
 			const classroom = asset.roomLayouts.find((l) => l.id === "classroom");
 
 			setFormLayoutIslandEnabled(Boolean(island));
-			setFormLayoutIslandCap(island?.maxCapacity ?? Math.max(1, Math.round(asset.capacity * 0.7)));
+			setFormLayoutIslandCap(
+				island?.maxCapacity ?? Math.max(1, Math.round(asset.capacity * 0.7)),
+			);
 
 			setFormLayoutUshapeEnabled(Boolean(ushape));
-			setFormLayoutUshapeCap(ushape?.maxCapacity ?? Math.max(1, Math.round(asset.capacity * 0.5)));
+			setFormLayoutUshapeCap(
+				ushape?.maxCapacity ?? Math.max(1, Math.round(asset.capacity * 0.5)),
+			);
 
 			setFormLayoutClassroomEnabled(Boolean(classroom));
-			setFormLayoutClassroomCap(classroom?.maxCapacity ?? Math.max(1, Math.round(asset.capacity * 0.85)));
+			setFormLayoutClassroomCap(
+				classroom?.maxCapacity ??
+					Math.max(1, Math.round(asset.capacity * 0.85)),
+			);
 		} else {
 			setFormLayoutIslandEnabled(true);
 			setFormLayoutIslandCap(Math.max(1, Math.round(asset.capacity * 0.7)));
@@ -227,13 +235,25 @@ function AdminAssetsComponent() {
 		const roomLayoutsList = [];
 		if (formType === "room") {
 			if (formLayoutIslandEnabled) {
-				roomLayoutsList.push({ id: "island", name: "Island", maxCapacity: formLayoutIslandCap });
+				roomLayoutsList.push({
+					id: "island",
+					name: "Island",
+					maxCapacity: formLayoutIslandCap,
+				});
 			}
 			if (formLayoutUshapeEnabled) {
-				roomLayoutsList.push({ id: "ushape", name: "U-Shape", maxCapacity: formLayoutUshapeCap });
+				roomLayoutsList.push({
+					id: "ushape",
+					name: "U-Shape",
+					maxCapacity: formLayoutUshapeCap,
+				});
 			}
 			if (formLayoutClassroomEnabled) {
-				roomLayoutsList.push({ id: "classroom", name: "Classroom", maxCapacity: formLayoutClassroomCap });
+				roomLayoutsList.push({
+					id: "classroom",
+					name: "Classroom",
+					maxCapacity: formLayoutClassroomCap,
+				});
 			}
 		}
 
@@ -369,10 +389,14 @@ function AdminAssetsComponent() {
 		const label = ASSET_TYPE_LABELS[type as AssetType] || type;
 		const colorClasses: Record<string, string> = {
 			room: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20",
-			dormitory: "bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/20",
-			vehicle: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20",
-			field: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20",
-			equipment: "bg-slate-500/10 text-slate-700 dark:text-slate-300 border-slate-500/20",
+			dormitory:
+				"bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/20",
+			vehicle:
+				"bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20",
+			field:
+				"bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20",
+			equipment:
+				"bg-slate-500/10 text-slate-700 dark:text-slate-300 border-slate-500/20",
 		};
 		return (
 			<span
@@ -461,7 +485,10 @@ function AdminAssetsComponent() {
 								</tr>
 							) : (
 								paginatedAssets.map((asset) => (
-									<tr key={asset.id} className="hover:bg-muted/30 transition-colors">
+									<tr
+										key={asset.id}
+										className="hover:bg-muted/30 transition-colors"
+									>
 										<td className="p-4 font-medium text-foreground">
 											<div className="flex flex-col gap-1">
 												<span>{asset.name}</span>
@@ -500,18 +527,22 @@ function AdminAssetsComponent() {
 										</td>
 										<td className="p-4 text-foreground">
 											<div className="flex flex-col">
-												<span className="font-semibold">{asset.capacity} pax/unit</span>
-												{asset.type === "room" && (
-													asset.roomLayouts && asset.roomLayouts.length > 0 ? (
+												<span className="font-semibold">
+													{asset.capacity} pax/unit
+												</span>
+												{asset.type === "room" &&
+													(asset.roomLayouts && asset.roomLayouts.length > 0 ? (
 														<span className="text-[10px] text-muted-foreground font-mono">
-															{asset.roomLayouts.map((l) => `${l.name}: ${l.maxCapacity}`).join(" • ")}
+															{asset.roomLayouts
+																.map((l) => `${l.name}: ${l.maxCapacity}`)
+																.join(" • ")}
 														</span>
-													) : asset.roomLayouts !== undefined && asset.roomLayouts !== null ? (
+													) : asset.roomLayouts !== undefined &&
+														asset.roomLayouts !== null ? (
 														<span className="text-[10px] text-muted-foreground/70 italic">
 															Kapasitas tetap (tanpa tata letak)
 														</span>
-													) : null
-												)}
+													) : null)}
 											</div>
 										</td>
 										<td className="p-4">
@@ -702,10 +733,15 @@ function AdminAssetsComponent() {
 										<label className="text-xs font-bold text-foreground flex items-center gap-1.5">
 											<span>Tata Letak Ruangan (Layout & Kapasitas)</span>
 										</label>
-										<span className="text-[10px] text-muted-foreground font-mono">Opsional</span>
+										<span className="text-[10px] text-muted-foreground font-mono">
+											Opsional
+										</span>
 									</div>
 									<p className="text-[11px] text-muted-foreground leading-tight">
-										Aktifkan opsi tata letak jika ruangan dapat diatur konfigurasinya. Jika seluruh opsi dinonaktifkan, ruangan akan menggunakan kapasitas dasar tanpa pilihan tata letak (misal: Ruang Studio/Lab).
+										Aktifkan opsi tata letak jika ruangan dapat diatur
+										konfigurasinya. Jika seluruh opsi dinonaktifkan, ruangan
+										akan menggunakan kapasitas dasar tanpa pilihan tata letak
+										(misal: Ruang Studio/Lab).
 									</p>
 
 									{/* Island */}
@@ -714,22 +750,32 @@ function AdminAssetsComponent() {
 											<input
 												type="checkbox"
 												checked={formLayoutIslandEnabled}
-												onChange={(e) => setFormLayoutIslandEnabled(e.target.checked)}
+												onChange={(e) =>
+													setFormLayoutIslandEnabled(e.target.checked)
+												}
 												className="rounded border-border text-primary focus:ring-primary"
 											/>
 											<span>🌴 Island</span>
 										</label>
 										<div className="flex items-center gap-1.5">
-											<span className="text-[10px] text-muted-foreground">Maks:</span>
+											<span className="text-[10px] text-muted-foreground">
+												Maks:
+											</span>
 											<input
 												type="number"
 												min={1}
 												disabled={!formLayoutIslandEnabled || formLoading}
 												value={formLayoutIslandCap}
-												onChange={(e) => setFormLayoutIslandCap(Math.max(1, Number(e.target.value)))}
+												onChange={(e) =>
+													setFormLayoutIslandCap(
+														Math.max(1, Number(e.target.value)),
+													)
+												}
 												className="w-16 px-2 py-1 text-xs bg-background text-foreground border border-border rounded text-right disabled:opacity-40"
 											/>
-											<span className="text-[10px] text-muted-foreground">Pax</span>
+											<span className="text-[10px] text-muted-foreground">
+												Pax
+											</span>
 										</div>
 									</div>
 
@@ -739,22 +785,32 @@ function AdminAssetsComponent() {
 											<input
 												type="checkbox"
 												checked={formLayoutUshapeEnabled}
-												onChange={(e) => setFormLayoutUshapeEnabled(e.target.checked)}
+												onChange={(e) =>
+													setFormLayoutUshapeEnabled(e.target.checked)
+												}
 												className="rounded border-border text-primary focus:ring-primary"
 											/>
 											<span>🔲 U-Shape</span>
 										</label>
 										<div className="flex items-center gap-1.5">
-											<span className="text-[10px] text-muted-foreground">Maks:</span>
+											<span className="text-[10px] text-muted-foreground">
+												Maks:
+											</span>
 											<input
 												type="number"
 												min={1}
 												disabled={!formLayoutUshapeEnabled || formLoading}
 												value={formLayoutUshapeCap}
-												onChange={(e) => setFormLayoutUshapeCap(Math.max(1, Number(e.target.value)))}
+												onChange={(e) =>
+													setFormLayoutUshapeCap(
+														Math.max(1, Number(e.target.value)),
+													)
+												}
 												className="w-16 px-2 py-1 text-xs bg-background text-foreground border border-border rounded text-right disabled:opacity-40"
 											/>
-											<span className="text-[10px] text-muted-foreground">Pax</span>
+											<span className="text-[10px] text-muted-foreground">
+												Pax
+											</span>
 										</div>
 									</div>
 
@@ -764,22 +820,32 @@ function AdminAssetsComponent() {
 											<input
 												type="checkbox"
 												checked={formLayoutClassroomEnabled}
-												onChange={(e) => setFormLayoutClassroomEnabled(e.target.checked)}
+												onChange={(e) =>
+													setFormLayoutClassroomEnabled(e.target.checked)
+												}
 												className="rounded border-border text-primary focus:ring-primary"
 											/>
 											<span>🎓 Classroom</span>
 										</label>
 										<div className="flex items-center gap-1.5">
-											<span className="text-[10px] text-muted-foreground">Maks:</span>
+											<span className="text-[10px] text-muted-foreground">
+												Maks:
+											</span>
 											<input
 												type="number"
 												min={1}
 												disabled={!formLayoutClassroomEnabled || formLoading}
 												value={formLayoutClassroomCap}
-												onChange={(e) => setFormLayoutClassroomCap(Math.max(1, Number(e.target.value)))}
+												onChange={(e) =>
+													setFormLayoutClassroomCap(
+														Math.max(1, Number(e.target.value)),
+													)
+												}
 												className="w-16 px-2 py-1 text-xs bg-background text-foreground border border-border rounded text-right disabled:opacity-40"
 											/>
-											<span className="text-[10px] text-muted-foreground">Pax</span>
+											<span className="text-[10px] text-muted-foreground">
+												Pax
+											</span>
 										</div>
 									</div>
 								</div>
@@ -797,14 +863,18 @@ function AdminAssetsComponent() {
 									</span>
 								</div>
 								<p className="text-[11px] text-muted-foreground leading-tight">
-									Pilih rekomendasi fasilitas untuk tipe {ASSET_TYPE_LABELS[formType as AssetType] || formType} atau ketik tag kustom (misal: "Smart TV 75\"", "Wi-Fi Cepat", "Kamar Mandi Dalam").
+									Pilih rekomendasi fasilitas untuk tipe{" "}
+									{ASSET_TYPE_LABELS[formType as AssetType] || formType} atau
+									ketik tag kustom (misal: "Smart TV 75\"", "Wi-Fi Cepat",
+									"Kamar Mandi Dalam").
 								</p>
 
 								{/* Active Tags */}
 								<div className="flex flex-wrap gap-1.5 min-h-[32px] p-2 bg-background border border-border rounded-md items-center">
 									{formFacilities.length === 0 ? (
 										<span className="text-xs text-muted-foreground/60 italic">
-											Belum ada fasilitas kustom (akan menggunakan fasilitas default kategori).
+											Belum ada fasilitas kustom (akan menggunakan fasilitas
+											default kategori).
 										</span>
 									) : (
 										formFacilities.map((tag) => (
@@ -831,29 +901,34 @@ function AdminAssetsComponent() {
 									<div className="flex flex-col gap-1.5">
 										<div className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
 											<Sparkles size={12} className="text-amber-500" />
-											<span>Rekomendasi Cepat ({ASSET_TYPE_LABELS[formType as AssetType]}):</span>
+											<span>
+												Rekomendasi Cepat (
+												{ASSET_TYPE_LABELS[formType as AssetType]}):
+											</span>
 										</div>
 										<div className="flex flex-wrap gap-1.5">
-											{CATEGORY_FACILITY_PRESETS[formType as AssetType].map((preset) => {
-												const isSelected = formFacilities.some(
-													(t) => t.toLowerCase() === preset.toLowerCase(),
-												);
-												return (
-													<button
-														key={preset}
-														type="button"
-														onClick={() => handleTogglePreset(preset)}
-														className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded border transition-colors cursor-pointer ${
-															isSelected
-																? "bg-primary text-primary-foreground border-primary font-medium shadow-2xs"
-																: "bg-background text-foreground border-border hover:bg-muted"
-														}`}
-													>
-														{isSelected && <Check size={10} />}
-														<span>{preset}</span>
-													</button>
-												);
-											})}
+											{CATEGORY_FACILITY_PRESETS[formType as AssetType].map(
+												(preset) => {
+													const isSelected = formFacilities.some(
+														(t) => t.toLowerCase() === preset.toLowerCase(),
+													);
+													return (
+														<button
+															key={preset}
+															type="button"
+															onClick={() => handleTogglePreset(preset)}
+															className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded border transition-colors cursor-pointer ${
+																isSelected
+																	? "bg-primary text-primary-foreground border-primary font-medium shadow-2xs"
+																	: "bg-background text-foreground border-border hover:bg-muted"
+															}`}
+														>
+															{isSelected && <Check size={10} />}
+															<span>{preset}</span>
+														</button>
+													);
+												},
+											)}
 										</div>
 									</div>
 								)}
@@ -880,7 +955,11 @@ function AdminAssetsComponent() {
 									/>
 									<button
 										type="button"
-										disabled={formLoading || !customTagInput.trim() || formFacilities.length >= 20}
+										disabled={
+											formLoading ||
+											!customTagInput.trim() ||
+											formFacilities.length >= 20
+										}
 										onClick={() => handleAddTag(customTagInput)}
 										className="px-3 py-1.5 bg-secondary text-secondary-foreground text-xs font-semibold rounded-md hover:bg-secondary/80 disabled:opacity-40 cursor-pointer"
 									>
@@ -1137,9 +1216,12 @@ function AdminAssetsComponent() {
 							</h3>
 							<p className="text-xs text-muted-foreground leading-relaxed">
 								Apakah Anda yakin ingin mengarsipkan aset{" "}
-								<strong className="text-foreground">"{archiveTarget.name}"</strong>? Aset tidak akan muncul
-								lagi di katalog peminjaman publik, namun seluruh riwayat
-								peminjaman dan log audit tetap tersimpan aman.
+								<strong className="text-foreground">
+									"{archiveTarget.name}"
+								</strong>
+								? Aset tidak akan muncul lagi di katalog peminjaman publik,
+								namun seluruh riwayat peminjaman dan log audit tetap tersimpan
+								aman.
 							</p>
 						</div>
 						<div className="flex gap-3 justify-end">

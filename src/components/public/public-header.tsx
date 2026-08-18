@@ -1,12 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import {
-	Building2,
-	ChevronRight,
-	LogIn,
-	Menu,
-	Search,
-	X,
-} from "lucide-react";
+import { Building2, ChevronRight, LogIn, Menu, Search, X } from "lucide-react";
 import { useState } from "react";
 import { ThemeToggle } from "#/components/ui/theme-toggle";
 
@@ -67,7 +60,9 @@ export function PublicHeader() {
 					<Link
 						to="/status"
 						className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted/80 flex items-center gap-1.5"
-						activeProps={{ className: "text-foreground font-semibold bg-muted" }}
+						activeProps={{
+							className: "text-foreground font-semibold bg-muted",
+						}}
 					>
 						<Search className="h-3.5 w-3.5 text-primary" />
 						<span>Cek Status Tiket</span>

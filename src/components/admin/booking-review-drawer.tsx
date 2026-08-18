@@ -68,6 +68,17 @@ export function BookingReviewDrawer({
 			.finally(() => setLoading(false));
 	}, [bookingId]);
 
+	useEffect(() => {
+		if (!bookingId) return;
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === "Escape" && !actionLoading) {
+				onClose();
+			}
+		};
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [bookingId, actionLoading, onClose]);
+
 	if (!bookingId) return null;
 
 	const target = data?.target;
@@ -99,7 +110,7 @@ export function BookingReviewDrawer({
 			await batchApproveBookingsAdminFn({ data: { groupId: target.groupId } });
 			onClose();
 		} catch (err: any) {
-			setError(err.message || "Gagal menyetujui seluruh permohonan dalam grup");
+			setError(err.message || "Gagal menyetujui permohonan grup");
 		} finally {
 			setActionLoading(false);
 		}
@@ -107,12 +118,20 @@ export function BookingReviewDrawer({
 
 	return (
 		<div className="fixed inset-0 z-40 flex justify-end bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-			<div className="w-full max-w-xl bg-card text-foreground h-full shadow-2xl flex flex-col justify-between border-l border-border overflow-y-auto animate-in slide-in-from-right duration-200">
+			<div
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="booking-review-drawer-title"
+				className="w-full max-w-xl bg-card text-foreground h-full shadow-2xl flex flex-col justify-between border-l border-border overflow-y-auto animate-in slide-in-from-right duration-200"
+			>
 				{/* Drawer Header */}
 				<div className="p-6 border-b border-border flex items-center justify-between sticky top-0 bg-card/95 backdrop-blur-xs z-10">
 					<div className="flex flex-col gap-1">
 						<div className="flex items-center gap-2">
-							<h3 className="font-bold text-base text-foreground">
+							<h3
+								id="booking-review-drawer-title"
+								className="font-bold text-base text-foreground"
+							>
 								Tinjauan Permohonan
 							</h3>
 							{target && (
@@ -145,9 +164,9 @@ export function BookingReviewDrawer({
 						type="button"
 						onClick={onClose}
 						className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-						aria-label="Tutup"
+						aria-label="Tutup panel peninjauan permohonan"
 					>
-						<X size={18} />
+						<X size={18} aria-hidden="true" />
 					</button>
 				</div>
 
@@ -182,7 +201,8 @@ export function BookingReviewDrawer({
 											<span>BENTROKAN JADWAL (HARD CONFLICT)</span>
 										</div>
 										<p className="text-xs text-rose-800 dark:text-rose-300 leading-relaxed">
-											Terdapat permohonan lain yang telah <strong>DISETUJUI</strong> pada rentang waktu yang sama:
+											Terdapat permohonan lain yang telah{" "}
+											<strong>DISETUJUI</strong> pada rentang waktu yang sama:
 										</p>
 										<div className="flex flex-col gap-1.5 bg-card p-2.5 rounded-lg border border-rose-500/20">
 											{data.approvedConflicts.map((c) => (
@@ -190,7 +210,9 @@ export function BookingReviewDrawer({
 													key={c.id}
 													className="text-xs text-foreground flex flex-col"
 												>
-													<span className="font-semibold">{c.requesterName}</span>
+													<span className="font-semibold">
+														{c.requesterName}
+													</span>
 													<span className="text-[11px] text-muted-foreground">
 														{formatJakartaDisplay(
 															c.startDate,
@@ -212,7 +234,8 @@ export function BookingReviewDrawer({
 											<span>PERMOHONAN LAIN BERSAMAAN (SOFT CONFLICT)</span>
 										</div>
 										<p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
-											Terdapat permohonan lain berstatus <em>Pending</em> yang juga memilih jadwal ini:
+											Terdapat permohonan lain berstatus <em>Pending</em> yang
+											juga memilih jadwal ini:
 										</p>
 										<div className="flex flex-col divide-y divide-border bg-card rounded-lg border border-amber-500/20">
 											{data.pendingOverlaps.map((p) => (
@@ -253,7 +276,8 @@ export function BookingReviewDrawer({
 								<div className="flex flex-col gap-3">
 									<div className="flex items-center justify-between">
 										<h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-											Ruangan Lain Dalam Acara Ini ({data.groupSiblings.length + 1} Fasilitas)
+											Ruangan Lain Dalam Acara Ini (
+											{data.groupSiblings.length + 1} Fasilitas)
 										</h4>
 										<span className="text-[10px] font-mono text-primary font-semibold">
 											MULTI-ROOM GROUP
@@ -274,8 +298,8 @@ export function BookingReviewDrawer({
 															sibling.startDate,
 															"dd MMM yyyy HH:mm",
 														)}{" "}
-														- {formatJakartaDisplay(sibling.endDate, "HH:mm")} &bull;{" "}
-														{sibling.attendance} Pax
+														- {formatJakartaDisplay(sibling.endDate, "HH:mm")}{" "}
+														&bull; {sibling.attendance} Pax
 													</span>
 												</div>
 												<span
@@ -345,7 +369,10 @@ export function BookingReviewDrawer({
 										{target.letterFileUrl ? (
 											<div className="flex items-center justify-between p-2.5 bg-card rounded-lg border border-border">
 												<div className="flex items-center gap-2 min-w-0">
-													<FileText size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+													<FileText
+														size={16}
+														className="text-emerald-600 dark:text-emerald-400 shrink-0"
+													/>
 													<span className="font-semibold text-xs text-foreground truncate max-w-[200px]">
 														{target.letterFileName || "Surat_Permohonan.pdf"}
 													</span>
@@ -456,16 +483,18 @@ export function BookingReviewDrawer({
 							Tolak Permohonan
 						</button>
 
-						{target.groupId && data?.groupSiblings && data.groupSiblings.length > 0 && (
-							<button
-								type="button"
-								onClick={handleBatchApproveClick}
-								disabled={actionLoading}
-								className="px-3.5 py-2 text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
-							>
-								{actionLoading ? "Memproses..." : "Setujui Semua di Grup"}
-							</button>
-						)}
+						{target.groupId &&
+							data?.groupSiblings &&
+							data.groupSiblings.length > 0 && (
+								<button
+									type="button"
+									onClick={handleBatchApproveClick}
+									disabled={actionLoading}
+									className="px-3.5 py-2 text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+								>
+									{actionLoading ? "Memproses..." : "Setujui Semua di Grup"}
+								</button>
+							)}
 
 						<button
 							type="button"

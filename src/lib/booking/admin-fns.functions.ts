@@ -330,10 +330,7 @@ export const getBookingConflictContextFn = createServerFn({ method: "GET" })
 				.from(bookings)
 				.innerJoin(assets, eq(bookings.assetId, assets.id))
 				.where(
-					and(
-						eq(bookings.groupId, target.groupId),
-						ne(bookings.id, target.id),
-					),
+					and(eq(bookings.groupId, target.groupId), ne(bookings.id, target.id)),
 				)
 				.orderBy(asc(bookings.startDate));
 		}
@@ -426,7 +423,9 @@ export const BatchApproveBookingsAdminInputSchema = z.object({
  */
 export const batchApproveBookingsAdminFn = createServerFn({ method: "POST" })
 	.middleware([requireMinRole("operator")])
-	.validator((data: unknown) => BatchApproveBookingsAdminInputSchema.parse(data))
+	.validator((data: unknown) =>
+		BatchApproveBookingsAdminInputSchema.parse(data),
+	)
 	.handler(async ({ data, context }) => {
 		const approvedList = await BookingService.batchApproveBookings(
 			data.groupId,

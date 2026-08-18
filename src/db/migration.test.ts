@@ -131,7 +131,7 @@ test("Phase 1 Canonical Data & Migration Tests", async (t) => {
 		"ASSET-FAC-01 & ASSET-FAC-02: Assets facilities JSONB column persistence",
 		async () => {
 			const testFacilities = [
-				"Smart TV 75\"",
+				'Smart TV 75"',
 				"Proyektor Laser",
 				"Sound System",
 			];
@@ -165,4 +165,3 @@ test("Phase 1 Canonical Data & Migration Tests", async (t) => {
 	await db.delete(bookings).where(like(bookings.legacyId, `${testPrefix}%`));
 	await db.delete(assets).where(like(assets.legacyId, `${testPrefix}%`));
 });
-

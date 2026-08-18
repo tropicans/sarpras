@@ -159,7 +159,8 @@ export function RequesterStep({
 						IDENTITAS PENANGGUNG JAWAB & DETAIL ACARA
 					</h3>
 					<p className="text-xs text-muted-foreground mt-0.5">
-						Data kontak dan surat permohonan ini akan digunakan oleh operator untuk verifikasi dan penerbitan persetujuan.
+						Data kontak dan surat permohonan ini akan digunakan oleh operator
+						untuk verifikasi dan penerbitan persetujuan.
 					</p>
 				</div>
 
@@ -167,13 +168,20 @@ export function RequesterStep({
 					{/* Name & Email */}
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 						<div className="space-y-1">
-							<label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
-								<User className="h-3.5 w-3.5 text-primary" />
+							<label
+								htmlFor="requester-name"
+								className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase"
+							>
+								<User className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
 								Nama Lengkap
 							</label>
 							<input
+								id="requester-name"
 								type="text"
 								value={name}
+								aria-required="true"
+								aria-invalid={!!errors.name}
+								aria-describedby={errors.name ? "name-error" : undefined}
 								onChange={(e) => {
 									setName(e.target.value);
 									if (errors.name) setErrors({ ...errors, name: "" });
@@ -182,18 +190,31 @@ export function RequesterStep({
 								className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-sans"
 							/>
 							{errors.name && (
-								<p className="text-[11px] text-destructive">{errors.name}</p>
+								<p
+									id="name-error"
+									role="alert"
+									className="text-[11px] text-destructive"
+								>
+									{errors.name}
+								</p>
 							)}
 						</div>
 
 						<div className="space-y-1">
-							<label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
-								<Mail className="h-3.5 w-3.5 text-primary" />
+							<label
+								htmlFor="requester-email"
+								className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase"
+							>
+								<Mail className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
 								Email Kedinasan / Aktif
 							</label>
 							<input
+								id="requester-email"
 								type="email"
 								value={email}
+								aria-required="true"
+								aria-invalid={!!errors.email}
+								aria-describedby={errors.email ? "email-error" : undefined}
 								onChange={(e) => {
 									setEmail(e.target.value);
 									if (errors.email) setErrors({ ...errors, email: "" });
@@ -202,7 +223,13 @@ export function RequesterStep({
 								className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-sans"
 							/>
 							{errors.email && (
-								<p className="text-[11px] text-destructive">{errors.email}</p>
+								<p
+									id="email-error"
+									role="alert"
+									className="text-[11px] text-destructive"
+								>
+									{errors.email}
+								</p>
 							)}
 						</div>
 					</div>
@@ -211,8 +238,14 @@ export function RequesterStep({
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 						<div className="space-y-1">
 							<div className="flex items-center justify-between">
-								<label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
-									<Phone className="h-3.5 w-3.5 text-primary" />
+								<label
+									htmlFor="requester-phone"
+									className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase"
+								>
+									<Phone
+										className="h-3.5 w-3.5 text-primary"
+										aria-hidden="true"
+									/>
 									Nomor WhatsApp
 								</label>
 								<span className="text-[10px] text-muted-foreground">
@@ -220,8 +253,12 @@ export function RequesterStep({
 								</span>
 							</div>
 							<input
+								id="requester-phone"
 								type="tel"
 								value={phone}
+								aria-required="true"
+								aria-invalid={!!errors.phone}
+								aria-describedby={errors.phone ? "phone-error" : undefined}
 								onChange={(e) => {
 									setPhone(e.target.value);
 									if (errors.phone) setErrors({ ...errors, phone: "" });
@@ -246,18 +283,34 @@ export function RequesterStep({
 								}`}
 							/>
 							{errors.phone && (
-								<p className="text-[11px] text-destructive">{errors.phone}</p>
+								<p
+									id="phone-error"
+									role="alert"
+									className="text-[11px] text-destructive"
+								>
+									{errors.phone}
+								</p>
 							)}
 						</div>
 
 						<div className="space-y-1">
-							<label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
-								<Building className="h-3.5 w-3.5 text-primary" />
+							<label
+								htmlFor="requester-organization"
+								className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase"
+							>
+								<Building
+									className="h-3.5 w-3.5 text-primary"
+									aria-hidden="true"
+								/>
 								Unit Kerja / Instansi
 							</label>
 							<input
+								id="requester-organization"
 								type="text"
 								value={organization}
+								aria-required="true"
+								aria-invalid={!!errors.organization}
+								aria-describedby={errors.organization ? "org-error" : undefined}
 								onChange={(e) => {
 									setOrganization(e.target.value);
 									if (errors.organization)
@@ -267,7 +320,11 @@ export function RequesterStep({
 								className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-sans"
 							/>
 							{errors.organization && (
-								<p className="text-[11px] text-destructive">
+								<p
+									id="org-error"
+									role="alert"
+									className="text-[11px] text-destructive"
+								>
 									{errors.organization}
 								</p>
 							)}
@@ -276,13 +333,23 @@ export function RequesterStep({
 
 					{/* Purpose */}
 					<div className="space-y-1">
-						<label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
-							<FileText className="h-3.5 w-3.5 text-primary" />
+						<label
+							htmlFor="requester-purpose"
+							className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase"
+						>
+							<FileText
+								className="h-3.5 w-3.5 text-primary"
+								aria-hidden="true"
+							/>
 							Tujuan Penggunaan / Nama Kegiatan
 						</label>
 						<textarea
+							id="requester-purpose"
 							rows={2}
 							value={purpose}
+							aria-required="true"
+							aria-invalid={!!errors.purpose}
+							aria-describedby={errors.purpose ? "purpose-error" : undefined}
 							onChange={(e) => {
 								setPurpose(e.target.value);
 								if (errors.purpose) setErrors({ ...errors, purpose: "" });
@@ -291,15 +358,27 @@ export function RequesterStep({
 							className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-hidden resize-none font-sans"
 						/>
 						{errors.purpose && (
-							<p className="text-[11px] text-destructive">{errors.purpose}</p>
+							<p
+								id="purpose-error"
+								role="alert"
+								className="text-[11px] text-destructive"
+							>
+								{errors.purpose}
+							</p>
 						)}
 					</div>
 
 					{/* Mandatory PDF Letter Upload Section */}
 					<div className="space-y-1.5 pt-2 border-t border-border/80">
 						<div className="flex items-center justify-between">
-							<label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
-								<Paperclip className="h-3.5 w-3.5 text-primary" />
+							<label
+								htmlFor="booking-letter-input"
+								className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase"
+							>
+								<Paperclip
+									className="h-3.5 w-3.5 text-primary"
+									aria-hidden="true"
+								/>
 								Surat Permohonan / Nota Dinas
 								<span className="text-[10px] text-destructive font-bold">
 									(WAJIB)
@@ -312,16 +391,29 @@ export function RequesterStep({
 
 						{/* Hidden File Input */}
 						<input
+							id="booking-letter-input"
 							type="file"
 							ref={fileInputRef}
 							accept=".pdf,application/pdf"
 							className="hidden"
+							aria-describedby={
+								errors.letter || uploadError ? "letter-upload-error" : undefined
+							}
 							onChange={(e) => handleFileSelect(e.target.files?.[0])}
 						/>
 
 						{/* Drag and Drop Zone or Uploaded File Preview */}
 						{!letterFileUrl ? (
 							<div
+								role="button"
+								tabIndex={0}
+								aria-label="Pilih dokumen surat permohonan dinas dalam format PDF atau seret file ke sini"
+								onKeyDown={(e) => {
+									if (e.key === "Enter" || e.key === " ") {
+										e.preventDefault();
+										fileInputRef.current?.click();
+									}
+								}}
 								onDragOver={(e) => {
 									e.preventDefault();
 									setIsDragOver(true);
@@ -333,7 +425,7 @@ export function RequesterStep({
 									handleFileSelect(e.dataTransfer.files?.[0]);
 								}}
 								onClick={() => fileInputRef.current?.click()}
-								className={`rounded-lg border-2 border-dashed p-4 text-center cursor-pointer transition-colors ${
+								className={`rounded-lg border-2 border-dashed p-4 text-center cursor-pointer transition-colors focus:outline-hidden focus:ring-2 focus:ring-primary ${
 									isDragOver
 										? "border-primary bg-primary/5"
 										: errors.letter || uploadError
@@ -343,14 +435,20 @@ export function RequesterStep({
 							>
 								{uploadingLetter ? (
 									<div className="flex flex-col items-center justify-center gap-1.5 py-2">
-										<Loader2 className="h-6 w-6 animate-spin text-primary" />
+										<Loader2
+											className="h-6 w-6 animate-spin text-primary"
+											aria-hidden="true"
+										/>
 										<span className="text-xs font-semibold text-foreground">
 											Mengunggah berkas PDF...
 										</span>
 									</div>
 								) : (
 									<div className="flex flex-col items-center justify-center gap-1.5 py-1">
-										<UploadCloud className="h-6 w-6 text-muted-foreground" />
+										<UploadCloud
+											className="h-6 w-6 text-muted-foreground"
+											aria-hidden="true"
+										/>
 										<div>
 											<span className="font-semibold text-xs text-primary underline">
 												Pilih Dokumen PDF
@@ -361,7 +459,8 @@ export function RequesterStep({
 											</span>
 										</div>
 										<p className="text-[10px] text-muted-foreground">
-											Lampirkan surat permohonan atau nota dinas resmi dari instansi Anda.
+											Lampirkan surat permohonan atau nota dinas resmi dari
+											instansi Anda.
 										</p>
 									</div>
 								)}
@@ -370,7 +469,7 @@ export function RequesterStep({
 							<div className="flex items-center justify-between rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
 								<div className="flex items-center gap-2.5 min-w-0">
 									<div className="flex h-8 w-8 items-center justify-center rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0">
-										<FileText className="h-4 w-4" />
+										<FileText className="h-4 w-4" aria-hidden="true" />
 									</div>
 									<div className="min-w-0">
 										<p className="text-xs font-semibold text-foreground truncate">
@@ -378,7 +477,7 @@ export function RequesterStep({
 										</p>
 										<div className="flex items-center gap-2 text-[10px] text-emerald-600 dark:text-emerald-400">
 											<span className="inline-flex items-center gap-1 font-semibold">
-												<CheckCircle2 className="h-3 w-3" />
+												<CheckCircle2 className="h-3 w-3" aria-hidden="true" />
 												Berkas PDF Terlampir
 											</span>
 										</div>
@@ -390,19 +489,32 @@ export function RequesterStep({
 										type="button"
 										onClick={handleRemoveLetter}
 										className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors cursor-pointer"
+										aria-label="Hapus dan ganti berkas surat PDF"
 										title="Hapus / Ganti Berkas"
 									>
-										<Trash2 className="h-4 w-4" />
+										<Trash2 className="h-4 w-4" aria-hidden="true" />
 									</button>
 								</div>
 							</div>
 						)}
 
 						{uploadError && (
-							<p className="text-[11px] text-destructive">{uploadError}</p>
+							<p
+								id="letter-upload-error"
+								role="alert"
+								className="text-[11px] text-destructive"
+							>
+								{uploadError}
+							</p>
 						)}
 						{errors.letter && !uploadError && (
-							<p className="text-[11px] text-destructive">{errors.letter}</p>
+							<p
+								id="letter-upload-error"
+								role="alert"
+								className="text-[11px] text-destructive"
+							>
+								{errors.letter}
+							</p>
 						)}
 					</div>
 				</div>
@@ -430,4 +542,3 @@ export function RequesterStep({
 		</div>
 	);
 }
-

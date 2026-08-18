@@ -136,5 +136,3 @@ export function parseTimeToMinutes(timeStr: string): number {
 	}
 	return hours * 60 + minutes;
 }
-
-

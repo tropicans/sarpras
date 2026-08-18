@@ -10,13 +10,9 @@ import {
 	bookings,
 	users,
 } from "../../db/schema";
-import {
-	AdminAuditLogsFilterSchema,
-} from "../audit/admin-fns.functions";
+import { AdminAuditLogsFilterSchema } from "../audit/admin-fns.functions";
 import { recordAuditEvent } from "../audit/audit.server";
-import {
-	AdminBookingsFilterSchema,
-} from "./admin-fns.functions";
+import { AdminBookingsFilterSchema } from "./admin-fns.functions";
 import { BookingService } from "./service.server";
 
 test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {
@@ -49,17 +45,15 @@ test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {
 		.returning();
 
 	// Create test dormitory asset
-	await db
-		.insert(assets)
-		.values({
-			name: `Asrama UAT Admin ${Date.now()}`,
-			type: "dormitory",
-			location: "Wisma C",
-			capacity: 10,
-			status: "active",
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		});
+	await db.insert(assets).values({
+		name: `Asrama UAT Admin ${Date.now()}`,
+		type: "dormitory",
+		location: "Wisma C",
+		capacity: 10,
+		status: "active",
+		createdAt: new Date(),
+		updatedAt: new Date(),
+	});
 
 	// Add room availability (Mon-Fri 08:00 - 18:00)
 	for (let day = 1; day <= 5; day++) {
@@ -71,85 +65,82 @@ test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {
 		});
 	}
 
-	await t.test(
-		"FLOW-02: Live Conflict Detection & Context Logic",
-		async () => {
-			// Create base pending booking A
-			const bookingA = await BookingService.createBookingRequest({
-				assetId: testRoom.id,
-				requesterName: "Pemohon A",
-				requesterEmail: "pemohonA@example.com",
-				requesterPhone: "081234567890",
-				requesterOrganization: "Divisi Kepegawaian",
-				purpose: "Rapat Koordinasi Internal",
-				attendance: 15,
-				startDate: new Date("2026-09-10T09:00:00+07:00"),
-				endDate: new Date("2026-09-10T12:00:00+07:00"),
-				timezone: "Asia/Jakarta",
-				letterFileName: "surat_a.pdf",
-				letterFileUrl: "/uploads/letters/surat_a.pdf",
-			});
+	await t.test("FLOW-02: Live Conflict Detection & Context Logic", async () => {
+		// Create base pending booking A
+		const bookingA = await BookingService.createBookingRequest({
+			assetId: testRoom.id,
+			requesterName: "Pemohon A",
+			requesterEmail: "pemohonA@example.com",
+			requesterPhone: "081234567890",
+			requesterOrganization: "Divisi Kepegawaian",
+			purpose: "Rapat Koordinasi Internal",
+			attendance: 15,
+			startDate: new Date("2026-09-10T09:00:00+07:00"),
+			endDate: new Date("2026-09-10T12:00:00+07:00"),
+			timezone: "Asia/Jakarta",
+			letterFileName: "surat_a.pdf",
+			letterFileUrl: "/uploads/letters/surat_a.pdf",
+		});
 
-			// Create competing pending booking B on same slot (Soft Conflict)
-			const bookingB = await BookingService.createBookingRequest({
-				assetId: testRoom.id,
-				requesterName: "Pemohon B (Kompetitor)",
-				requesterEmail: "pemohonB@example.com",
-				requesterPhone: "081298765432",
-				requesterOrganization: "Divisi TI",
-				purpose: "Pelatihan IT Sarpras",
-				attendance: 10,
-				startDate: new Date("2026-09-10T10:00:00+07:00"),
-				endDate: new Date("2026-09-10T13:00:00+07:00"),
-				timezone: "Asia/Jakarta",
-				letterFileName: "surat_b.pdf",
-				letterFileUrl: "/uploads/letters/surat_b.pdf",
-			});
+		// Create competing pending booking B on same slot (Soft Conflict)
+		const bookingB = await BookingService.createBookingRequest({
+			assetId: testRoom.id,
+			requesterName: "Pemohon B (Kompetitor)",
+			requesterEmail: "pemohonB@example.com",
+			requesterPhone: "081298765432",
+			requesterOrganization: "Divisi TI",
+			purpose: "Pelatihan IT Sarpras",
+			attendance: 10,
+			startDate: new Date("2026-09-10T10:00:00+07:00"),
+			endDate: new Date("2026-09-10T13:00:00+07:00"),
+			timezone: "Asia/Jakarta",
+			letterFileName: "surat_b.pdf",
+			letterFileUrl: "/uploads/letters/surat_b.pdf",
+		});
 
-			// Check conflict context for booking A before any approval
-			// Both are pending, so booking A should have soft conflict (booking B) and 0 hard conflicts
-			const contextBeforeApprove = await db
-				.select({
-					id: bookings.id,
-					assetId: bookings.assetId,
-					requesterName: bookings.requesterName,
-					startDate: bookings.startDate,
-					endDate: bookings.endDate,
-					status: bookings.status,
-				})
-				.from(bookings)
-				.where(
-					and(
-						eq(bookings.assetId, testRoom.id),
-						ne(bookings.id, bookingA.id),
-						eq(bookings.status, "pending"),
-					),
-				);
-
-			assert.strictEqual(contextBeforeApprove.length >= 1, true);
-
-			// Approve booking A
-			await BookingService.approveBooking(bookingA.id, testAdminId);
-
-			// Now check conflict context for booking B:
-			// Booking A is approved and overlaps booking B -> Booking B has a HARD conflict!
-			const approvedOverlapsForB = await db
-				.select()
-				.from(bookings)
-				.where(
-					and(
-						eq(bookings.assetId, testRoom.id),
-						eq(bookings.status, "approved"),
-						ne(bookings.id, bookingB.id),
-					),
-				);
-
-			assert.strictEqual(
-				approvedOverlapsForB.some((b) => b.id === bookingA.id),
-				true,
+		// Check conflict context for booking A before any approval
+		// Both are pending, so booking A should have soft conflict (booking B) and 0 hard conflicts
+		const contextBeforeApprove = await db
+			.select({
+				id: bookings.id,
+				assetId: bookings.assetId,
+				requesterName: bookings.requesterName,
+				startDate: bookings.startDate,
+				endDate: bookings.endDate,
+				status: bookings.status,
+			})
+			.from(bookings)
+			.where(
+				and(
+					eq(bookings.assetId, testRoom.id),
+					ne(bookings.id, bookingA.id),
+					eq(bookings.status, "pending"),
+				),
 			);
-		},
-	);
+
+		assert.strictEqual(contextBeforeApprove.length >= 1, true);
+
+		// Approve booking A
+		await BookingService.approveBooking(bookingA.id, testAdminId);
+
+		// Now check conflict context for booking B:
+		// Booking A is approved and overlaps booking B -> Booking B has a HARD conflict!
+		const approvedOverlapsForB = await db
+			.select()
+			.from(bookings)
+			.where(
+				and(
+					eq(bookings.assetId, testRoom.id),
+					eq(bookings.status, "approved"),
+					ne(bookings.id, bookingB.id),
+				),
+			);
+
+		assert.strictEqual(
+			approvedOverlapsForB.some((b) => b.id === bookingA.id),
+			true,
+		);
+	});
 
 	await t.test(
 		"FLOW-03: Accountable Decision Execution (Approve/Reject)",

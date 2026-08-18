@@ -43,9 +43,12 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 const ROLE_COLORS: Record<string, string> = {
-	admin: "bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/20",
-	operator: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20",
-	pimpinan: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20",
+	admin:
+		"bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/20",
+	operator:
+		"bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20",
+	pimpinan:
+		"bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20",
 };
 
 function AdminUsersComponent() {
@@ -212,7 +215,10 @@ function AdminUsersComponent() {
 			{/* Alert Messages */}
 			{successMessage && (
 				<div className="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-200 text-xs rounded-xl flex items-center gap-2.5 animate-in fade-in">
-					<CheckCircle2 size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+					<CheckCircle2
+						size={16}
+						className="text-emerald-600 dark:text-emerald-400 shrink-0"
+					/>
 					<span>{successMessage}</span>
 				</div>
 			)}
@@ -273,7 +279,10 @@ function AdminUsersComponent() {
 											</td>
 											<td className="p-4 text-muted-foreground font-mono text-xs">
 												<div className="flex items-center gap-1.5">
-													<Mail size={13} className="text-muted-foreground/70" />
+													<Mail
+														size={13}
+														className="text-muted-foreground/70"
+													/>
 													<span>{u.email}</span>
 												</div>
 											</td>
@@ -409,7 +418,8 @@ function AdminUsersComponent() {
 						<form onSubmit={handleCreateUser} className="flex flex-col gap-4">
 							<div className="flex flex-col gap-1.5">
 								<label className="text-xs font-semibold text-foreground">
-									Nama Lengkap Petugas <span className="text-destructive">*</span>
+									Nama Lengkap Petugas{" "}
+									<span className="text-destructive">*</span>
 								</label>
 								<input
 									type="text"
@@ -543,9 +553,11 @@ function AdminUsersComponent() {
 							</h3>
 							<p className="text-xs text-muted-foreground leading-relaxed">
 								Apakah Anda yakin ingin menghapus akun{" "}
-								<strong className="text-foreground">"{selectedUser.name}"</strong> ({selectedUser.email})
-								secara permanen? Seluruh sesi login terkait akan langsung
-								dihentikan.
+								<strong className="text-foreground">
+									"{selectedUser.name}"
+								</strong>{" "}
+								({selectedUser.email}) secara permanen? Seluruh sesi login
+								terkait akan langsung dihentikan.
 							</p>
 						</div>
 						<div className="flex gap-2 justify-end pt-2">

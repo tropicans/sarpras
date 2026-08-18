@@ -185,9 +185,15 @@ export function AuditTable({
 
 							{!loading && items.length === 0 && (
 								<tr>
-									<td colSpan={5} className="py-16 text-center text-muted-foreground">
+									<td
+										colSpan={5}
+										className="py-16 text-center text-muted-foreground"
+									>
 										<div className="flex flex-col items-center justify-center gap-2">
-											<ScrollText size={32} className="text-muted-foreground/60" />
+											<ScrollText
+												size={32}
+												className="text-muted-foreground/60"
+											/>
 											<span className="font-semibold text-sm text-foreground">
 												Tidak Ada Catatan Audit
 											</span>

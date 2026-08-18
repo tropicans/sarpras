@@ -1,9 +1,4 @@
-import {
-	ArrowRight,
-	ChevronDown,
-	ChevronRight,
-	Code2,
-} from "lucide-react";
+import { ArrowRight, ChevronDown, ChevronRight, Code2 } from "lucide-react";
 import { useState } from "react";
 
 interface AuditDiffViewerProps {
@@ -13,10 +8,7 @@ interface AuditDiffViewerProps {
 	metadata: Record<string, any> | null;
 }
 
-export function AuditDiffViewer({
-	action,
-	metadata,
-}: AuditDiffViewerProps) {
+export function AuditDiffViewer({ action, metadata }: AuditDiffViewerProps) {
 	const [showRawJson, setShowRawJson] = useState(false);
 
 	if (!metadata) {

@@ -65,7 +65,9 @@ export function CalendarEventPopover({
 										: "Pending"}
 							</span>
 						</div>
-						<span className="text-xs text-muted-foreground">{event.assetName}</span>
+						<span className="text-xs text-muted-foreground">
+							{event.assetName}
+						</span>
 					</div>
 
 					<button
@@ -106,14 +108,18 @@ export function CalendarEventPopover({
 							{event.requesterOrganization && (
 								<div className="flex items-center gap-2 text-muted-foreground">
 									<Building2 size={14} />
-									<span className="text-foreground">{event.requesterOrganization}</span>
+									<span className="text-foreground">
+										{event.requesterOrganization}
+									</span>
 								</div>
 							)}
 
 							{event.attendance && (
 								<div className="flex items-center gap-2 text-muted-foreground">
 									<Users size={14} />
-									<span className="text-foreground">{event.attendance} Orang Peserta</span>
+									<span className="text-foreground">
+										{event.attendance} Orang Peserta
+									</span>
 								</div>
 							)}
 
@@ -131,7 +137,10 @@ export function CalendarEventPopover({
 					) : (
 						<div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-lg text-rose-800 dark:text-rose-300 flex flex-col gap-1.5">
 							<div className="flex items-center gap-2 font-bold text-xs">
-								<AlertTriangle size={15} className="text-rose-600 dark:text-rose-400" />
+								<AlertTriangle
+									size={15}
+									className="text-rose-600 dark:text-rose-400"
+								/>
 								<span>Pemeliharaan / Penutupan Operasional</span>
 							</div>
 							<p className="text-xs">

@@ -6,7 +6,8 @@ import { users } from "./schema";
 async function seedAdmin() {
 	console.log("Seeding Google OAuth admin accounts...");
 
-	const rawAdminEmails = process.env.ADMIN_DEFAULT_EMAIL || "admin@ppkasn.go.id";
+	const rawAdminEmails =
+		process.env.ADMIN_DEFAULT_EMAIL || "admin@ppkasn.go.id";
 	const adminEmails = rawAdminEmails
 		.split(",")
 		.map((e) => e.trim().toLowerCase())
@@ -30,7 +31,9 @@ async function seedAdmin() {
 				mustResetPassword: false,
 			});
 
-			console.log(`✅ Berhasil mendaftarkan whitelist Google Admin: ${adminEmail}`);
+			console.log(
+				`✅ Berhasil mendaftarkan whitelist Google Admin: ${adminEmail}`,
+			);
 		} else {
 			await db
 				.update(users)

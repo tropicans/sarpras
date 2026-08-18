@@ -8,7 +8,10 @@ test("Two-Factor Authentication allows passwordless / OAuth users to enable 2FA"
 
 	const plugins = options.plugins || [];
 	const twoFactorPlugin = plugins.find((p: any) => p.id === "two-factor");
-	assert.ok(twoFactorPlugin, "twoFactor plugin must be registered in Better Auth");
+	assert.ok(
+		twoFactorPlugin,
+		"twoFactor plugin must be registered in Better Auth",
+	);
 
 	// To enable 2FA for Google OAuth / passwordless users without 400 Bad Request error,
 	// Better Auth requires allowPasswordless: true in twoFactor plugin options.

@@ -1,11 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import {
-	Check,
-	CheckCircle2,
-	Copy,
-	Home,
-	Search,
-} from "lucide-react";
+import { Check, CheckCircle2, Copy, Home, Search } from "lucide-react";
 import { useState } from "react";
 
 interface SuccessCardProps {
@@ -81,7 +75,8 @@ export function SuccessCard({ bookingId, assetName }: SuccessCardProps) {
 					</button>
 				</div>
 				<p className="text-[10px] text-muted-foreground">
-					Simpan kode ini untuk mengecek status permohonan atau melakukan pembatalan.
+					Simpan kode ini untuk mengecek status permohonan atau melakukan
+					pembatalan.
 				</p>
 			</div>
 

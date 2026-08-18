@@ -12,15 +12,16 @@ export function WizardStepper({ currentStep }: WizardStepperProps) {
 	];
 
 	return (
-		<div className="w-full py-2">
-			<div className="grid grid-cols-3 gap-2 font-mono text-xs">
+		<nav aria-label="Tahapan Formulir Peminjaman" className="w-full py-2">
+			<ol className="grid grid-cols-3 gap-2 font-mono text-xs list-none p-0 m-0">
 				{steps.map((step) => {
 					const isDone = currentStep > step.id;
 					const isCurrent = currentStep === step.id;
 
 					return (
-						<div
+						<li
 							key={step.id}
+							aria-current={isCurrent ? "step" : undefined}
 							className={`flex items-center gap-2 rounded-md border p-2.5 transition-all ${
 								isCurrent
 									? "border-primary bg-primary/10 text-primary font-semibold"
@@ -30,6 +31,7 @@ export function WizardStepper({ currentStep }: WizardStepperProps) {
 							}`}
 						>
 							<div
+								aria-hidden="true"
 								className={`flex h-5 w-5 items-center justify-center rounded text-[11px] shrink-0 font-bold ${
 									isDone
 										? "bg-emerald-500 text-white"
@@ -41,10 +43,17 @@ export function WizardStepper({ currentStep }: WizardStepperProps) {
 								{isDone ? <Check className="h-3 w-3" /> : step.id}
 							</div>
 							<span className="truncate text-[11px]">{step.label}</span>
-						</div>
+							<span className="sr-only">
+								{isCurrent
+									? "(Langkah Aktif)"
+									: isDone
+										? "(Selesai)"
+										: "(Belum Diisi)"}
+							</span>
+						</li>
 					);
 				})}
-			</div>
-		</div>
+			</ol>
+		</nav>
 	);
 }

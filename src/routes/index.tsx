@@ -229,7 +229,7 @@ function HomePage() {
 			{/* Public Header */}
 			<PublicHeader />
 
-			<main className="flex-1">
+			<main id="main-content" tabIndex={-1} className="flex-1 outline-hidden">
 				{/* Hero: Facility System Console (TanStack & DevTools Style Split View) */}
 				<section className="relative border-b border-border tech-grid bg-card/20 py-12 sm:py-20 overflow-hidden">
 					{/* Radial Ambient Mesh Glow */}

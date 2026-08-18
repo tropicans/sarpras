@@ -103,7 +103,8 @@ export function PublicFooter() {
 						<span>SARPRAS-PPKASN v1.0</span>
 						<span className="text-border">•</span>
 						<span>
-							&copy; {new Date().getFullYear()} KEMENTERIAN SEKRETARIAT NEGARA RI
+							&copy; {new Date().getFullYear()} KEMENTERIAN SEKRETARIAT NEGARA
+							RI
 						</span>
 					</div>
 					<div className="flex items-center gap-3">
