@@ -12,6 +12,7 @@ Users can confidently request an available room or dormitory, and administrators
 
 ## Current State
 
+**Current Milestone:** v1.5 Dynamic Asset Facilities & Tags (2026-08-18)
 **Shipped:** v1.4 Google 2FA & Account Security (2026-08-18)
 
 ## Requirements
@@ -38,14 +39,19 @@ Users can confidently request an available room or dormitory, and administrators
 
 ### Active
 
-(None currently active — define in next milestone via `/gsd-new-milestone`)
+- [ ] **ASSET-FAC-01**: Database schema & migration supports storing custom facilities/tags array per asset.
+- [ ] **ASSET-FAC-02**: Asset CRUD server functions validate, persist, and retrieve custom facilities/tags list.
+- [ ] **ASSET-FAC-03**: Admin asset management form provides UI to add, edit, remove tags with category-based suggestions.
+- [ ] **PUBLIC-CARD-01**: Public discovery asset cards display dynamic facility tags saved in the database.
+- [ ] **PUBLIC-CARD-02**: Public discovery asset cards gracefully fall back to sensible category presets when tags are empty.
+- [ ] **PUBLIC-CARD-03**: Asset schedule modal and booking page surfaces asset-specific facility badges.
 
 ### Out of Scope
 
 - Native mobile applications — v1 is a responsive web application designed for mobile and desktop viewports.
 - Hardware security keys (WebAuthn / FIDO2 / Passkeys) — TOTP Authenticator app (Google Authenticator, Microsoft Authenticator, Authy) and backup recovery codes are supported.
 - SMS-based 2FA — TOTP authenticator app chosen for superior security and zero carrier cost.
-- Replacing the organization’s upstream identity system — v1 migrates and manages existing administrator accounts with Better Auth.
+- Asset image upload storage / CDN — v1 utilizes SVG badges and metadata tags for facility representation.
 
 ## Context
 
@@ -55,22 +61,14 @@ Users can confidently request an available room or dormitory, and administrators
 
 ## Constraints
 
-- **Security**: TOTP secrets and backup codes must remain encrypted in database storage.
-- **Compatibility**: TanStack Start server functions and Better Auth client/server plugin consistency.
-- **Resilience**: Two-factor authentication must not lock out valid Google OAuth administrators.
+- **Backwards Compatibility**: Assets without custom facilities must seamlessly fall back to default type tags without runtime errors or layout breaks.
+- **Admin UX**: Tag input must be intuitive with quick suggestion chips (presets) and arbitrary custom badge entry.
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Rebuild the full application | The starter lacked domain workflows while legacy required a maintainable modern architecture. | ✓ Good — full-stack TanStack Start application shipped |
-| Migrate assets, bookings, and administrator accounts | The replacement must preserve existing operational history. | ✓ Good — migrated via idempotent CLI importer with 100% test coverage |
-| Enhance rather than clone the current application | The rebuilt product improves validation, conflict detection, usability, and audit tracking. | ✓ Good — privacy-safe schedule modals & live conflict drawer added |
-| Prioritize booking integrity | Preventing double-bookings and retaining accountable decisions is the core value. | ✓ Good — transactional state machine with row locks & dormitory capacity calculations |
-| Fonnte WhatsApp Gateway & Mock Logger | Standard Indonesian number normalizer, non-blocking post-commit dispatch, and console mock fallback. | ✓ Good — zero-latency impact on booking db transactions, full audit trail |
-| Resend Email Gateway & Responsive Templates | Indonesian branded HTML/plaintext email delivery with RFC 5322 validation and mock logger fallback. | ✓ Good — professional transactional email communication with zero runtime errors |
-| Concurrent Dual-Channel Orchestration (`Promise.allSettled`) | Simultaneously dispatches Email and WhatsApp notifications without letting one channel's failure affect the other. | ✓ Good — independent fault isolation and full audit visibility across both channels |
-| Better Auth TOTP Two-Factor Plugin with `allowPasswordless: true` | Built-in twoFactor plugin provides standard RFC 6238 TOTP and encrypted backup codes without blocking passwordless/OAuth users. | ✓ Good — seamless 2FA enablement, recovery codes, and verification challenges |
+| Dynamic Facility Badges | Moving from static hardcoded strings in UI to database-persisted JSON arrays allows operators to customize exact equipment/facilities per room/field/dormitory. | In progress (v1.5) |
 
 ## Evolution
 
@@ -90,4 +88,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-18 after v1.4 milestone*
+*Last updated: 2026-08-18 for milestone v1.5*
