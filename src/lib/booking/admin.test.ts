@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import test from "node:test";
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, ilike, ne, or, sql } from "drizzle-orm";
 import { db } from "../../db/client.server";
 import {
 	assetAvailability,
@@ -237,6 +237,42 @@ test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {
 			assert.strictEqual(filterCustom.search, "Divisi TI");
 			assert.strictEqual(filterCustom.page, 2);
 			assert.strictEqual(filterCustom.limit, 25);
+
+			// Test actual search query with UUID pattern and terms
+			const testSearchBooking = await BookingService.createBookingRequest({
+				assetId: testRoom.id,
+				requesterName: "Pemohon Search Test",
+				requesterEmail: "searchtest@example.com",
+				requesterPhone: "081211112222",
+				requesterOrganization: "Biro Perencanaan",
+				purpose: "Uji Pencarian UUID dan Kata Kunci",
+				attendance: 5,
+				startDate: new Date("2026-09-25T08:00:00+07:00"),
+				endDate: new Date("2026-09-25T10:00:00+07:00"),
+				timezone: "Asia/Jakarta",
+			});
+
+			const term = `%${testSearchBooking.id}%`;
+			const searchResults = await db
+				.select({
+					id: bookings.id,
+					requesterName: bookings.requesterName,
+				})
+				.from(bookings)
+				.innerJoin(assets, eq(bookings.assetId, assets.id))
+				.where(
+					or(
+						ilike(bookings.requesterName, term),
+						ilike(bookings.requesterEmail, term),
+						ilike(bookings.requesterOrganization, term),
+						ilike(bookings.purpose, term),
+						ilike(assets.name, term),
+						ilike(bookings.groupId, term),
+						sql`CAST(${bookings.id} AS TEXT) ILIKE ${term}`,
+					),
+				);
+			assert.ok(searchResults.length >= 1);
+			assert.strictEqual(searchResults[0].id, testSearchBooking.id);
 		},
 	);
 

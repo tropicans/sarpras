@@ -15,6 +15,13 @@
       "when": 1786517263019,
       "tag": "0001_spooky_hex",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787025257612,
+      "tag": "0002_tiny_revanche",
+      "breakpoints": true
     }
   ]
 }
