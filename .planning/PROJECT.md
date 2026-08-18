@@ -12,8 +12,8 @@ Users can confidently request an available room or dormitory, and administrators
 
 ## Current State
 
-**Current Milestone:** v1.5 Dynamic Asset Facilities & Tags (2026-08-18)
-**Shipped:** v1.4 Google 2FA & Account Security (2026-08-18)
+**Current Milestone:** Complete (v1.5 Shipped)
+**Shipped:** v1.5 Dynamic Asset Facilities & Tags (2026-08-18)
 
 ## Requirements
 
@@ -36,15 +36,16 @@ Users can confidently request an available room or dormitory, and administrators
 - ✓ Unified dual-channel asynchronous orchestrator executing Email and WhatsApp dispatches concurrently via `Promise.allSettled` across all `BookingService` lifecycle hooks — validated in Phase 8: Dual-Channel Notification Integration.
 - ✓ Channel-specific notification dispatch audit logging (`notification.email_dispatch` and `notification.whatsapp_dispatch`) — validated in Phase 8: Dual-Channel Notification Integration.
 - ✓ Passwordless 2FA enablement, TOTP QR/secret setup, backup recovery codes, login challenges, and safe disabling — validated in Phase 9: Google 2FA Fix & Multi-Factor Security (v1.4).
+- ✓ Database schema & migration for custom facilities/tags JSONB array on assets — validated in Phase 10: Dynamic Asset Facilities & Tags (v1.5).
+- ✓ Asset CRUD server functions validate, persist, and retrieve custom facilities/tags list — validated in Phase 10: Dynamic Asset Facilities & Tags (v1.5).
+- ✓ Admin asset management form provides UI to add, edit, and remove tags with category-based suggestions — validated in Phase 10: Dynamic Asset Facilities & Tags (v1.5).
+- ✓ Public discovery asset cards display dynamic facility tags saved in the database — validated in Phase 10: Dynamic Asset Facilities & Tags (v1.5).
+- ✓ Public discovery asset cards gracefully fall back to sensible category presets when tags are empty — validated in Phase 10: Dynamic Asset Facilities & Tags (v1.5).
+- ✓ Asset schedule modal and booking page surfaces asset-specific facility badges — validated in Phase 10: Dynamic Asset Facilities & Tags (v1.5).
 
 ### Active
 
-- [ ] **ASSET-FAC-01**: Database schema & migration supports storing custom facilities/tags array per asset.
-- [ ] **ASSET-FAC-02**: Asset CRUD server functions validate, persist, and retrieve custom facilities/tags list.
-- [ ] **ASSET-FAC-03**: Admin asset management form provides UI to add, edit, remove tags with category-based suggestions.
-- [ ] **PUBLIC-CARD-01**: Public discovery asset cards display dynamic facility tags saved in the database.
-- [ ] **PUBLIC-CARD-02**: Public discovery asset cards gracefully fall back to sensible category presets when tags are empty.
-- [ ] **PUBLIC-CARD-03**: Asset schedule modal and booking page surfaces asset-specific facility badges.
+(None currently active — run `/gsd-new-milestone` to define next milestone scope)
 
 ### Out of Scope
 
@@ -55,7 +56,7 @@ Users can confidently request an available room or dormitory, and administrators
 
 ## Context
 
-- Shipped v1.0 MVP, v1.1 RBAC Enforcement, v1.2 WhatsApp Integration, v1.3 Dual-Channel Notification Integration, and v1.4 Google 2FA & Account Security with 87 passing automated tests across 18 test suites.
+- Shipped v1.0 MVP, v1.1 RBAC Enforcement, v1.2 WhatsApp Integration, v1.3 Dual-Channel Notification Integration, v1.4 Google 2FA & Account Security, and v1.5 Dynamic Asset Facilities & Tags with 96 passing automated tests across 20 test suites.
 - Tech Stack: TanStack Start, React 19, TypeScript, PostgreSQL (Neon / Drizzle ORM), Better Auth (Two-Factor Plugin with `allowPasswordless: true`), Tailwind CSS, Lucide React, date-fns-tz (Asia/Jakarta WIB), Resend Email API, Fonnte WhatsApp API.
 - Codebase documentation and architecture maps are maintained in `.planning/codebase/`.
 
@@ -68,7 +69,7 @@ Users can confidently request an available room or dormitory, and administrators
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Dynamic Facility Badges | Moving from static hardcoded strings in UI to database-persisted JSON arrays allows operators to customize exact equipment/facilities per room/field/dormitory. | In progress (v1.5) |
+| Dynamic Facility Badges | Moving from static hardcoded strings in UI to database-persisted JSON arrays allows operators to customize exact equipment/facilities per room/field/dormitory. | ✓ Good — Shipped in v1.5 |
 
 ## Evolution
 
@@ -88,4 +89,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-18 for milestone v1.5*
+*Last updated: 2026-08-18 after v1.5 milestone*

@@ -1,5 +1,19 @@
 # Milestones
 
+## v1.5 Dynamic Asset Facilities & Tags (Shipped: 2026-08-18)
+
+**Phases completed:** 1 phase (Phase 10), 1 plan, 9 new automated tests (96 total passing)
+
+**Key accomplishments:**
+
+1. Engineered database schema & migration (`src/db/schema.ts`, `src/db/migrate.ts`): Added `facilities: jsonb("facilities").$type<string[]>()` to the `assets` table with idempotent DDL migration.
+2. Built facilities helper & sanitization engine (`src/lib/assets/facilities.ts`): Implemented Indonesian category preset suggestions (`CATEGORY_FACILITY_PRESETS`), robust tag sanitization (trim, deduplication, length & count caps), and fallback resolver `getAssetFacilities(asset)`.
+3. Developed admin asset management tag editor (`src/routes/admin/assets.tsx`): Added interactive tag chip manager in asset create/edit modal with dynamic category preset suggestions, custom badge inputs, and table preview badges.
+4. Integrated dynamic public UI tag rendering (`src/components/public/asset-card.tsx`, `src/components/public/schedule-modal.tsx`, `src/routes/book/$assetId.tsx`): Replaced hardcoded category strings with dynamic facility tags resolved via `getAssetFacilities(asset)` across discovery cards, schedule modals, and booking flow headers with seamless category fallbacks for unconfigured assets.
+5. Expanded automated test suite (`facilities.test.ts`, `migration.test.ts`): Added 9 new unit & database migration tests, achieving 96/96 passing tests repository-wide across 20 test files.
+
+---
+
 ## v1.4 Google 2FA & Account Security (Shipped: 2026-08-18)
 
 **Phases completed:** 1 phase (Phase 9), 1 plan, 3 tasks, 13 new automated tests (87 total passing)

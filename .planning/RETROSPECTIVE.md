@@ -123,6 +123,31 @@
 ### Key Lessons
 - **OAuth Multi-Factor Flows:** When integrating 2FA plugins with third-party OAuth providers (Google, GitHub, etc.), ensure the plugin configuration recognizes that OAuth accounts do not possess a password hash.
 
+## Milestone: v1.5 — Dynamic Asset Facilities & Tags
+
+**Shipped:** 2026-08-18  
+**Phases:** 1 | **Plans:** 1 | **Automated Tests:** 96 / 96 Passing across 20 test suites (100%)
+
+### What Was Built
+- **Asset Facilities Database Schema & Migration (Phase 10 Plan 1):** Added `facilities: jsonb("facilities").$type<string[]>()` on the `assets` table with idempotent DDL migration script and database integration tests.
+- **Facilities Helper & Sanitizer Engine (Phase 10 Plan 1):** Built Indonesian category preset suggestions (`CATEGORY_FACILITY_PRESETS`), sanitization logic (whitespace trimming, case-insensitive deduplication, 40-character length limits, 20 tags cap), and fallback resolver `getAssetFacilities(asset)`.
+- **Admin Asset Management Tag Editor (Phase 10 Plan 1):** Added interactive tag chip manager in asset create/edit modal with dynamic category preset recommendations, custom badge inputs with Enter key support, and table preview badges.
+- **Dynamic Public UI Tag Rendering (Phase 10 Plan 1):** Replaced hardcoded category strings with dynamic facility tags resolved via `getAssetFacilities(asset)` across discovery cards, schedule overview modals, and booking wizard headers with seamless category fallbacks for unconfigured assets.
+
+### What Worked
+- **Sanitization at the boundary:** `sanitizeFacilities` in both client presets and backend server function ensured database data remains clean, unique, and size-bounded.
+- **Graceful Category Fallback:** Using `getAssetFacilities(asset)` across all public UI components ensured that unconfigured or legacy assets display sensible default tags without requiring manual migration of every asset record.
+
+### What Was Inefficient
+- None encountered; the plan executed cleanly with 100% test coverage in one pass.
+
+### Patterns Established
+- **JSONB for extensible asset metadata:** Storing array tags as JSONB allows flexible operator-driven configurations without requiring multi-table schema churn.
+- **Unified display resolver with preset defaults:** Centralizing fallback resolution in a single helper (`getAssetFacilities`) guarantees consistent UI badge rendering across cards, modals, and wizards.
+
+### Key Lessons
+- **Default fallbacks prevent migration friction:** Allowing runtime fallback to sensible defaults when JSONB tags are empty or null makes schema enhancements non-disruptive for existing datasets.
+
 ---
 
 ## Cross-Milestone Trends
@@ -131,6 +156,7 @@
 
 | Milestone | Phases | Plans | Tests | Key Change |
 |-----------|--------|-------|-------|------------|
+| v1.5 | 1 | 1 | 96 | Implemented dynamic asset facility tags with admin management & public card fallbacks |
 | v1.4 | 1 | 1 | 87 | Configured passwordless Google 2FA (TOTP) and multi-factor security verification |
 | v1.3 | 1 | 2 | 74 | Integrated Resend email gateway and unified concurrent dual-channel orchestrator |
 | v1.2 | 1 | 2 | 53 | Added asynchronous WhatsApp notifications and operational alert pipelines |
@@ -141,6 +167,7 @@
 
 | Milestone | Tests | Pass Rate | Gaps |
 |-----------|-------|-----------|------|
+| v1.5 | 96 | 100% | 0 |
 | v1.4 | 87 | 100% | 0 |
 | v1.3 | 74 | 100% | 0 |
 | v1.2 | 53 | 100% | 0 |
@@ -155,3 +182,5 @@
 4. Asynchronous post-commit dispatch guarantees third-party API reliability without compromising core database transaction integrity.
 5. Concurrent multi-channel dispatch (`Promise.allSettled`) provides independent fault isolation across disparate external communication providers.
 6. Multi-factor authentication must account for passwordless OAuth identity providers by enabling passwordless 2FA lifecycle operations.
+7. Runtime category fallback defaults enable flexible schema evolution without breaking legacy or unmigrated datasets.
+

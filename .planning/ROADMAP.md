@@ -2,31 +2,66 @@
 
 ## Milestones
 
-- **v1.0 MVP** — Phases 1–5 (Shipped 2026-08-14)
-- **v1.1 RBAC Enforcement** — Phase 6 (Shipped 2026-08-15)
-- **v1.2 WhatsApp Notification Integration** — Phase 7 (Shipped 2026-08-16)
-- **v1.3 Dual-Channel Notification Integration** — Phase 8 (Shipped 2026-08-17)
-- **v1.4 Google 2FA & Account Security** — Phase 9 (Shipped 2026-08-18)
-- **v1.5 Dynamic Asset Facilities & Tags** — Phase 10 (Shipped 2026-08-18)
+- ✅ **v1.0 MVP** — Phases 1–5 (Shipped 2026-08-14)
+- ✅ **v1.1 RBAC Enforcement** — Phase 6 (Shipped 2026-08-15)
+- ✅ **v1.2 WhatsApp Notification Integration** — Phase 7 (Shipped 2026-08-16)
+- ✅ **v1.3 Dual-Channel Notification Integration** — Phase 8 (Shipped 2026-08-17)
+- ✅ **v1.4 Google 2FA & Account Security** — Phase 9 (Shipped 2026-08-18)
+- ✅ **v1.5 Dynamic Asset Facilities & Tags** — Phase 10 (Shipped 2026-08-18)
 
----
+## Phases
 
-## Milestone v1.5: Dynamic Asset Facilities & Tags
+<details>
+<summary>✅ v1.0 MVP (Phases 1–5) — SHIPPED 2026-08-14</summary>
 
-### Phase 10: Dynamic Asset Facilities & Tags Management
-**Goal**: Allow administrators to configure customized facility tags per asset and render them dynamically across public discovery cards, schedule views, and booking forms with category fallback defaults.
+- [x] Phase 1: Canonical Data & Migration (3/3 plans) — completed 2026-08-14
+- [x] Phase 2: Secure Administration & Asset Setup (3/3 plans) — completed 2026-08-14
+- [x] Phase 3: Booking Integrity & Audit Core (2/2 plans) — completed 2026-08-14
+- [x] Phase 4: Public Discovery & Booking Requests (3/3 plans) — completed 2026-08-14
+- [x] Phase 5: Administrative Decisions & Operations (2/2 plans) — completed 2026-08-14
 
-**Requirements**:
-- ASSET-FAC-01
-- ASSET-FAC-02
-- ASSET-FAC-03
-- PUBLIC-CARD-01
-- PUBLIC-CARD-02
-- PUBLIC-CARD-03
+</details>
 
-**Success Criteria**:
-1. Operators can input, edit, and delete facility tags on any asset in the admin dashboard (`/admin/assets`) with helpful category presets.
-2. Changes to asset facilities persist safely in the PostgreSQL database via Drizzle ORM and migration scripts.
-3. Public asset cards (`src/components/public/asset-card.tsx`) display customized facility badges for configured assets, and cleanly fall back to default category tags for unconfigured assets.
-4. Schedule detail modals and booking flows display the accurate asset-specific facility tags.
-5. All automated unit and integration tests pass without regressions.
+<details>
+<summary>✅ v1.1 RBAC Enforcement (Phase 6) — SHIPPED 2026-08-15</summary>
+
+- [x] Phase 6: Role-Based Access Control (1/1 plan) — completed 2026-08-15
+
+</details>
+
+<details>
+<summary>✅ v1.2 WhatsApp Notification Integration (Phase 7) — SHIPPED 2026-08-16</summary>
+
+- [x] Phase 7: WhatsApp Notification Integration (2/2 plans) — completed 2026-08-16
+
+</details>
+
+<details>
+<summary>✅ v1.3 Dual-Channel Notification Integration (Phase 8) — SHIPPED 2026-08-17</summary>
+
+- [x] Phase 8: Dual-Channel Notification Integration (2/2 plans) — completed 2026-08-17
+
+</details>
+
+<details>
+<summary>✅ v1.4 Google 2FA & Account Security (Phase 9) — SHIPPED 2026-08-18</summary>
+
+- [x] Phase 9: Google 2FA Fix & Multi-Factor Security (1/1 plan) — completed 2026-08-18
+
+</details>
+
+<details>
+<summary>✅ v1.5 Dynamic Asset Facilities & Tags (Phase 10) — SHIPPED 2026-08-18</summary>
+
+- [x] Phase 10: Dynamic Asset Facilities & Tags Management (1/1 plan) — completed 2026-08-18
+
+</details>
+
+## Backlog
+
+- Requester edits and self-service booking amendment workflow
+- WhatsApp interactive bot / 2-way conversation
+- Inbound email parsing & reply handling
+- PDF e-ticket / surat izin email attachments
+- Specific facility icon picker per tag (e.g. WiFi, AC, Projector)
+- Filter public asset discovery catalog by facility tags
