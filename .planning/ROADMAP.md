@@ -1,24 +1,50 @@
-# Roadmap
+# Roadmap: Sarpras PPKASN
 
-## Milestone v1.4: Google 2FA & Account Security
+## Milestones
 
-### Phase 9: Google 2FA Fix & Multi-Factor Security
+- ✅ **v1.4 Google 2FA & Account Security** — Phase 9 (shipped 2026-08-18) — [v1.4 Roadmap](milestones/v1.4-ROADMAP.md)
+- ✅ **v1.3 Dual-Channel Notification Integration** — Phase 8 (shipped 2026-08-14) — [v1.3 Roadmap](milestones/v1.3-ROADMAP.md)
+- ✅ **v1.2 WhatsApp Integration** — Phase 7 (shipped 2026-08-14) — [v1.2 Roadmap](milestones/v1.2-ROADMAP.md)
+- ✅ **v1.1 RBAC Enforcement** — Phase 6 (shipped 2026-08-14) — [v1.1 Roadmap](milestones/v1.1-ROADMAP.md)
+- ✅ **v1.0 MVP** — Phases 1-5 (shipped 2026-08-14) — [v1.0 Roadmap](milestones/v1.0-ROADMAP.md)
 
-**Goal:** Resolve the 400 Bad Request / "Invalid password" error on 2FA enable for Google OAuth and hybrid accounts, ensure smooth TOTP setup, backup codes, login challenges, and safe disabling with 100% test coverage.
+## Phases
 
-**Requirements:** `2FA-01`, `2FA-02`, `2FA-03`, `2FA-04`, `2FA-05`
+<details>
+<summary>✅ v1.4 Google 2FA & Account Security (Phase 9) — SHIPPED 2026-08-18</summary>
 
-**Success Criteria:**
-1. User with Google OAuth (with or without linked credential records) can click "Mulai Aktivasi 2FA" and receive a valid TOTP QR code & secret without 400 Bad Request error.
-2. User can enter the 6-digit TOTP code to confirm activation and view/copy backup codes.
-3. User can disable 2FA from the security modal without encountering errors.
-4. User logging in with 2FA enabled is challenged for TOTP verification on `/two-factor` and succeeds.
-5. Automated test suite includes reproduction test for the bug and verifies all 2FA lifecycle transitions.
+- [x] **Phase 9: Google 2FA Fix & Multi-Factor Security** (1/1 plans) — completed 2026-08-18
 
----
+</details>
 
-### Progress Tracking
+<details>
+<summary>✅ v1.3 Dual-Channel Notification Integration (Phase 8) — SHIPPED 2026-08-14</summary>
 
-| Phase | Plans | Status | Completed At |
-|-------|-------|--------|--------------|
-| **Phase 9: Google 2FA Fix & Multi-Factor Security** | 1/1 | Completed | 2026-08-18 |
+- [x] **Phase 8: Dual-Channel Notification Integration** (2/2 plans) — completed 2026-08-14
+
+</details>
+
+<details>
+<summary>✅ v1.2 WhatsApp Integration (Phase 7) — SHIPPED 2026-08-14</summary>
+
+- [x] **Phase 7: WhatsApp Notification & Integration** (2/2 plans) — completed 2026-08-14
+
+</details>
+
+<details>
+<summary>✅ v1.1 RBAC Enforcement (Phase 6) — SHIPPED 2026-08-14</summary>
+
+- [x] **Phase 6: Role-Based Access Control (RBAC)** (1/1 plans) — completed 2026-08-14
+
+</details>
+
+<details>
+<summary>✅ v1.0 MVP (Phases 1-5) — SHIPPED 2026-08-14</summary>
+
+- [x] **Phase 1: Canonical Data & Migration** (1/1 plans) — completed 2026-08-12
+- [x] **Phase 2: Secure Administration & Asset Setup** (3/3 plans) — completed 2026-08-12
+- [x] **Phase 3: Booking Integrity & Audit Core** (3/3 plans) — completed 2026-08-14
+- [x] **Phase 4: Public Discovery & Booking Requests** (3/3 plans) — completed 2026-08-14
+- [x] **Phase 5: Administrative Decisions & Operations** (3/3 plans) — completed 2026-08-14
+
+</details>

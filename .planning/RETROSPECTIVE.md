@@ -100,6 +100,29 @@
 ### Key Lessons
 - **Graceful recipient validation:** When users provide only an email or only a WhatsApp number, the orchestrator dispatches cleanly to available channels without throwing errors.
 
+## Milestone: v1.4 — Google 2FA Fix & Multi-Factor Security
+
+**Shipped:** 2026-08-18  
+**Phases:** 1 | **Plans:** 1 | **Automated Tests:** 87 / 87 Passing across 18 test suites (100%)
+
+### What Was Built
+- **Two-Factor Authentication (TOTP) Server Configuration (Phase 9 Plan 1):** Configured `allowPasswordless: true` in Better Auth's `twoFactor` server plugin (`src/db/auth.server.ts`), resolving the 400 Bad Request / "Invalid password" error on 2FA enablement for Google OAuth and hybrid credential accounts.
+- **Client Security Modal & Login Challenge UX Audit (Phase 9 Plan 1):** Verified `TwoFactorSetupModal` for QR code rendering, manual secret key copying with visual feedback, 10 emergency backup recovery codes generation, and safe passwordless 2FA disabling (`disable({})`). Audited `/two-factor` login challenge route for dual verification support (TOTP code + backup code) redirecting seamlessly to `/admin`.
+- **Automated Regression Test Suite (Phase 9 Plan 1):** Built dedicated unit tests (`two-factor-enable-bug.test.ts` and `two-factor.test.ts`) reproducing and verifying the bugfix, and integrated them into the root test script.
+
+### What Worked
+- **Reproduction-First Bug Fixing:** Writing an automated reproduction test demonstrating the missing `allowPasswordless` option before fixing the config gave immediate proof of resolution.
+- **Dual Verification Paths:** Providing both 6-digit TOTP validation and single-use emergency backup code recovery in `/two-factor` ensures administrators never get locked out.
+
+### What Was Inefficient
+- None encountered; the single-plan targeted execution ran cleanly in a single iteration.
+
+### Patterns Established
+- **Passwordless 2FA Configuration:** When using OAuth identity providers alongside email/password credentials, authentication plugins must explicitly allow passwordless TOTP enablement and disable operations without prompting for nonexistent passwords.
+
+### Key Lessons
+- **OAuth Multi-Factor Flows:** When integrating 2FA plugins with third-party OAuth providers (Google, GitHub, etc.), ensure the plugin configuration recognizes that OAuth accounts do not possess a password hash.
+
 ---
 
 ## Cross-Milestone Trends
@@ -108,6 +131,7 @@
 
 | Milestone | Phases | Plans | Tests | Key Change |
 |-----------|--------|-------|-------|------------|
+| v1.4 | 1 | 1 | 87 | Configured passwordless Google 2FA (TOTP) and multi-factor security verification |
 | v1.3 | 1 | 2 | 74 | Integrated Resend email gateway and unified concurrent dual-channel orchestrator |
 | v1.2 | 1 | 2 | 53 | Added asynchronous WhatsApp notifications and operational alert pipelines |
 | v1.1 | 1 | 1 | 31 | Implemented secure role hierarchy and route-level authorization |
@@ -117,6 +141,7 @@
 
 | Milestone | Tests | Pass Rate | Gaps |
 |-----------|-------|-----------|------|
+| v1.4 | 87 | 100% | 0 |
 | v1.3 | 74 | 100% | 0 |
 | v1.2 | 53 | 100% | 0 |
 | v1.1 | 31 | 100% | 0 |
@@ -129,3 +154,4 @@
 3. View-only constraints on the UI should always be coupled with strict min-role boundary checks on the server.
 4. Asynchronous post-commit dispatch guarantees third-party API reliability without compromising core database transaction integrity.
 5. Concurrent multi-channel dispatch (`Promise.allSettled`) provides independent fault isolation across disparate external communication providers.
+6. Multi-factor authentication must account for passwordless OAuth identity providers by enabling passwordless 2FA lifecycle operations.

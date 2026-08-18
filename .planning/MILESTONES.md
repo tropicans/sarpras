@@ -1,5 +1,19 @@
 # Milestones
 
+## v1.4 Google 2FA & Account Security (Shipped: 2026-08-18)
+
+**Phases completed:** 1 phase (Phase 9), 1 plan, 3 tasks, 13 new automated tests (87 total passing)
+
+**Key accomplishments:**
+
+1. Resolved the root-cause 400 Bad Request ("Invalid password") error on 2FA enablement by configuring `allowPasswordless: true` in Better Auth's `twoFactor` server plugin (`src/db/auth.server.ts`).
+2. Audited and verified `TwoFactorSetupModal` for seamless TOTP QR code rendering, manual secret key extraction & clipboard copy with visual feedback, and emergency backup codes formatting.
+3. Verified passwordless safe 2FA deactivation flow (`authClient.twoFactor.disable({})`), allowing OAuth users to toggle 2FA off without entering a non-existent password.
+4. Verified `/two-factor` login challenge verification flow supporting both 6-digit TOTP authenticator codes and emergency backup recovery codes with automated redirection to `/admin`.
+5. Created comprehensive unit & regression test suite (`two-factor-enable-bug.test.ts` and `two-factor.test.ts`), achieving 87/87 passing tests repository-wide across 18 test suites.
+
+---
+
 ## v1.3 Dual-Channel Notification Integration (Shipped: 2026-08-14)
 
 **Phases completed:** 1 phase (Phase 8), 2 plans, 21 new automated tests (74 total passing)

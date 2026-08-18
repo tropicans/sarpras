@@ -10,9 +10,9 @@ This project successfully replaced the legacy deployment with a maintainable Tan
 
 Users can confidently request an available room or dormitory, and administrators can make and track an accountable booking decision without conflicts or lost data.
 
-## Current Milestone: v1.4 Google 2FA & Account Security
+## Current State
 
-**Goal:** Resolve the Google 2FA activation error (400 Bad Request / "Invalid password"), ensure seamless TOTP enablement for both Google OAuth and hybrid credential accounts, and verify full 2FA challenge and recovery flows with comprehensive automated tests.
+**Shipped:** v1.4 Google 2FA & Account Security (2026-08-18)
 
 ## Requirements
 
@@ -34,14 +34,11 @@ Users can confidently request an available room or dormitory, and administrators
 - ✓ Responsive Indonesian HTML & plaintext email templates for booking submission confirmation, admin alerts, approval, and rejection with mandatory justification — validated in Phase 8: Dual-Channel Notification Integration.
 - ✓ Unified dual-channel asynchronous orchestrator executing Email and WhatsApp dispatches concurrently via `Promise.allSettled` across all `BookingService` lifecycle hooks — validated in Phase 8: Dual-Channel Notification Integration.
 - ✓ Channel-specific notification dispatch audit logging (`notification.email_dispatch` and `notification.whatsapp_dispatch`) — validated in Phase 8: Dual-Channel Notification Integration.
+- ✓ Passwordless 2FA enablement, TOTP QR/secret setup, backup recovery codes, login challenges, and safe disabling — validated in Phase 9: Google 2FA Fix & Multi-Factor Security (v1.4).
 
 ### Active
 
-- [ ] **2FA-01**: User (Google SSO and hybrid accounts) can initiate 2FA TOTP activation without encountering 400 Bad Request or "Invalid password" errors.
-- [ ] **2FA-02**: User can scan TOTP QR code / input manual secret in Authenticator app, verify with 6-digit TOTP code, and receive emergency backup codes.
-- [ ] **2FA-03**: User can disable 2FA safely from the security modal.
-- [ ] **2FA-04**: 2FA challenge flow during login prompts for 6-digit verification code or backup code and grants session access upon successful verification.
-- [ ] **2FA-05**: Automated reproduction and regression test suite verifying 2FA enable, verify, challenge, and disable flows.
+(None currently active — define in next milestone via `/gsd-new-milestone`)
 
 ### Out of Scope
 
@@ -52,8 +49,8 @@ Users can confidently request an available room or dormitory, and administrators
 
 ## Context
 
-- Shipped v1.0 MVP, v1.1 RBAC Enforcement, v1.2 WhatsApp Integration, and v1.3 Dual-Channel Notification Integration with 74 passing automated tests.
-- Tech Stack: TanStack Start, React 19, TypeScript, PostgreSQL (Neon / Drizzle ORM), Better Auth (Two-Factor Plugin), Tailwind CSS, Lucide React, date-fns-tz (Asia/Jakarta WIB), Resend Email API, Fonnte WhatsApp API.
+- Shipped v1.0 MVP, v1.1 RBAC Enforcement, v1.2 WhatsApp Integration, v1.3 Dual-Channel Notification Integration, and v1.4 Google 2FA & Account Security with 87 passing automated tests across 18 test suites.
+- Tech Stack: TanStack Start, React 19, TypeScript, PostgreSQL (Neon / Drizzle ORM), Better Auth (Two-Factor Plugin with `allowPasswordless: true`), Tailwind CSS, Lucide React, date-fns-tz (Asia/Jakarta WIB), Resend Email API, Fonnte WhatsApp API.
 - Codebase documentation and architecture maps are maintained in `.planning/codebase/`.
 
 ## Constraints
@@ -73,7 +70,7 @@ Users can confidently request an available room or dormitory, and administrators
 | Fonnte WhatsApp Gateway & Mock Logger | Standard Indonesian number normalizer, non-blocking post-commit dispatch, and console mock fallback. | ✓ Good — zero-latency impact on booking db transactions, full audit trail |
 | Resend Email Gateway & Responsive Templates | Indonesian branded HTML/plaintext email delivery with RFC 5322 validation and mock logger fallback. | ✓ Good — professional transactional email communication with zero runtime errors |
 | Concurrent Dual-Channel Orchestration (`Promise.allSettled`) | Simultaneously dispatches Email and WhatsApp notifications without letting one channel's failure affect the other. | ✓ Good — independent fault isolation and full audit visibility across both channels |
-| Better Auth TOTP Two-Factor Plugin | Built-in twoFactor plugin provides standard RFC 6238 TOTP and encrypted backup codes. | In progress — fixing 400 Bad Request on enable |
+| Better Auth TOTP Two-Factor Plugin with `allowPasswordless: true` | Built-in twoFactor plugin provides standard RFC 6238 TOTP and encrypted backup codes without blocking passwordless/OAuth users. | ✓ Good — seamless 2FA enablement, recovery codes, and verification challenges |
 
 ## Evolution
 
@@ -93,4 +90,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-18 for Milestone v1.4*
+*Last updated: 2026-08-18 after v1.4 milestone*
