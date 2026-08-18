@@ -131,6 +131,8 @@ export const bookings = pgTable("bookings", {
 	status: text("status").default("pending").notNull(), // pending, approved, rejected, cancelled
 	rejectionReason: text("rejection_reason"),
 	groupId: text("group_id"),
+	letterFileName: text("letter_file_name"),
+	letterFileUrl: text("letter_file_url"),
 	legacyId: text("legacy_id").unique(),
 	createdAt: timestamp("created_at", { withTimezone: true })
 		.defaultNow()

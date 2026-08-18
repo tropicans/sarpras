@@ -242,6 +242,8 @@ test("Wave 2 & Wave 3: Transactional Booking Service, Concurrency & Audit Trail"
 				startDate: new Date("2026-08-20T00:00:00.000Z"),
 				endDate: new Date("2026-08-23T00:00:00.000Z"),
 				timezone: "Asia/Jakarta",
+				letterFileName: "surat_tugas_user1.pdf",
+				letterFileUrl: "/uploads/letters/surat_tugas_user1.pdf",
 			});
 			await BookingService.approveBooking(b1.id, `${prefix}admin-1`);
 
@@ -254,6 +256,8 @@ test("Wave 2 & Wave 3: Transactional Booking Service, Concurrency & Audit Trail"
 				startDate: new Date("2026-08-21T00:00:00.000Z"),
 				endDate: new Date("2026-08-24T00:00:00.000Z"),
 				timezone: "Asia/Jakarta",
+				letterFileName: "surat_tugas_user2.pdf",
+				letterFileUrl: "/uploads/letters/surat_tugas_user2.pdf",
 			});
 			await BookingService.approveBooking(b2.id, `${prefix}admin-1`);
 
@@ -268,6 +272,8 @@ test("Wave 2 & Wave 3: Transactional Booking Service, Concurrency & Audit Trail"
 						startDate: new Date("2026-08-22T00:00:00.000Z"),
 						endDate: new Date("2026-08-25T00:00:00.000Z"),
 						timezone: "Asia/Jakarta",
+						letterFileName: "surat_tugas_user3.pdf",
+						letterFileUrl: "/uploads/letters/surat_tugas_user3.pdf",
 					});
 				},
 				(err: any) => {
@@ -303,6 +309,8 @@ test("Wave 2 & Wave 3: Transactional Booking Service, Concurrency & Audit Trail"
 				startDate: slotStart,
 				endDate: slotEnd,
 				timezone: "Asia/Jakarta",
+				letterFileName: "surat_teama.pdf",
+				letterFileUrl: "/uploads/letters/surat_teama.pdf",
 			});
 
 			// Verify booking.create audit event
@@ -320,6 +328,8 @@ test("Wave 2 & Wave 3: Transactional Booking Service, Concurrency & Audit Trail"
 				startDate: slotStart,
 				endDate: slotEnd,
 				timezone: "Asia/Jakarta",
+				letterFileName: "surat_teamb.pdf",
+				letterFileUrl: "/uploads/letters/surat_teamb.pdf",
 			});
 
 			// 3. Approve booking A
@@ -379,6 +389,8 @@ test("Wave 2 & Wave 3: Transactional Booking Service, Concurrency & Audit Trail"
 			startDate: new Date("2026-08-29T02:00:00.000Z"),
 			endDate: new Date("2026-08-29T05:00:00.000Z"),
 			timezone: "Asia/Jakarta",
+			letterFileName: "surat_gamma.pdf",
+			letterFileUrl: "/uploads/letters/surat_gamma.pdf",
 		});
 
 		await assert.rejects(
@@ -525,6 +537,8 @@ test("Phase 4 Wave 1: Public Discovery, Schedule Projections & Pre-flight Availa
 				startDate: new Date("2026-09-02T02:00:00.000Z"),
 				endDate: new Date("2026-09-02T05:00:00.000Z"),
 				timezone: "Asia/Jakarta",
+				letterFileName: "surat_u1.pdf",
+				letterFileUrl: "/uploads/letters/surat_u1.pdf",
 			});
 			await BookingService.approveBooking(bkg.id, `${prefix}admin`);
 
@@ -564,6 +578,8 @@ test("Phase 4 Wave 1: Public Discovery, Schedule Projections & Pre-flight Availa
 				startDate: new Date("2026-09-03T02:00:00.000Z"),
 				endDate: new Date("2026-09-03T05:00:00.000Z"),
 				timezone: "Asia/Jakarta",
+				letterFileName: "surat_rahasia.pdf",
+				letterFileUrl: "/uploads/letters/surat_rahasia.pdf",
 			});
 
 			// Lookup by ID
@@ -572,6 +588,8 @@ test("Phase 4 Wave 1: Public Discovery, Schedule Projections & Pre-flight Availa
 			assert.strictEqual(status.id, bkg.id);
 			assert.strictEqual(status.assetName, `${prefix}Meeting Room Zeta`);
 			assert.strictEqual(status.status, "pending");
+			assert.strictEqual(status.letterFileName, "surat_rahasia.pdf");
+			assert.strictEqual(status.letterFileUrl, "/uploads/letters/surat_rahasia.pdf");
 			assert.strictEqual((status as any).requesterName, undefined);
 			assert.strictEqual((status as any).requesterEmail, undefined);
 			assert.strictEqual((status as any).requesterPhone, undefined);
@@ -632,6 +650,8 @@ test("Phase 7 Wave 7: WhatsApp Notification & Integration Triggers (WA-04, WA-05
 				startDate: new Date("2026-09-10T02:00:00.000Z"),
 				endDate: new Date("2026-09-10T05:00:00.000Z"),
 				timezone: "Asia/Jakarta",
+				letterFileName: "surat_permohonan_ahmad.pdf",
+				letterFileUrl: "/uploads/letters/surat_permohonan_ahmad.pdf",
 			});
 
 			assert.ok(booking.id);
@@ -681,6 +701,8 @@ test("Phase 7 Wave 7: WhatsApp Notification & Integration Triggers (WA-04, WA-05
 				startDate: new Date("2026-09-11T02:00:00.000Z"),
 				endDate: new Date("2026-09-11T05:00:00.000Z"),
 				timezone: "Asia/Jakarta",
+				letterFileName: "surat_siti.pdf",
+				letterFileUrl: "/uploads/letters/surat_siti.pdf",
 			});
 
 			await BookingService.approveBooking(
@@ -722,6 +744,8 @@ test("Phase 7 Wave 7: WhatsApp Notification & Integration Triggers (WA-04, WA-05
 				startDate: new Date("2026-09-12T02:00:00.000Z"),
 				endDate: new Date("2026-09-12T05:00:00.000Z"),
 				timezone: "Asia/Jakarta",
+				letterFileName: "surat_hendra.pdf",
+				letterFileUrl: "/uploads/letters/surat_hendra.pdf",
 			});
 
 			const rejectionReason =
@@ -831,7 +855,7 @@ test("Phase Multi-Room: Batch / Multi-Room Booking Verification", async (t) => {
 		.returning();
 
 	await t.test(
-		"createBatchBookingRequest creates all rooms atomically with shared groupId",
+		"createBatchBookingRequest creates all rooms atomically with shared groupId and saves attached PDF letter",
 		async () => {
 			const start1 = new Date("2026-10-10T02:00:00.000Z");
 			const end1 = new Date("2026-10-10T06:00:00.000Z");
@@ -856,6 +880,8 @@ test("Phase Multi-Room: Batch / Multi-Room Booking Verification", async (t) => {
 				requesterPhone: "08123456789",
 				requesterOrganization: "Pusbang ASN",
 				purpose: "Lokakarya Nasional Multi Ruang",
+				letterFileName: "surat_permohonan_multi.pdf",
+				letterFileUrl: "/uploads/letters/surat_permohonan_multi.pdf",
 				timezone: "Asia/Jakarta",
 			});
 
@@ -865,6 +891,14 @@ test("Phase Multi-Room: Batch / Multi-Room Booking Verification", async (t) => {
 			assert.strictEqual(result.bookings[1].groupId, result.groupId);
 			assert.strictEqual(result.bookings[0].status, "pending");
 			assert.strictEqual(result.bookings[1].status, "pending");
+			assert.strictEqual(
+				result.bookings[0].letterFileName,
+				"surat_permohonan_multi.pdf",
+			);
+			assert.strictEqual(
+				result.bookings[0].letterFileUrl,
+				"/uploads/letters/surat_permohonan_multi.pdf",
+			);
 
 			// Query public status by groupId
 			const groupStatus = await BookingService.getPublicBookingStatus(
@@ -874,6 +908,14 @@ test("Phase Multi-Room: Batch / Multi-Room Booking Verification", async (t) => {
 			assert.strictEqual(groupStatus.groupId, result.groupId);
 			assert.strictEqual(groupStatus.isGroup, true);
 			assert.strictEqual(groupStatus.items?.length, 2);
+			assert.strictEqual(
+				groupStatus.letterFileName,
+				"surat_permohonan_multi.pdf",
+			);
+			assert.strictEqual(
+				groupStatus.letterFileUrl,
+				"/uploads/letters/surat_permohonan_multi.pdf",
+			);
 
 			// Query public status by child booking id
 			const childStatus = await BookingService.getPublicBookingStatus(
@@ -882,6 +924,14 @@ test("Phase Multi-Room: Batch / Multi-Room Booking Verification", async (t) => {
 			assert.ok(childStatus);
 			assert.strictEqual(childStatus.groupId, result.groupId);
 			assert.strictEqual(childStatus.items?.length, 2);
+			assert.strictEqual(
+				childStatus.letterFileName,
+				"surat_permohonan_multi.pdf",
+			);
+			assert.strictEqual(
+				childStatus.letterFileUrl,
+				"/uploads/letters/surat_permohonan_multi.pdf",
+			);
 		},
 	);
 
@@ -902,6 +952,8 @@ test("Phase Multi-Room: Batch / Multi-Room Booking Verification", async (t) => {
 				startDate: start,
 				endDate: end,
 				timezone: "Asia/Jakarta",
+				letterFileName: "surat_prior.pdf",
+				letterFileUrl: "/uploads/letters/surat_prior.pdf",
 			});
 			await BookingService.approveBooking(existing.id, `${prefix}admin`);
 
@@ -927,6 +979,8 @@ test("Phase Multi-Room: Batch / Multi-Room Booking Verification", async (t) => {
 						requesterEmail: `${prefix}failed@example.com`,
 						purpose: "Should rollback everything",
 						timezone: "Asia/Jakarta",
+						letterFileName: "surat_failed.pdf",
+						letterFileUrl: "/uploads/letters/surat_failed.pdf",
 					});
 				},
 				{
@@ -968,6 +1022,8 @@ test("Phase Multi-Room: Batch / Multi-Room Booking Verification", async (t) => {
 				requesterEmail: `${prefix}batchapprove@example.com`,
 				purpose: "Batch Approval Event",
 				timezone: "Asia/Jakarta",
+				letterFileName: "surat_batch.pdf",
+				letterFileUrl: "/uploads/letters/surat_batch.pdf",
 			});
 
 			const approved = await BookingService.batchApproveBookings(
@@ -1009,6 +1065,8 @@ test("Phase Multi-Room: Batch / Multi-Room Booking Verification", async (t) => {
 				requesterEmail: `${prefix}multidate@example.com`,
 				purpose: "Lokakarya 2 Sesi Auditorium",
 				timezone: "Asia/Jakarta",
+				letterFileName: "surat_lokakarya.pdf",
+				letterFileUrl: "/uploads/letters/surat_lokakarya.pdf",
 			});
 
 			assert.ok(result.groupId.startsWith("GRP-"));

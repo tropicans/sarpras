@@ -51,6 +51,10 @@ export const CreateBookingInputSchema = z
 		startDate: z.coerce.date(),
 		endDate: z.coerce.date(),
 		timezone: z.string().default("Asia/Jakarta"),
+		letterFileName: z
+			.string()
+			.min(1, "Surat permohonan dinas (PDF) wajib dilampirkan"),
+		letterFileUrl: z.string().min(1, "Berkas surat permohonan tidak valid"),
 	})
 	.refine((data) => data.endDate > data.startDate, {
 		message: "Waktu selesai harus setelah waktu mulai",
@@ -93,6 +97,10 @@ export const CreateBatchBookingInputSchema = z.object({
 	requesterOrganization: z.string().optional().nullable(),
 	purpose: z.string().optional().nullable(),
 	timezone: z.string().default("Asia/Jakarta"),
+	letterFileName: z
+		.string()
+		.min(1, "Surat permohonan dinas (PDF) wajib dilampirkan"),
+	letterFileUrl: z.string().min(1, "Berkas surat permohonan tidak valid"),
 });
 
 export type CreateBatchBookingInput = z.infer<

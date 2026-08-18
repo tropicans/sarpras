@@ -4,8 +4,11 @@ import {
 	Building2,
 	Calendar,
 	CheckCircle2,
+	ExternalLink,
+	FileText,
 	Mail,
 	MapPin,
+	Paperclip,
 	Phone,
 	User,
 	Users,
@@ -331,6 +334,37 @@ export function BookingReviewDrawer({
 										<p className="text-xs text-[#09090b] leading-relaxed bg-white p-2.5 rounded border border-[#e4e4e7]">
 											{target.purpose || "Tidak ada rincian tujuan"}
 										</p>
+									</div>
+
+									{/* Surat Permohonan / Nota Dinas PDF */}
+									<div className="pt-2 border-t border-[#e4e4e7] flex flex-col gap-2">
+										<span className="text-[11px] font-semibold text-[#71717a] flex items-center gap-1.5 uppercase">
+											<Paperclip size={13} className="text-primary" />
+											Dokumen Surat Permohonan:
+										</span>
+										{target.letterFileUrl ? (
+											<div className="flex items-center justify-between p-2.5 bg-white rounded-lg border border-emerald-200">
+												<div className="flex items-center gap-2 min-w-0">
+													<FileText size={16} className="text-emerald-600 shrink-0" />
+													<span className="font-semibold text-xs text-[#09090b] truncate max-w-[200px]">
+														{target.letterFileName || "Surat_Permohonan.pdf"}
+													</span>
+												</div>
+												<a
+													href={target.letterFileUrl}
+													target="_blank"
+													rel="noreferrer"
+													className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline bg-primary/10 px-2.5 py-1 rounded"
+												>
+													<span>Lihat PDF</span>
+													<ExternalLink size={12} />
+												</a>
+											</div>
+										) : (
+											<p className="text-xs text-[#71717a] italic">
+												Tidak ada surat permohonan yang dilampirkan (Data lama).
+											</p>
+										)}
 									</div>
 								</div>
 							</div>

@@ -3,6 +3,7 @@ import {
 	Building,
 	FileCheck,
 	Loader2,
+	Paperclip,
 	User,
 } from "lucide-react";
 import { useState } from "react";
@@ -158,6 +159,14 @@ export function ReviewStep({
 								<span className="text-muted-foreground">Instansi</span>
 								<span className="font-semibold text-foreground truncate max-w-[160px] text-right">
 									{requester.requesterOrganization}
+								</span>
+							</div>
+
+							<div className="flex justify-between border-b border-border/40 pb-1">
+								<span className="text-muted-foreground">Surat Dinas</span>
+								<span className="font-semibold text-emerald-600 dark:text-emerald-400 truncate max-w-[160px] text-right flex items-center gap-1">
+									<Paperclip className="h-3 w-3 shrink-0" />
+									{requester.letterFileName || "PDF Terlampir"}
 								</span>
 							</div>
 

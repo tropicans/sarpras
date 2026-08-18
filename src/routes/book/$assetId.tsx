@@ -169,6 +169,8 @@ function BookingWizardPage() {
 					requesterPhone: requesterData.requesterPhone,
 					requesterOrganization: requesterData.requesterOrganization,
 					purpose: requesterData.purpose,
+					letterFileName: requesterData.letterFileName || "",
+					letterFileUrl: requesterData.letterFileUrl || "",
 					timezone: "Asia/Jakarta",
 				},
 			});

@@ -235,6 +235,8 @@ export const getAdminBookingsFn = createServerFn({ method: "GET" })
 					timezone: bookings.timezone,
 					status: bookings.status,
 					rejectionReason: bookings.rejectionReason,
+					letterFileName: bookings.letterFileName,
+					letterFileUrl: bookings.letterFileUrl,
 					createdAt: bookings.createdAt,
 					updatedAt: bookings.updatedAt,
 				})
@@ -291,6 +293,8 @@ export const getBookingConflictContextFn = createServerFn({ method: "GET" })
 				timezone: bookings.timezone,
 				status: bookings.status,
 				rejectionReason: bookings.rejectionReason,
+				letterFileName: bookings.letterFileName,
+				letterFileUrl: bookings.letterFileUrl,
 				createdAt: bookings.createdAt,
 				updatedAt: bookings.updatedAt,
 			})

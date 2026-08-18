@@ -86,6 +86,8 @@ test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {
 				startDate: new Date("2026-09-10T09:00:00+07:00"),
 				endDate: new Date("2026-09-10T12:00:00+07:00"),
 				timezone: "Asia/Jakarta",
+				letterFileName: "surat_a.pdf",
+				letterFileUrl: "/uploads/letters/surat_a.pdf",
 			});
 
 			// Create competing pending booking B on same slot (Soft Conflict)
@@ -100,6 +102,8 @@ test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {
 				startDate: new Date("2026-09-10T10:00:00+07:00"),
 				endDate: new Date("2026-09-10T13:00:00+07:00"),
 				timezone: "Asia/Jakarta",
+				letterFileName: "surat_b.pdf",
+				letterFileUrl: "/uploads/letters/surat_b.pdf",
 			});
 
 			// Check conflict context for booking A before any approval
@@ -160,6 +164,8 @@ test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {
 				startDate: new Date("2026-09-15T09:00:00+07:00"),
 				endDate: new Date("2026-09-15T11:00:00+07:00"),
 				timezone: "Asia/Jakarta",
+				letterFileName: "surat_tolak.pdf",
+				letterFileUrl: "/uploads/letters/surat_tolak.pdf",
 			});
 
 			// Rejection without reason must fail

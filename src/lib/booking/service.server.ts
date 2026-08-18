@@ -192,6 +192,8 @@ export class BookingService {
 					endDate,
 					timezone: input.timezone || "Asia/Jakarta",
 					status: "pending",
+					letterFileName: input.letterFileName || null,
+					letterFileUrl: input.letterFileUrl || null,
 					createdAt: new Date(),
 					updatedAt: new Date(),
 				})
@@ -413,6 +415,8 @@ export class BookingService {
 						endDate,
 						timezone: input.timezone || "Asia/Jakarta",
 						status: "pending",
+						letterFileName: input.letterFileName || null,
+						letterFileUrl: input.letterFileUrl || null,
 						createdAt: new Date(),
 						updatedAt: new Date(),
 					})
@@ -1054,6 +1058,8 @@ export class BookingService {
 				attendance: bookings.attendance,
 				status: bookings.status,
 				rejectionReason: bookings.rejectionReason,
+				letterFileName: bookings.letterFileName,
+				letterFileUrl: bookings.letterFileUrl,
 				createdAt: bookings.createdAt,
 				updatedAt: bookings.updatedAt,
 			})
@@ -1087,6 +1093,8 @@ export class BookingService {
 				attendance: bookings.attendance,
 				status: bookings.status,
 				rejectionReason: bookings.rejectionReason,
+				letterFileName: bookings.letterFileName,
+				letterFileUrl: bookings.letterFileUrl,
 				createdAt: bookings.createdAt,
 				updatedAt: bookings.updatedAt,
 			})
@@ -1112,6 +1120,8 @@ export class BookingService {
 					attendance: bookings.attendance,
 					status: bookings.status,
 					rejectionReason: bookings.rejectionReason,
+					letterFileName: bookings.letterFileName,
+					letterFileUrl: bookings.letterFileUrl,
 					createdAt: bookings.createdAt,
 					updatedAt: bookings.updatedAt,
 				})
