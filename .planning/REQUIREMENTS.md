@@ -6,14 +6,14 @@ Enable dynamic management and public display of asset facilities and tags, trans
 ## Functional Requirements
 
 ### Asset Facilities Data & Management (ASSET-FAC)
-- [ ] **ASSET-FAC-01**: Database schema & migration supports storing an array of custom facilities/tags per asset (`facilities: jsonb` or `text[]`).
-- [ ] **ASSET-FAC-02**: Asset CRUD server functions (`saveAssetFn`, `getAssetsListFn`, `public-fns`) validate, persist, and retrieve custom facilities/tags.
-- [ ] **ASSET-FAC-03**: Admin asset management form provides UI to add, edit, and remove tags with category-based suggestions and custom badge creation.
+- [x] **ASSET-FAC-01**: Database schema & migration supports storing an array of custom facilities/tags per asset (`facilities: jsonb` or `text[]`).
+- [x] **ASSET-FAC-02**: Asset CRUD server functions (`saveAssetFn`, `getAssetsListFn`, `public-fns`) validate, persist, and retrieve custom facilities/tags.
+- [x] **ASSET-FAC-03**: Admin asset management form provides UI to add, edit, and remove tags with category-based suggestions and custom badge creation.
 
 ### Public Discovery & Display (PUBLIC-CARD)
-- [ ] **PUBLIC-CARD-01**: Public discovery asset cards display dynamic facility tags saved in the database.
-- [ ] **PUBLIC-CARD-02**: Public discovery asset cards gracefully fall back to sensible category presets when tags are empty or undefined.
-- [ ] **PUBLIC-CARD-03**: Asset schedule modal and booking page surfaces asset-specific facility badges.
+- [x] **PUBLIC-CARD-01**: Public discovery asset cards display dynamic facility tags saved in the database.
+- [x] **PUBLIC-CARD-02**: Public discovery asset cards gracefully fall back to sensible category presets when tags are empty or undefined.
+- [x] **PUBLIC-CARD-03**: Asset schedule modal and booking page surfaces asset-specific facility badges.
 
 ## Future Requirements (Deferred)
 - **FAC-FUTURE-01**: Facility icon picker per tag (e.g. WiFi icon, AC icon, Projector icon).
@@ -26,9 +26,9 @@ Enable dynamic management and public display of asset facilities and tags, trans
 
 | Requirement | Phase | Status |
 |---|---|---|
-| ASSET-FAC-01 | Phase 10 | Pending |
-| ASSET-FAC-02 | Phase 10 | Pending |
-| ASSET-FAC-03 | Phase 10 | Pending |
-| PUBLIC-CARD-01 | Phase 10 | Pending |
-| PUBLIC-CARD-02 | Phase 10 | Pending |
-| PUBLIC-CARD-03 | Phase 10 | Pending |
+| ASSET-FAC-01 | Phase 10 | Satisfied |
+| ASSET-FAC-02 | Phase 10 | Satisfied |
+| ASSET-FAC-03 | Phase 10 | Satisfied |
+| PUBLIC-CARD-01 | Phase 10 | Satisfied |
+| PUBLIC-CARD-02 | Phase 10 | Satisfied |
+| PUBLIC-CARD-03 | Phase 10 | Satisfied |
