@@ -1,13 +1,17 @@
 import { Link } from "@tanstack/react-router";
 import {
+	AlertTriangle,
 	ArrowUpRight,
 	BedDouble,
 	Building,
 	Calendar,
 	Car,
+	CheckCircle2,
+	Clock,
 	DoorOpen,
 	MapPin,
 	Package,
+	XCircle,
 } from "lucide-react";
 import { ASSET_TYPE_LABELS, type AssetType } from "#/lib/booking/types";
 
@@ -20,12 +24,25 @@ export interface PublicAssetItem {
 	status: string;
 }
 
+export interface AssetAvailabilityStatus {
+	available: boolean;
+	reason?: string;
+	bookedSessions?: { startDate: string; endDate: string }[];
+}
+
 interface AssetCardProps {
 	asset: PublicAssetItem;
 	onViewSchedule: (asset: PublicAssetItem) => void;
+	availability?: AssetAvailabilityStatus;
+	isFilteredByDate?: boolean;
 }
 
-export function AssetCard({ asset, onViewSchedule }: AssetCardProps) {
+export function AssetCard({
+	asset,
+	onViewSchedule,
+	availability,
+	isFilteredByDate = false,
+}: AssetCardProps) {
 	const typeLabel =
 		ASSET_TYPE_LABELS[asset.type as AssetType] || asset.type.toUpperCase();
 
@@ -92,9 +109,18 @@ export function AssetCard({ asset, onViewSchedule }: AssetCardProps) {
 	const theme = getVisualTheme();
 	const shortId = asset.id.slice(0, 6).toUpperCase();
 
+	// Availability state
+	const isAvailable = availability ? availability.available : true;
+
 	return (
 		<div
-			className={`group relative flex flex-col justify-between rounded-xl border border-border bg-card overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${theme.accentBorder}`}
+			className={`group relative flex flex-col justify-between rounded-xl border bg-card overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${
+				isFilteredByDate
+					? isAvailable
+						? "border-emerald-500/40 shadow-emerald-500/5 hover:border-emerald-500"
+						: "border-destructive/30 opacity-90 hover:border-destructive/50"
+					: `border-border ${theme.accentBorder}`
+			}`}
 		>
 			{/* Top Visual Graphic Banner */}
 			<div
@@ -131,11 +157,25 @@ export function AssetCard({ asset, onViewSchedule }: AssetCardProps) {
 						<span>{typeLabel.toUpperCase()}</span>
 					</span>
 
-					{/* Live Availability Dot */}
-					<div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-card/80 px-2 py-0.5 font-mono text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 backdrop-blur-md">
-						<span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-						<span>READY</span>
-					</div>
+					{/* Live Availability Badge */}
+					{isFilteredByDate ? (
+						isAvailable ? (
+							<div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2.5 py-0.5 font-mono text-[10px] font-bold text-emerald-700 dark:text-emerald-300 backdrop-blur-md shadow-xs">
+								<span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+								<span>TERSEDIA</span>
+							</div>
+						) : (
+							<div className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 bg-destructive/15 px-2.5 py-0.5 font-mono text-[10px] font-bold text-destructive backdrop-blur-md shadow-xs">
+								<span className="h-2 w-2 rounded-full bg-destructive" />
+								<span>TERPAKAI</span>
+							</div>
+						)
+					) : (
+						<div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-card/80 px-2 py-0.5 font-mono text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 backdrop-blur-md">
+							<span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+							<span>READY</span>
+						</div>
+					)}
 				</div>
 
 				{/* Center Facility Graphic Representation */}
@@ -154,7 +194,9 @@ export function AssetCard({ asset, onViewSchedule }: AssetCardProps) {
 					<div className="font-mono text-[11px] font-bold text-foreground bg-card/80 px-2 py-0.5 rounded border border-border/70 backdrop-blur-xs">
 						{asset.capacity}{" "}
 						<span className="font-normal text-[10px] text-muted-foreground">
-							{asset.type === "vehicle" || asset.type === "equipment" ? "Unit" : "Pax"}
+							{asset.type === "vehicle" || asset.type === "equipment"
+								? "Unit"
+								: "Pax"}
 						</span>
 					</div>
 				</div>
@@ -170,9 +212,41 @@ export function AssetCard({ asset, onViewSchedule }: AssetCardProps) {
 						</h3>
 						<div className="flex items-center gap-1.5 text-xs text-muted-foreground">
 							<MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground/70" />
-							<span className="truncate">{asset.location || "PPKASN Kemensetneg RI"}</span>
+							<span className="truncate">
+								{asset.location || "PPKASN Kemensetneg RI"}
+							</span>
 						</div>
 					</div>
+
+					{/* Date Filter Context Banner */}
+					{isFilteredByDate && (
+						<div
+							className={`rounded-md p-2 text-xs font-mono flex items-start gap-2 border ${
+								isAvailable
+									? "bg-emerald-500/10 border-emerald-500/20 text-emerald-800 dark:text-emerald-300"
+									: "bg-destructive/10 border-destructive/20 text-destructive"
+							}`}
+						>
+							{isAvailable ? (
+								<CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
+							) : (
+								<XCircle className="h-4 w-4 shrink-0 mt-0.5" />
+							)}
+							<div>
+								<span className="font-semibold block text-[11px]">
+									{isAvailable
+										? "KOSONG // BISA DIPINJAM"
+										: "SUDAH TERPAKAI PADA JAM INI"}
+								</span>
+								<span className="text-[10px] opacity-90">
+									{isAvailable
+										? "Jadwal kosong dan siap dipesan untuk kegiatan Anda."
+										: availability?.reason ||
+											"Telah terisi permohonan lain pada rentang waktu ini."}
+								</span>
+							</div>
+						</div>
+					)}
 
 					{/* Visual Feature Tags */}
 					<div className="flex flex-wrap gap-1 pt-1">
@@ -201,9 +275,13 @@ export function AssetCard({ asset, onViewSchedule }: AssetCardProps) {
 					<Link
 						to="/book/$assetId"
 						params={{ assetId: asset.id }}
-						className="inline-flex items-center justify-center gap-1 rounded-md bg-primary px-2.5 py-1.5 text-xs font-medium text-primary-foreground transition-all hover:bg-primary/90 cursor-pointer shadow-2xs group/btn"
+						className={`inline-flex items-center justify-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition-all cursor-pointer shadow-2xs group/btn ${
+							isFilteredByDate && !isAvailable
+								? "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border"
+								: "bg-primary text-primary-foreground hover:bg-primary/90"
+						}`}
 					>
-						<span>Pinjam</span>
+						<span>{isFilteredByDate && !isAvailable ? "Pilih Sesi Lain" : "Pinjam"}</span>
 						<ArrowUpRight className="h-3.5 w-3.5 opacity-80 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
 					</Link>
 				</div>
@@ -211,3 +289,4 @@ export function AssetCard({ asset, onViewSchedule }: AssetCardProps) {
 		</div>
 	);
 }
+

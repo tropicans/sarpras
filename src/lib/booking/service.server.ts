@@ -1135,4 +1135,105 @@ export class BookingService {
 			items: [singleRecord],
 		};
 	}
+
+	/**
+	 * Real-time batch catalog availability calculation for a given time window.
+	 */
+	static async checkCatalogAvailability(input: {
+		startDate: Date | string;
+		endDate: Date | string;
+	}) {
+		const startDate = normalizeDate(input.startDate);
+		const endDate = normalizeDate(input.endDate);
+
+		const activeAssets = await db
+			.select({
+				id: assets.id,
+				name: assets.name,
+				type: assets.type,
+				capacity: assets.capacity,
+			})
+			.from(assets)
+			.where(eq(assets.status, "active"));
+
+		const [allApprovedBookings, allClosures] = await Promise.all([
+			db
+				.select({
+					assetId: bookings.assetId,
+					startDate: bookings.startDate,
+					endDate: bookings.endDate,
+				})
+				.from(bookings)
+				.where(
+					and(
+						eq(bookings.status, "approved"),
+						lt(bookings.startDate, endDate),
+						gt(bookings.endDate, startDate),
+					),
+				),
+			db
+				.select({
+					assetId: assetClosures.assetId,
+					date: assetClosures.date,
+					reason: assetClosures.reason,
+				})
+				.from(assetClosures),
+		]);
+
+		const results: Record<
+			string,
+			{
+				available: boolean;
+				reason?: string;
+				bookedSessions: { startDate: string; endDate: string }[];
+			}
+		> = {};
+
+		for (const asset of activeAssets) {
+			// 1. Check closures
+			const closures = allClosures.filter((c) => c.assetId === asset.id);
+			const closureCheck = validateAssetClosures(startDate, endDate, closures);
+			if (!closureCheck.valid) {
+				results[asset.id] = {
+					available: false,
+					reason: closureCheck.reason || "Ditutup untuk pemeliharaan",
+					bookedSessions: [],
+				};
+				continue;
+			}
+
+			// 2. Overlapping approved bookings
+			const overlapping = allApprovedBookings.filter(
+				(b) => b.assetId === asset.id,
+			);
+
+			if (
+				asset.type === "room" ||
+				asset.type === "vehicle" ||
+				asset.type === "field"
+			) {
+				const overlapCheck = checkRoomOverlap(overlapping, startDate, endDate);
+				results[asset.id] = {
+					available: overlapCheck.available,
+					reason: overlapCheck.conflictReason,
+					bookedSessions: overlapping.map((b) => ({
+						startDate: b.startDate.toISOString(),
+						endDate: b.endDate.toISOString(),
+					})),
+				};
+			} else {
+				// dormitory / equipment
+				results[asset.id] = {
+					available: true,
+					bookedSessions: overlapping.map((b) => ({
+						startDate: b.startDate.toISOString(),
+						endDate: b.endDate.toISOString(),
+					})),
+				};
+			}
+		}
+
+		return results;
+	}
 }
+

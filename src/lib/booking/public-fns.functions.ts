@@ -164,3 +164,23 @@ export const getPublicBookingStatusFn = createServerFn({ method: "GET" })
 			updatedAt: status.updatedAt.toISOString(),
 		};
 	});
+
+/**
+ * Public Server Function: Real-time availability check for the entire catalog on a specific schedule.
+ */
+export const checkCatalogAvailabilityFn = createServerFn({ method: "POST" })
+	.validator((data: unknown) =>
+		z
+			.object({
+				startDate: z.string().min(1),
+				endDate: z.string().min(1),
+			})
+			.parse(data),
+	)
+	.handler(async ({ data }) => {
+		return await BookingService.checkCatalogAvailability({
+			startDate: data.startDate,
+			endDate: data.endDate,
+		});
+	});
+

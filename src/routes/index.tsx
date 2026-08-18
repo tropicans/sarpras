@@ -2,19 +2,25 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
 	Activity,
 	BedDouble,
+	Calendar,
 	CalendarCheck,
 	CheckCircle2,
 	Clock,
 	DoorOpen,
 	FileText,
 	Filter,
+	Loader2,
+	RotateCcw,
 	Search,
 	ShieldCheck,
+	Sparkles,
 	Terminal,
+	XCircle,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
 	AssetCard,
+	type AssetAvailabilityStatus,
 	type PublicAssetItem,
 } from "#/components/public/asset-card";
 import { BentoShowcase } from "#/components/public/bento-showcase";
@@ -22,7 +28,10 @@ import { HeroConsole } from "#/components/public/hero-console";
 import { PublicFooter } from "#/components/public/public-footer";
 import { PublicHeader } from "#/components/public/public-header";
 import { ScheduleModal } from "#/components/public/schedule-modal";
-import { getPublicAssetsListFn } from "#/lib/booking/public-fns.functions";
+import {
+	checkCatalogAvailabilityFn,
+	getPublicAssetsListFn,
+} from "#/lib/booking/public-fns.functions";
 
 export const Route = createFileRoute("/")({
 	loader: async () => {
@@ -38,6 +47,91 @@ function HomePage() {
 	const [typeFilter, setTypeFilter] = useState<string>("all");
 	const [selectedScheduleAsset, setSelectedScheduleAsset] =
 		useState<PublicAssetItem | null>(null);
+
+	// Date & Time Availability Filter state
+	const [filterDate, setFilterDate] = useState<string>("");
+	const [filterStartTime, setFilterStartTime] = useState<string>("08:00");
+	const [filterEndTime, setFilterEndTime] = useState<string>("17:00");
+	const [availableOnly, setAvailableOnly] = useState<boolean>(false);
+	const [isCheckingAvailability, setIsCheckingAvailability] =
+		useState<boolean>(false);
+	const [availabilityMap, setAvailabilityMap] = useState<
+		Record<string, AssetAvailabilityStatus>
+	>({});
+
+	// Real-time batch catalog availability calculation
+	useEffect(() => {
+		if (!filterDate || !filterStartTime || !filterEndTime) {
+			setAvailabilityMap({});
+			setIsCheckingAvailability(false);
+			return;
+		}
+
+		let isCancelled = false;
+
+		const runCheck = async () => {
+			const startIso = new Date(
+				`${filterDate}T${filterStartTime}:00+07:00`,
+			).toISOString();
+			const endIso = new Date(
+				`${filterDate}T${filterEndTime}:00+07:00`,
+			).toISOString();
+
+			if (new Date(startIso) >= new Date(endIso)) {
+				return;
+			}
+
+			setIsCheckingAvailability(true);
+			try {
+				const results = await checkCatalogAvailabilityFn({
+					data: {
+						startDate: startIso,
+						endDate: endIso,
+					},
+				});
+				if (!isCancelled) {
+					setAvailabilityMap(results as Record<string, AssetAvailabilityStatus>);
+					setIsCheckingAvailability(false);
+				}
+			} catch (err) {
+				if (!isCancelled) {
+					setIsCheckingAvailability(false);
+				}
+			}
+		};
+
+		const timer = setTimeout(runCheck, 250);
+		return () => {
+			isCancelled = true;
+			clearTimeout(timer);
+		};
+	}, [filterDate, filterStartTime, filterEndTime]);
+
+	// Quick date helpers
+	const handleSetToday = () => {
+		const now = new Date();
+		const pad = (n: number) => String(n).padStart(2, "0");
+		setFilterDate(
+			`${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`,
+		);
+	};
+
+	const handleSetTomorrow = () => {
+		const tomorrow = new Date();
+		tomorrow.setDate(tomorrow.getDate() + 1);
+		const pad = (n: number) => String(n).padStart(2, "0");
+		setFilterDate(
+			`${tomorrow.getFullYear()}-${pad(tomorrow.getMonth() + 1)}-${pad(tomorrow.getDate())}`,
+		);
+	};
+
+	const handleResetDateFilter = () => {
+		setFilterDate("");
+		setFilterStartTime("08:00");
+		setFilterEndTime("17:00");
+		setAvailableOnly(false);
+		setAvailabilityMap({});
+	};
 
 	// Count statistics for the facilities console
 	const stats = useMemo(() => {
@@ -56,9 +150,38 @@ function HomePage() {
 				asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
 				(asset.location &&
 					asset.location.toLowerCase().includes(searchQuery.toLowerCase()));
+
+			if (filterDate && availableOnly) {
+				const status = availabilityMap[asset.id];
+				if (status && status.available === false) {
+					return false;
+				}
+			}
+
 			return matchesType && matchesSearch;
 		});
-	}, [assets, searchQuery, typeFilter]);
+	}, [
+		assets,
+		searchQuery,
+		typeFilter,
+		filterDate,
+		availableOnly,
+		availabilityMap,
+	]);
+
+	const availabilityStats = useMemo(() => {
+		if (!filterDate) return null;
+		let availableCount = 0;
+		let occupiedCount = 0;
+		for (const asset of assets) {
+			const status = availabilityMap[asset.id];
+			if (status) {
+				if (status.available) availableCount++;
+				else occupiedCount++;
+			}
+		}
+		return { availableCount, occupiedCount, total: assets.length };
+	}, [assets, filterDate, availabilityMap]);
 
 	return (
 		<div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-primary/20">
@@ -271,7 +394,7 @@ function HomePage() {
 
 				{/* Asset Catalog Section (TanStack DevTools Filter & Grid) */}
 				<section id="katalog" className="py-14 sm:py-18">
-					<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">
+					<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
 						<div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/80 pb-5">
 							<div className="space-y-1">
 								<span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-primary">
@@ -360,6 +483,171 @@ function HomePage() {
 							</div>
 						</div>
 
+						{/* Interactive Real-Time Date & Time Availability Filter Console */}
+						<div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-xs space-y-4 font-mono text-xs">
+							<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/70 pb-3">
+								<div className="flex items-center gap-2.5">
+									<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20">
+										<Calendar className="h-4 w-4" />
+									</div>
+									<div>
+										<h3 className="font-bold text-foreground text-xs uppercase tracking-wide flex items-center gap-2">
+											<span>CEK KETERSEDIAAN JADWAL REAL-TIME</span>
+											{isCheckingAvailability && (
+												<Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+											)}
+										</h3>
+										<p className="text-[11px] text-muted-foreground font-sans">
+											Pilih tanggal & jam untuk melihat langsung ruangan mana yang kosong dan siap dipinjam.
+										</p>
+									</div>
+								</div>
+
+								{filterDate && (
+									<div className="flex items-center gap-2 self-start sm:self-auto">
+										<button
+											type="button"
+											onClick={handleResetDateFilter}
+											className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer border border-border/60 bg-muted/40 px-2.5 py-1 rounded"
+										>
+											<RotateCcw className="h-3 w-3" />
+											<span>Reset Tanggal</span>
+										</button>
+									</div>
+								)}
+							</div>
+
+							<div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
+								{/* Date input + quick buttons */}
+								<div className="lg:col-span-4 space-y-1.5">
+									<div className="flex items-center justify-between">
+										<label className="font-semibold text-foreground text-[11px] uppercase flex items-center gap-1.5">
+											<Calendar className="h-3 w-3 text-primary" />
+											Tanggal Acara
+										</label>
+										<div className="flex items-center gap-1">
+											<button
+												type="button"
+												onClick={handleSetToday}
+												className="text-[10px] bg-secondary px-2 py-0.5 rounded text-secondary-foreground hover:bg-secondary/80 cursor-pointer"
+											>
+												Hari Ini
+											</button>
+											<button
+												type="button"
+												onClick={handleSetTomorrow}
+												className="text-[10px] bg-secondary px-2 py-0.5 rounded text-secondary-foreground hover:bg-secondary/80 cursor-pointer"
+											>
+												Besok
+											</button>
+										</div>
+									</div>
+									<input
+										type="date"
+										value={filterDate}
+										onChange={(e) => setFilterDate(e.target.value)}
+										className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-mono"
+									/>
+								</div>
+
+								{/* Time Start & End */}
+								<div className="lg:col-span-4 space-y-1.5">
+									<div className="flex items-center justify-between">
+										<label className="font-semibold text-foreground text-[11px] uppercase flex items-center gap-1.5">
+											<Clock className="h-3 w-3 text-primary" />
+											Rentang Jam (WIB)
+										</label>
+										<div className="flex items-center gap-1">
+											<button
+												type="button"
+												onClick={() => {
+													setFilterStartTime("08:00");
+													setFilterEndTime("12:00");
+												}}
+												className="text-[10px] bg-secondary px-1.5 py-0.5 rounded text-secondary-foreground hover:bg-secondary/80 cursor-pointer"
+											>
+												Pagi (08-12)
+											</button>
+											<button
+												type="button"
+												onClick={() => {
+													setFilterStartTime("13:00");
+													setFilterEndTime("17:00");
+												}}
+												className="text-[10px] bg-secondary px-1.5 py-0.5 rounded text-secondary-foreground hover:bg-secondary/80 cursor-pointer"
+											>
+												Siang (13-17)
+											</button>
+											<button
+												type="button"
+												onClick={() => {
+													setFilterStartTime("08:00");
+													setFilterEndTime("17:00");
+												}}
+												className="text-[10px] bg-secondary px-1.5 py-0.5 rounded text-secondary-foreground hover:bg-secondary/80 cursor-pointer"
+											>
+												Seharian
+											</button>
+										</div>
+									</div>
+									<div className="grid grid-cols-2 gap-2">
+										<input
+											type="time"
+											value={filterStartTime}
+											onChange={(e) => setFilterStartTime(e.target.value)}
+											className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-mono"
+										/>
+										<input
+											type="time"
+											value={filterEndTime}
+											onChange={(e) => setFilterEndTime(e.target.value)}
+											className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-mono"
+										/>
+									</div>
+								</div>
+
+								{/* Filter Toggle & Status Overview */}
+								<div className="lg:col-span-4 flex flex-col justify-between gap-2.5 bg-muted/40 p-3 rounded-lg border border-border/70 h-[62px]">
+									<label className="flex items-center gap-2 cursor-pointer select-none">
+										<input
+											type="checkbox"
+											checked={availableOnly}
+											disabled={!filterDate}
+											onChange={(e) => setAvailableOnly(e.target.checked)}
+											className="rounded border-border text-primary focus:ring-primary h-4 w-4 cursor-pointer disabled:opacity-50"
+										/>
+										<span className="text-xs font-semibold text-foreground">
+											Hanya Tampilkan yang Kosong
+										</span>
+									</label>
+
+									<div className="flex items-center gap-2 text-[11px]">
+										{filterDate ? (
+											availabilityStats ? (
+												<div className="flex items-center gap-2 font-mono">
+													<span className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300 font-bold">
+														<span className="h-2 w-2 rounded-full bg-emerald-500" />
+														{availabilityStats.availableCount} Kosong
+													</span>
+													<span className="text-border">|</span>
+													<span className="inline-flex items-center gap-1.5 text-destructive font-bold">
+														<span className="h-2 w-2 rounded-full bg-destructive" />
+														{availabilityStats.occupiedCount} Terpakai
+													</span>
+												</div>
+											) : (
+												<span className="text-muted-foreground">Menghitung status...</span>
+											)
+										) : (
+											<span className="text-muted-foreground text-[10px]">
+												💡 Masukkan tanggal di atas untuk melihat status real-time.
+											</span>
+										)}
+									</div>
+								</div>
+							</div>
+						</div>
+
 						{/* Catalog Grid */}
 						{filteredAssets.length === 0 ? (
 							<div className="rounded-xl border border-dashed border-border p-12 text-center space-y-2">
@@ -370,13 +658,16 @@ function HomePage() {
 									Tidak Ada Sarana Ditemukan
 								</h3>
 								<p className="text-xs text-muted-foreground max-w-sm mx-auto">
-									Silakan sesuaikan kata kunci pencarian atau reset filter kategori.
+									{filterDate && availableOnly
+										? "Semua sarana pada kategori ini sedang terpakai pada rentang waktu yang dipilih. Coba matikan opsi 'Hanya Tampilkan yang Kosong' atau pilih tanggal lain."
+										: "Silakan sesuaikan kata kunci pencarian atau reset filter kategori."}
 								</p>
 								<button
 									type="button"
 									onClick={() => {
 										setSearchQuery("");
 										setTypeFilter("all");
+										setAvailableOnly(false);
 									}}
 									className="inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold text-primary hover:underline pt-2 cursor-pointer"
 								>
@@ -389,6 +680,8 @@ function HomePage() {
 									<AssetCard
 										key={asset.id}
 										asset={asset}
+										availability={availabilityMap[asset.id]}
+										isFilteredByDate={Boolean(filterDate)}
 										onViewSchedule={(item) => setSelectedScheduleAsset(item)}
 									/>
 								))}
