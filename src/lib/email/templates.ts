@@ -89,7 +89,7 @@ function renderBaseHtmlLayout(options: BaseLayoutOptions): string {
               <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
                 <tr>
                   <td>
-                    <div style="font-size: 12px; font-weight: 700; color: #93c5fd; text-transform: uppercase; letter-spacing: 1px;">Sistem Informasi Sarana & Prasarana</div>
+                    <div style="font-size: 12px; font-weight: 700; color: #93c5fd; text-transform: uppercase; letter-spacing: 1px;">Platform Digital Fasilitas Kedinasan</div>
                     <div style="font-size: 20px; font-weight: 700; color: #ffffff; margin-top: 4px;">SARPRAS PPKASN</div>
                   </td>
                 </tr>
@@ -404,7 +404,7 @@ Sistem Sarpras PPKASN`;
  * Builds the rejection notification email sent to the requester (EMAIL-08).
  */
 export function buildBookingRejectionEmail(
-	data: BookingRejectionData,
+	data: BookingRejectionEmailData,
 ): EmailTemplateOutput {
 	const baseUrl = getAppBaseUrl();
 	const trackingUrl =

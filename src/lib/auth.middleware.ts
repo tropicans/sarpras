@@ -15,13 +15,14 @@ export const getSessionFn = createServerFn({ method: "GET" }).handler(
 		const headers = getRequestHeaders();
 		const session = await auth.api.getSession({ headers });
 		if (session?.user) {
-			const effectiveRole = resolveEffectiveRole(session.user);
-			if (session.user.role !== effectiveRole) {
-				session.user.role = effectiveRole;
+			const u = session.user as any;
+			const effectiveRole = resolveEffectiveRole(u);
+			if (u.role !== effectiveRole) {
+				u.role = effectiveRole;
 				await db
 					.update(users)
 					.set({ role: effectiveRole })
-					.where(eq(users.id, session.user.id));
+					.where(eq(users.id, u.id));
 			}
 		}
 		return session;
@@ -36,15 +37,17 @@ export const authMiddleware = createMiddleware().server(async ({ next }) => {
 		throw new Error("Unauthorized");
 	}
 
-	if (session.user.status === "inactive") {
+	const user = session.user as any;
+
+	if (user.status === "inactive") {
 		throw new Error("Unauthorized");
 	}
 
-	session.user.role = resolveEffectiveRole(session.user);
+	user.role = resolveEffectiveRole(user);
 
 	return next({
 		context: {
-			user: session.user,
+			user,
 			session: session.session,
 		},
 	});
@@ -59,12 +62,14 @@ export function requireMinRole(minRole: UserRole) {
 			throw new Error("Unauthorized");
 		}
 
-		if (session.user.status === "inactive") {
+		const user = session.user as any;
+
+		if (user.status === "inactive") {
 			throw new Error("Unauthorized");
 		}
 
-		const effectiveRole = resolveEffectiveRole(session.user);
-		session.user.role = effectiveRole;
+		const effectiveRole = resolveEffectiveRole(user);
+		user.role = effectiveRole;
 
 		if (ROLE_RANK[effectiveRole] < ROLE_RANK[minRole]) {
 			throw new Error("Forbidden");
@@ -72,7 +77,7 @@ export function requireMinRole(minRole: UserRole) {
 
 		return next({
 			context: {
-				user: session.user,
+				user,
 				session: session.session,
 			},
 		});

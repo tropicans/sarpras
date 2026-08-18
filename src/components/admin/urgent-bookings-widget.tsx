@@ -1,13 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import {
-	AlertCircle,
 	ArrowRight,
 	Calendar,
 	CheckCircle2,
 	Clock,
 	Users,
 } from "lucide-react";
-import React from "react";
 import { formatJakartaDisplay } from "#/lib/timezone/datetime";
 
 interface UrgentBookingItem {
@@ -33,7 +31,6 @@ interface UrgentBookingsWidgetProps {
 
 export function UrgentBookingsWidget({
 	items,
-	onReview,
 }: UrgentBookingsWidgetProps) {
 	if (!items || items.length === 0) {
 		return (

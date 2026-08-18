@@ -1,5 +1,5 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { AlertCircle, RefreshCw, ScrollText } from "lucide-react";
+import { AlertCircle, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import {
@@ -9,15 +9,14 @@ import {
 import { getAdminAuditLogsFn } from "#/lib/audit/admin-fns.functions";
 
 const AuditSearchSchema = z.object({
-	action: z.string().optional().default("all"),
+	action: z.string().optional(),
 	entityType: z
 		.enum(["all", "booking", "asset", "user"])
-		.optional()
-		.default("all"),
+		.optional(),
 	actorId: z.string().optional(),
 	startDate: z.string().optional(),
 	endDate: z.string().optional(),
-	page: z.coerce.number().int().min(1).optional().default(1),
+	page: z.coerce.number().int().min(1).optional(),
 });
 
 export const Route = createFileRoute("/admin/audit")({

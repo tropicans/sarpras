@@ -1,17 +1,9 @@
 import {
 	AlertCircle,
 	Building,
-	Calendar,
-	CheckSquare,
-	Clock,
 	FileCheck,
 	Loader2,
-	Mail,
-	MapPin,
-	Phone,
-	ShieldCheck,
 	User,
-	Users,
 } from "lucide-react";
 import { useState } from "react";
 import type { RequesterStepData } from "./requester-step";
@@ -50,9 +42,9 @@ export function ReviewStep({
 		const d = new Date(isoString);
 		return d.toLocaleDateString("id-ID", {
 			timeZone: "Asia/Jakarta",
-			weekday: "long",
+			weekday: "short",
 			day: "numeric",
-			month: "long",
+			month: "short",
 			year: "numeric",
 			hour: "2-digit",
 			minute: "2-digit",
@@ -60,121 +52,105 @@ export function ReviewStep({
 	};
 
 	return (
-		<div className="space-y-6">
-			<div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-6">
-				<div className="border-b border-border/60 pb-4">
-					<h3 className="text-lg font-bold text-foreground">
-						Konfirmasi Data Permohonan Peminjaman
+		<div className="space-y-4 font-mono text-xs">
+			<div className="rounded-lg border border-border bg-card p-5 space-y-4">
+				<div className="border-b border-border pb-3">
+					<h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+						KONFIRMASI AKHIR // REVIEW DATA PERMOHONAN
 					</h3>
-					<p className="text-xs text-muted-foreground">
-						Pastikan seluruh data jadwal dan identitas pemohon telah sesuai
-						sebelum dikirimkan ke petugas verifikator.
+					<p className="text-[11px] text-muted-foreground mt-0.5 font-sans">
+						Pastikan rincian sarana, waktu pelaksanaan, dan kontak pemohon telah benar sebelum mengirimkan permohonan.
 					</p>
 				</div>
 
 				{/* Error Alert */}
 				{errorMessage && (
-					<div className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 flex items-start gap-3 text-destructive text-sm">
-						<AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+					<div className="rounded-md bg-destructive/10 border border-destructive/20 p-3 flex items-start gap-2.5 text-destructive text-xs">
+						<AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
 						<div>
-							<strong className="font-semibold">Pengajuan Gagal: </strong>
+							<strong>[PENGAJUAN GAGAL]: </strong>
 							<span>{errorMessage}</span>
 						</div>
 					</div>
 				)}
 
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 					{/* Section 1: Asset & Schedule */}
-					<div className="rounded-xl border border-border/60 bg-muted/20 p-4 space-y-3">
-						<h4 className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+					<div className="rounded border border-border bg-muted/30 p-3.5 space-y-2">
+						<span className="text-[10px] uppercase text-primary font-bold flex items-center gap-1.5">
 							<Building className="h-3.5 w-3.5" />
-							Rincian Sarana & Jadwal
-						</h4>
+							RINCIAN SARANA & JADWAL
+						</span>
 
-						<div className="space-y-2 text-xs">
-							<div>
-								<span className="text-muted-foreground">Nama Sarana:</span>
-								<p className="font-semibold text-foreground text-sm">
-									{asset.name}
-								</p>
+						<div className="space-y-1.5 pt-1 text-xs">
+							<div className="flex justify-between border-b border-border/40 pb-1">
+								<span className="text-muted-foreground">Sarana</span>
+								<span className="font-semibold text-foreground">{asset.name}</span>
 							</div>
 
-							<div>
-								<span className="text-muted-foreground">Tipe & Lokasi:</span>
-								<p className="font-medium text-foreground">
-									{isRoom ? "Ruang Rapat" : "Asrama / Wisma"} &bull;{" "}
-									{asset.location || "Gedung Utama"}
-								</p>
-							</div>
-
-							<div>
-								<span className="text-muted-foreground">Waktu Mulai:</span>
-								<p className="font-medium text-foreground">
-									{formatDateTime(schedule.startDate)} WIB
-								</p>
-							</div>
-
-							<div>
-								<span className="text-muted-foreground">Waktu Selesai:</span>
-								<p className="font-medium text-foreground">
-									{formatDateTime(schedule.endDate)} WIB
-								</p>
-							</div>
-
-							<div>
-								<span className="text-muted-foreground">
-									Perkiraan Peserta:
+							<div className="flex justify-between border-b border-border/40 pb-1">
+								<span className="text-muted-foreground">Kategori</span>
+								<span className="font-semibold text-foreground">
+									{isRoom ? "Ruang Rapat" : "Asrama / Wisma"}
 								</span>
-								<p className="font-semibold text-primary">
-									{schedule.attendance} Orang (Kapasitas: {asset.capacity})
-								</p>
+							</div>
+
+							<div className="flex justify-between border-b border-border/40 pb-1">
+								<span className="text-muted-foreground">Mulai</span>
+								<span className="font-semibold text-foreground">
+									{formatDateTime(schedule.startDate)} WIB
+								</span>
+							</div>
+
+							<div className="flex justify-between border-b border-border/40 pb-1">
+								<span className="text-muted-foreground">Selesai</span>
+								<span className="font-semibold text-foreground">
+									{formatDateTime(schedule.endDate)} WIB
+								</span>
+							</div>
+
+							<div className="flex justify-between">
+								<span className="text-muted-foreground">Peserta</span>
+								<span className="font-bold text-primary">
+									{schedule.attendance} Pax (Kapasitas: {asset.capacity})
+								</span>
 							</div>
 						</div>
 					</div>
 
 					{/* Section 2: Requester Info */}
-					<div className="rounded-xl border border-border/60 bg-muted/20 p-4 space-y-3">
-						<h4 className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+					<div className="rounded border border-border bg-muted/30 p-3.5 space-y-2">
+						<span className="text-[10px] uppercase text-primary font-bold flex items-center gap-1.5">
 							<User className="h-3.5 w-3.5" />
-							Data Pemohon & Acara
-						</h4>
+							DATA PEMOHON & ACARA
+						</span>
 
-						<div className="space-y-2 text-xs">
-							<div>
-								<span className="text-muted-foreground">Penanggung Jawab:</span>
-								<p className="font-semibold text-foreground text-sm">
-									{requester.requesterName}
-								</p>
+						<div className="space-y-1.5 pt-1 text-xs">
+							<div className="flex justify-between border-b border-border/40 pb-1">
+								<span className="text-muted-foreground">Nama</span>
+								<span className="font-semibold text-foreground">{requester.requesterName}</span>
 							</div>
 
-							<div>
-								<span className="text-muted-foreground">Email:</span>
-								<p className="font-medium text-foreground">
-									{requester.requesterEmail}
-								</p>
+							<div className="flex justify-between border-b border-border/40 pb-1">
+								<span className="text-muted-foreground">Email</span>
+								<span className="font-semibold text-foreground">{requester.requesterEmail}</span>
 							</div>
 
-							<div>
-								<span className="text-muted-foreground">
-									No. Telepon/WhatsApp:
-								</span>
-								<p className="font-medium text-foreground">
-									{requester.requesterPhone}
-								</p>
+							<div className="flex justify-between border-b border-border/40 pb-1">
+								<span className="text-muted-foreground">WhatsApp</span>
+								<span className="font-semibold text-foreground">{requester.requesterPhone}</span>
 							</div>
 
-							<div>
-								<span className="text-muted-foreground">
-									Unit Kerja / Instansi:
-								</span>
-								<p className="font-medium text-foreground">
+							<div className="flex justify-between border-b border-border/40 pb-1">
+								<span className="text-muted-foreground">Instansi</span>
+								<span className="font-semibold text-foreground truncate max-w-[160px] text-right">
 									{requester.requesterOrganization}
-								</p>
+								</span>
 							</div>
 
 							<div>
-								<span className="text-muted-foreground">Tujuan / Agenda:</span>
-								<p className="font-medium text-foreground italic">
+								<span className="text-muted-foreground block">Agenda:</span>
+								<p className="font-sans text-xs text-foreground italic mt-0.5">
 									"{requester.purpose}"
 								</p>
 							</div>
@@ -183,48 +159,46 @@ export function ReviewStep({
 				</div>
 
 				{/* Terms Checkbox */}
-				<div className="rounded-xl border border-border p-4 bg-background space-y-2">
-					<label className="flex items-start gap-3 cursor-pointer select-none">
+				<div className="rounded border border-border p-3 bg-background font-sans">
+					<label className="flex items-start gap-2.5 cursor-pointer select-none">
 						<input
 							type="checkbox"
 							checked={agreed}
 							onChange={(e) => setAgreed(e.target.checked)}
-							className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+							className="mt-0.5 h-3.5 w-3.5 rounded border-border text-primary focus:ring-primary"
 						/>
-						<span className="text-xs text-foreground/90 leading-relaxed">
-							Saya menyatakan bahwa data yang diisikan adalah benar dan bersedia
-							mematuhi seluruh tata tertib penggunaan sarana serta ketentuan jam
-							operasional di lingkungan PPKASN Kemenkes RI.
+						<span className="text-[11px] text-foreground/90 leading-relaxed">
+							Saya menyatakan bahwa data yang diisikan adalah benar dan bersedia mematuhi seluruh tata tertib penggunaan fasilitas PPKASN Kementerian Sekretariat Negara RI.
 						</span>
 					</label>
 				</div>
 			</div>
 
 			{/* Action Nav */}
-			<div className="flex items-center justify-between">
+			<div className="flex items-center justify-between font-mono">
 				<button
 					type="button"
 					disabled={isSubmitting}
 					onClick={onBack}
-					className="inline-flex items-center justify-center rounded-xl border border-border bg-background px-5 py-3 text-sm font-semibold text-foreground hover:bg-muted transition-all disabled:opacity-50"
+					className="inline-flex items-center justify-center rounded-md border border-border bg-card px-4 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-50 cursor-pointer"
 				>
-					&larr; Ubah Data
+					&larr; UBAH DATA
 				</button>
 				<button
 					type="button"
 					disabled={!agreed || isSubmitting}
 					onClick={onSubmit}
-					className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+					className="inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs"
 				>
 					{isSubmitting ? (
 						<>
-							<Loader2 className="h-4 w-4 animate-spin" />
-							Mengirim Permohonan...
+							<Loader2 className="h-3.5 w-3.5 animate-spin" />
+							<span>MENGIRIM PERMOHONAN...</span>
 						</>
 					) : (
 						<>
-							<FileCheck className="h-4 w-4" />
-							Kirim Permohonan Peminjaman
+							<FileCheck className="h-3.5 w-3.5" />
+							<span>[KIRIM PERMOHONAN SEKARANG]</span>
 						</>
 					)}
 				</button>

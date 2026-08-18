@@ -29,10 +29,23 @@ export const auth = betterAuth({
 			: {}),
 	},
 	user: {
-		fields: {
-			role: "role",
-			status: "status",
-			mustResetPassword: "must_reset_password",
+		additionalFields: {
+			role: {
+				type: "string",
+				required: false,
+				defaultValue: "operator",
+			},
+			status: {
+				type: "string",
+				required: false,
+				defaultValue: "active",
+			},
+			mustResetPassword: {
+				type: "boolean",
+				required: false,
+				defaultValue: false,
+				fieldName: "must_reset_password",
+			},
 		},
 	},
 	databaseHooks: {
@@ -48,7 +61,7 @@ export const auth = betterAuth({
 					return {
 						data: {
 							...user,
-							role: isAdmin ? "admin" : user.role || "operator",
+							role: isAdmin ? "admin" : (user as any).role || "operator",
 							status: "active",
 						},
 					};

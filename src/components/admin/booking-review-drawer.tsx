@@ -4,7 +4,6 @@ import {
 	Building2,
 	Calendar,
 	CheckCircle2,
-	Clock,
 	Mail,
 	MapPin,
 	Phone,
@@ -12,7 +11,7 @@ import {
 	Users,
 	X,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getBookingConflictContextFn } from "#/lib/booking/admin-fns.functions";
 import { formatJakartaDisplay } from "#/lib/timezone/datetime";
 

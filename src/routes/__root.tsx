@@ -20,7 +20,7 @@ export const Route = createRootRoute({
 			{
 				name: "description",
 				content:
-					"Layanan resmi peminjaman dan pengelolaan fasilitas sarana & prasarana PPKASN Kementerian Kesehatan RI.",
+					"Layanan resmi peminjaman dan pengelolaan fasilitas sarana & prasarana PPKASN Kementerian Sekretariat Negara RI.",
 			},
 		],
 		links: [
@@ -36,6 +36,20 @@ export const Route = createRootRoute({
 			{
 				rel: "stylesheet",
 				href: appCss,
+			},
+		],
+		scripts: [
+			{
+				children: `(function() {
+					try {
+						var theme = localStorage.getItem('sarpras-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+						if (theme === 'dark') {
+							document.documentElement.classList.add('dark');
+						} else {
+							document.documentElement.classList.remove('dark');
+						}
+					} catch (e) {}
+				})();`,
 			},
 		],
 	}),

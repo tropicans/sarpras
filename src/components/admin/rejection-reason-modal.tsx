@@ -36,7 +36,6 @@ const PRESET_REASONS = [
 
 export function RejectionReasonModal({
 	isOpen,
-	bookingId,
 	requesterName,
 	assetName,
 	onClose,

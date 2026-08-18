@@ -3,7 +3,6 @@ import {
 	Calendar,
 	CheckCircle2,
 	Clock,
-	Info,
 	Loader2,
 	Users,
 } from "lucide-react";
@@ -108,7 +107,7 @@ export function ScheduleStep({
 				});
 
 				if (!isCancelled) {
-					setAvailabilityResult(res);
+					setAvailabilityResult(res as { available: boolean; reason?: string });
 					setChecking(false);
 
 					// Sync parent state
@@ -161,25 +160,24 @@ export function ScheduleStep({
 	const isValid = availabilityResult?.available && !checking;
 
 	return (
-		<div className="space-y-6">
-			<div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-6">
-				<div className="border-b border-border/60 pb-4">
-					<h3 className="text-lg font-bold text-foreground">
+		<div className="space-y-4">
+			<div className="rounded-lg border border-border bg-card p-5 space-y-5">
+				<div className="border-b border-border pb-3">
+					<h3 className="font-mono text-xs font-bold uppercase tracking-wider text-foreground">
 						{isRoom
-							? "Tentukan Jadwal Penggunaan Ruangan"
-							: "Tentukan Periode Menginap Asrama"}
+							? "TENTUKAN JADWAL RUANGAN // WIB"
+							: "TENTUKAN PERIODE MENGINAP // ASRAMA"}
 					</h3>
-					<p className="text-xs text-muted-foreground">
-						Sistem akan secara otomatis memeriksa ketersediaan slot dan
-						kapasitas aset secara real-time.
+					<p className="text-xs text-muted-foreground mt-0.5">
+						Sistem akan secara otomatis memverifikasi ketersediaan slot secara real-time.
 					</p>
 				</div>
 
 				{isRoom ? (
 					/* Room Schedule Inputs */
-					<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-						<div className="space-y-1.5 sm:col-span-1">
-							<label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+					<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+						<div className="space-y-1 sm:col-span-1">
+							<label className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
 								<Calendar className="h-3.5 w-3.5 text-primary" />
 								Tanggal Kegiatan
 							</label>
@@ -188,44 +186,44 @@ export function ScheduleStep({
 								value={dateStr}
 								min={new Date().toISOString().split("T")[0]}
 								onChange={(e) => setDateStr(e.target.value)}
-								className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-hidden"
+								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden"
 								required
 							/>
 						</div>
 
-						<div className="space-y-1.5">
-							<label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+						<div className="space-y-1">
+							<label className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
 								<Clock className="h-3.5 w-3.5 text-primary" />
-								Waktu Mulai (WIB)
+								Waktu Mulai
 							</label>
 							<input
 								type="time"
 								value={startTime}
 								onChange={(e) => setStartTime(e.target.value)}
-								className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-hidden"
+								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden"
 								required
 							/>
 						</div>
 
-						<div className="space-y-1.5">
-							<label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+						<div className="space-y-1">
+							<label className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
 								<Clock className="h-3.5 w-3.5 text-primary" />
-								Waktu Selesai (WIB)
+								Waktu Selesai
 							</label>
 							<input
 								type="time"
 								value={endTime}
 								onChange={(e) => setEndTime(e.target.value)}
-								className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-hidden"
+								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden"
 								required
 							/>
 						</div>
 					</div>
 				) : (
 					/* Dormitory Schedule Inputs */
-					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-						<div className="space-y-1.5">
-							<label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+						<div className="space-y-1">
+							<label className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
 								<Calendar className="h-3.5 w-3.5 text-primary" />
 								Tanggal Check-in
 							</label>
@@ -234,16 +232,16 @@ export function ScheduleStep({
 								value={checkInStr}
 								min={new Date().toISOString().split("T")[0]}
 								onChange={(e) => setCheckInStr(e.target.value)}
-								className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-hidden"
+								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden"
 								required
 							/>
-							<span className="text-[11px] text-muted-foreground">
-								Check-in mulai pukul 14:00 WIB
+							<span className="font-mono text-[10px] text-muted-foreground block">
+								Check-in mulai 14:00 WIB
 							</span>
 						</div>
 
-						<div className="space-y-1.5">
-							<label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+						<div className="space-y-1">
+							<label className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
 								<Calendar className="h-3.5 w-3.5 text-primary" />
 								Tanggal Check-out
 							</label>
@@ -252,25 +250,25 @@ export function ScheduleStep({
 								value={checkOutStr}
 								min={checkInStr}
 								onChange={(e) => setCheckOutStr(e.target.value)}
-								className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-hidden"
+								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden"
 								required
 							/>
-							<span className="text-[11px] text-muted-foreground">
-								Check-out maksimal pukul 12:00 WIB
+							<span className="font-mono text-[10px] text-muted-foreground block">
+								Check-out maksimal 12:00 WIB
 							</span>
 						</div>
 					</div>
 				)}
 
 				{/* Attendance Input */}
-				<div className="space-y-1.5 pt-2 border-t border-border/60">
+				<div className="space-y-1 pt-2 border-t border-border">
 					<div className="flex items-center justify-between">
-						<label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+						<label className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
 							<Users className="h-3.5 w-3.5 text-primary" />
 							{isRoom ? "Jumlah Peserta Rapat" : "Jumlah Tamu Menginap"}
 						</label>
-						<span className="text-xs text-muted-foreground">
-							Maksimal kapasitas aset: <strong>{asset.capacity} orang</strong>
+						<span className="font-mono text-[10px] text-muted-foreground">
+							Kapasitas maksimal: <strong className="text-foreground">{asset.capacity}</strong>
 						</span>
 					</div>
 					<input
@@ -281,32 +279,31 @@ export function ScheduleStep({
 						onChange={(e) =>
 							setAttendance(Number.parseInt(e.target.value) || 1)
 						}
-						className="w-full sm:w-48 rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-hidden"
+						className="w-full sm:w-44 rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden"
 						required
 					/>
 				</div>
 
 				{/* Live Preflight Status Feedback */}
-				<div className="pt-2">
+				<div>
 					{checking ? (
-						<div className="flex items-center gap-2 rounded-xl bg-muted/60 p-3.5 text-xs text-muted-foreground">
-							<Loader2 className="h-4 w-4 animate-spin text-primary" />
-							<span>Memeriksa ketersediaan jadwal dan kapasitas...</span>
+						<div className="flex items-center gap-2 rounded-md border border-border bg-muted/40 p-3 font-mono text-xs text-muted-foreground">
+							<Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+							<span>MEMERIKSA KETERSEDIAAN JADWAL...</span>
 						</div>
 					) : availabilityResult ? (
 						availabilityResult.available ? (
-							<div className="flex items-center gap-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3.5 text-xs text-emerald-800 dark:text-emerald-300">
-								<CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+							<div className="flex items-center gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-3 font-mono text-xs text-emerald-800 dark:text-emerald-300">
+								<CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
 								<span>
-									<strong>Tersedia:</strong> Jadwal dan kapasitas yang dipilih
-									tersedia untuk diajukan peminjaman.
+									<strong>[AVAILABLE]:</strong> Jadwal dan kapasitas yang dipilih siap untuk diajukan.
 								</span>
 							</div>
 						) : (
-							<div className="flex items-start gap-2.5 rounded-xl bg-destructive/10 border border-destructive/20 p-3.5 text-xs text-destructive">
-								<AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+							<div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 p-3 font-mono text-xs text-destructive">
+								<AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
 								<div>
-									<strong className="font-semibold">Tidak Tersedia: </strong>
+									<strong>[UNAVAILABLE]: </strong>
 									<span>
 										{availabilityResult.reason ||
 											"Jadwal tidak tersedia atau bertabrakan."}
@@ -319,14 +316,15 @@ export function ScheduleStep({
 			</div>
 
 			{/* Action Nav */}
-			<div className="flex items-center justify-end">
+			<div className="flex items-center justify-end font-mono">
 				<button
 					type="button"
 					disabled={!isValid}
 					onClick={onNext}
-					className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+					className="inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs"
 				>
-					Lanjut ke Data Pemohon &rarr;
+					<span>LANJUT KE DATA PEMOHON</span>
+					<span>&rarr;</span>
 				</button>
 			</div>
 		</div>

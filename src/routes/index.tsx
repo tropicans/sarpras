@@ -1,24 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-	ArrowRight,
+	Activity,
 	BedDouble,
-	Building2,
 	CalendarCheck,
 	CheckCircle2,
 	Clock,
 	DoorOpen,
 	FileText,
 	Filter,
-	Layers,
 	Search,
 	ShieldCheck,
-	Sparkles,
+	Terminal,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
 	AssetCard,
 	type PublicAssetItem,
 } from "#/components/public/asset-card";
+import { BentoShowcase } from "#/components/public/bento-showcase";
+import { HeroConsole } from "#/components/public/hero-console";
 import { PublicFooter } from "#/components/public/public-footer";
 import { PublicHeader } from "#/components/public/public-header";
 import { ScheduleModal } from "#/components/public/schedule-modal";
@@ -35,11 +35,18 @@ function HomePage() {
 	const assets = Route.useLoaderData() as PublicAssetItem[];
 
 	const [searchQuery, setSearchQuery] = useState("");
-	const [typeFilter, setTypeFilter] = useState<"all" | "room" | "dormitory">(
-		"all",
-	);
+	const [typeFilter, setTypeFilter] = useState<string>("all");
 	const [selectedScheduleAsset, setSelectedScheduleAsset] =
 		useState<PublicAssetItem | null>(null);
+
+	// Count statistics for the facilities console
+	const stats = useMemo(() => {
+		const roomCount = assets.filter((a) => a.type === "room").length;
+		const dormCount = assets.filter((a) => a.type === "dormitory").length;
+		const vehicleCount = assets.filter((a) => a.type === "vehicle").length;
+		const otherCount = assets.length - (roomCount + dormCount + vehicleCount);
+		return { roomCount, dormCount, vehicleCount, otherCount, total: assets.length };
+	}, [assets]);
 
 	const filteredAssets = useMemo(() => {
 		return assets.filter((asset) => {
@@ -59,233 +66,295 @@ function HomePage() {
 			<PublicHeader />
 
 			<main className="flex-1">
-				{/* Hero Section */}
-				<section className="relative overflow-hidden border-b border-border/60 bg-gradient-to-b from-primary/5 via-background to-background py-16 sm:py-24">
-					<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-						<div className="text-center max-w-3xl mx-auto space-y-6">
-							{/* Top Pill */}
-							<div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1.5 text-xs font-semibold text-primary shadow-xs">
-								<Sparkles className="h-3.5 w-3.5" />
-								<span>Portal Layanan Terpadu Sarpras PPKASN</span>
+				{/* Hero: Facility System Console (TanStack & DevTools Style Split View) */}
+				<section className="relative border-b border-border tech-grid bg-card/20 py-12 sm:py-20 overflow-hidden">
+					{/* Radial Ambient Mesh Glow */}
+					<div className="absolute -top-24 left-1/4 h-96 w-96 rounded-full bg-sky-500/10 blur-3xl pointer-events-none" />
+					<div className="absolute top-1/3 right-10 h-80 w-80 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
+
+					<div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+						<div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+							{/* Left Column: Headlines & Call to Action */}
+							<div className="lg:col-span-6 space-y-6">
+								{/* Technical Status Pill */}
+								<div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/90 px-3.5 py-1 font-mono text-[11px] text-muted-foreground shadow-2xs backdrop-blur-md">
+									<Terminal className="h-3.5 w-3.5 text-primary" />
+									<span className="text-foreground font-semibold">PPKASN // SARPRAS</span>
+									<span className="text-border">|</span>
+									<span className="text-sky-600 dark:text-sky-400 font-medium">PORTAL v1.0</span>
+								</div>
+
+								{/* High-Impact Headline */}
+								<div className="space-y-3">
+									<h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-[1.12]">
+										Sistem Fasilitas Kedinasan Terpadu{" "}
+										<span className="bg-gradient-to-r from-sky-500 via-indigo-500 to-teal-500 bg-clip-text text-transparent">
+											PPKASN Kemensetneg
+										</span>
+									</h1>
+									<p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+										Katalog & reservasi resmi ruang rapat berstandar tinggi, asrama wisma kedinasan, aula pelatihan, dan armada kendaraan dengan sinkronisasi jadwal real-time.
+									</p>
+								</div>
+
+								{/* Feature Checkpoints */}
+								<div className="grid grid-cols-2 gap-2 text-xs font-mono text-muted-foreground">
+									<div className="flex items-center gap-1.5">
+										<CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+										<span>Validasi Anti-Bentrok</span>
+									</div>
+									<div className="flex items-center gap-1.5">
+										<CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+										<span>E-Tiket & QR Resmi</span>
+									</div>
+									<div className="flex items-center gap-1.5">
+										<CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+										<span>Notifikasi WA & Email</span>
+									</div>
+									<div className="flex items-center gap-1.5">
+										<CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+										<span>Persetujuan 24-48 Jam</span>
+									</div>
+								</div>
+
+								{/* Actions Bar */}
+								<div className="flex flex-wrap items-center gap-3 pt-2">
+									<a
+										href="#katalog"
+										className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground transition-all hover:bg-primary/90 shadow-md hover:shadow-primary/20 cursor-pointer"
+									>
+										<Search className="h-3.5 w-3.5" />
+										<span>Jelajahi Katalog ({assets.length} Sarana)</span>
+									</a>
+									<Link
+										to="/status"
+										className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-xs font-medium text-foreground transition-colors hover:bg-muted shadow-2xs"
+									>
+										<Clock className="h-3.5 w-3.5 text-muted-foreground" />
+										<span>Cek Status Tiket</span>
+									</Link>
+								</div>
 							</div>
 
-							{/* Hero Heading */}
-							<h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-foreground">
-								Peminjaman Sarana & Prasarana Menjadi Lebih{" "}
-								<span className="bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">
-									Mudah & Transparan
-								</span>
-							</h1>
+							{/* Right Column: Live Interactive TanStack-Grade Console Mockup */}
+							<div className="lg:col-span-6">
+								<HeroConsole />
+							</div>
+						</div>
 
-							{/* Subtitle */}
-							<p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-								Akses katalog ruangan rapat, aula pelatihan, dan asrama wisma
-								PPKASN Kemenkes secara cepat dengan sistem persetujuan terpusat
-								dan jadwal terintegrasi.
-							</p>
-
-							{/* Hero Actions */}
-							<div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-								<a
-									href="#katalog"
-									className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition-all hover:scale-[1.02]"
-								>
-									<Search className="h-4 w-4" />
-									Cari Sarana Sekarang
-								</a>
-								<Link
-									to="/status"
-									className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 py-3.5 text-sm font-semibold text-foreground shadow-xs hover:bg-muted transition-all"
-								>
-									<Clock className="h-4 w-4 text-muted-foreground" />
-									Cek Status Permohonan
-								</Link>
+						{/* Live System Metrics Ribbon */}
+						<div className="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-border/80 pt-6">
+							<div className="rounded-lg border border-border bg-card p-3.5 font-mono shadow-2xs">
+								<div className="flex items-center justify-between text-muted-foreground text-[10px] uppercase">
+									<span>Ruang Rapat</span>
+									<DoorOpen className="h-3.5 w-3.5 text-sky-500" />
+								</div>
+								<div className="mt-1.5 flex items-baseline gap-2">
+									<span className="text-2xl font-bold tracking-tight text-foreground">
+										{stats.roomCount}
+									</span>
+									<span className="text-[10px] text-muted-foreground">Unit Aktif</span>
+								</div>
 							</div>
 
-							{/* Trust Badges */}
-							<div className="pt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground">
-								<div className="flex items-center gap-2">
-									<CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-									<span>Cek Ketersediaan Real-Time</span>
+							<div className="rounded-lg border border-border bg-card p-3.5 font-mono shadow-2xs">
+								<div className="flex items-center justify-between text-muted-foreground text-[10px] uppercase">
+									<span>Asrama / Wisma</span>
+									<BedDouble className="h-3.5 w-3.5 text-indigo-500" />
 								</div>
-								<div className="flex items-center gap-2">
-									<ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-									<span>Privasi & Data Terlindungi</span>
+								<div className="mt-1.5 flex items-baseline gap-2">
+									<span className="text-2xl font-bold tracking-tight text-foreground">
+										{stats.dormCount}
+									</span>
+									<span className="text-[10px] text-muted-foreground">Kamar/Wisma</span>
 								</div>
-								<div className="flex items-center gap-2">
-									<Building2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-									<span>Fasilitas Lengkap & Terawat</span>
+							</div>
+
+							<div className="rounded-lg border border-border bg-card p-3.5 font-mono shadow-2xs">
+								<div className="flex items-center justify-between text-muted-foreground text-[10px] uppercase">
+									<span>Kendaraan & Alat</span>
+									<Activity className="h-3.5 w-3.5 text-emerald-500" />
+								</div>
+								<div className="mt-1.5 flex items-baseline gap-2">
+									<span className="text-2xl font-bold tracking-tight text-foreground">
+										{stats.vehicleCount + stats.otherCount}
+									</span>
+									<span className="text-[10px] text-muted-foreground">Armada/Item</span>
+								</div>
+							</div>
+
+							<div className="rounded-lg border border-border bg-card p-3.5 font-mono shadow-2xs">
+								<div className="flex items-center justify-between text-muted-foreground text-[10px] uppercase">
+									<span>SLA Verifikasi</span>
+									<ShieldCheck className="h-3.5 w-3.5 text-amber-500" />
+								</div>
+								<div className="mt-1.5 flex items-baseline gap-2">
+									<span className="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
+										24-48h
+									</span>
+									<span className="text-[10px] text-muted-foreground">Waktu Respon</span>
 								</div>
 							</div>
 						</div>
 					</div>
 				</section>
 
-				{/* 3-Step Guide: Cara Pengajuan */}
-				<section className="py-16 sm:py-20 border-b border-border/60 bg-muted/20">
+				{/* Bento Grid Visual Feature Showcase */}
+				<BentoShowcase />
+
+				{/* 3-Stage Process Pipeline */}
+				<section id="panduan" className="border-b border-border bg-card/40 py-14">
 					<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-						<div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
-							<h2 className="text-xs font-bold uppercase tracking-wider text-primary">
-								Alur Pelayanan
+						<div className="mb-8 space-y-1">
+							<span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-primary">
+								PIPELINE // PROSES PENGAJUAN
+							</span>
+							<h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+								Alur Peminjaman Fasilitas Kedinasan
 							</h2>
-							<h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-								3 Langkah Mudah Peminjaman
-							</h3>
-							<p className="text-sm text-muted-foreground">
-								Proses pengajuan terstruktur dan dapat dipantau setiap saat.
+							<p className="text-xs text-muted-foreground">
+								Tahapan pengajuan transparan dengan pembaruan status real-time via WhatsApp & Email.
 							</p>
 						</div>
 
-						<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+						<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 							{/* Step 1 */}
-							<div className="relative rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-4">
-								<div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-lg">
-									1
+							<div className="rounded-xl border border-border bg-card p-5 space-y-2.5 shadow-2xs">
+								<div className="flex items-center justify-between border-b border-border/60 pb-2.5">
+									<span className="font-mono text-[11px] font-bold text-sky-600 dark:text-sky-400">
+										01 // PILIH & CEK
+									</span>
+									<CalendarCheck className="h-4 w-4 text-sky-500" />
 								</div>
-								<div className="space-y-2">
-									<h4 className="text-lg font-bold text-foreground">
-										Pilih Sarana & Cek Jadwal
-									</h4>
-									<p className="text-sm text-muted-foreground leading-relaxed">
-										Jelajahi katalog ruang rapat atau asrama, dan periksa jadwal
-										ketersediaan tanggal melalui kalender publik.
-									</p>
-								</div>
-							</div>
-
-							{/* Step 2 */}
-							<div className="relative rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-4">
-								<div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-lg">
-									2
-								</div>
-								<div className="space-y-2">
-									<h4 className="text-lg font-bold text-foreground">
-										Isi Formulir Permohonan
-									</h4>
-									<p className="text-sm text-muted-foreground leading-relaxed">
-										Lengkapi data identitas pemohon, kontak aktif, tujuan
-										kegiatan, dan perkiraan jumlah peserta dalam 3 tahap
-										singkat.
-									</p>
-								</div>
-							</div>
-
-							{/* Step 3 */}
-							<div className="relative rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-4">
-								<div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-lg">
-									3
-								</div>
-								<div className="space-y-2">
-									<h4 className="text-lg font-bold text-foreground">
-										Pantau Status Persetujuan
-									</h4>
-									<p className="text-sm text-muted-foreground leading-relaxed">
-										Simpan ID permohonan dan pantau proses verifikasi oleh
-										petugas secara transparan melalui halaman status.
-									</p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</section>
-
-				{/* Asset Catalog Section */}
-				<section id="katalog" className="py-16 sm:py-24">
-					<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">
-						<div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-							<div className="space-y-1">
-								<h2 className="text-xs font-bold uppercase tracking-wider text-primary">
-									Katalog Sarana
-								</h2>
-								<h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-									Pilihan Ruangan & Asrama
+								<h3 className="text-sm font-bold text-foreground">
+									Pilih Sarana & Periksa Kalender
 								</h3>
-								<p className="text-sm text-muted-foreground">
-									Daftar sarana aktif yang siap digunakan untuk berbagai
-									keperluan kegiatan.
+								<p className="text-xs text-muted-foreground leading-relaxed">
+									Telusuri katalog fasilitas, pilih waktu kegiatan, dan pastikan tanggal belum terisi peminjam lain.
 								</p>
 							</div>
 
-							{/* Search & Filter Bar */}
-							<div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+							{/* Step 2 */}
+							<div className="rounded-xl border border-border bg-card p-5 space-y-2.5 shadow-2xs">
+								<div className="flex items-center justify-between border-b border-border/60 pb-2.5">
+									<span className="font-mono text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+										02 // SUBMIT FORM
+									</span>
+									<FileText className="h-4 w-4 text-indigo-500" />
+								</div>
+								<h3 className="text-sm font-bold text-foreground">
+									Isi Formulir & Unggah Surat
+								</h3>
+								<p className="text-xs text-muted-foreground leading-relaxed">
+									Lengkapi identitas penanggung jawab, instansi pemohon, agenda kegiatan, dan kontak WhatsApp aktif.
+								</p>
+							</div>
+
+							{/* Step 3 */}
+							<div className="rounded-xl border border-border bg-card p-5 space-y-2.5 shadow-2xs">
+								<div className="flex items-center justify-between border-b border-border/60 pb-2.5">
+									<span className="font-mono text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+										03 // TIKET & TRACKING
+									</span>
+									<CheckCircle2 className="h-4 w-4 text-emerald-500" />
+								</div>
+								<h3 className="text-sm font-bold text-foreground">
+									Dapatkan Kode Tiket & Notifikasi
+								</h3>
+								<p className="text-xs text-muted-foreground leading-relaxed">
+									Gunakan kode referensi booking untuk memantau proses verifikasi operator dan persetujuan pimpinan.
+								</p>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				{/* Asset Catalog Section (TanStack DevTools Filter & Grid) */}
+				<section id="katalog" className="py-14 sm:py-18">
+					<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">
+						<div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/80 pb-5">
+							<div className="space-y-1">
+								<span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-primary">
+									REGISTRY // FASILITAS TERVERIFIKASI
+								</span>
+								<h2 className="text-2xl font-bold tracking-tight text-foreground">
+									Katalog Sarana & Prasarana
+								</h2>
+								<p className="text-xs text-muted-foreground">
+									Daftar aset aktif yang terdaftar dalam inventaris PPKASN Kemensetneg RI.
+								</p>
+							</div>
+
+							{/* Search & Filter Toolbar */}
+							<div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+								{/* Search Input */}
 								<div className="relative">
-									<Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+									<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
 									<input
 										type="text"
 										value={searchQuery}
 										onChange={(e) => setSearchQuery(e.target.value)}
-										placeholder="Cari nama atau lokasi sarana..."
-										className="w-full sm:w-64 rounded-xl border border-border bg-card pl-10 pr-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-hidden"
+										placeholder="Cari sarana / lokasi..."
+										className="w-full sm:w-56 rounded-md border border-border bg-card pl-8.5 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-hidden"
 									/>
 								</div>
 
-								{/* Category Filter Pills */}
-								<div className="inline-flex flex-wrap gap-1 rounded-xl border border-border bg-muted/40 p-1">
+								{/* Segmented Filter Pills */}
+								<div className="inline-flex flex-wrap gap-0.5 rounded-lg border border-border bg-muted/60 p-0.5 font-mono text-[11px]">
 									<button
 										type="button"
 										onClick={() => setTypeFilter("all")}
-										className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+										className={`rounded-md px-2.5 py-1 transition-colors cursor-pointer ${
 											typeFilter === "all"
-												? "bg-card text-foreground shadow-2xs"
+												? "bg-card text-foreground font-semibold shadow-2xs"
 												: "text-muted-foreground hover:text-foreground"
 										}`}
 									>
-										Semua ({assets.length})
+										ALL ({assets.length})
 									</button>
 									<button
 										type="button"
 										onClick={() => setTypeFilter("room")}
-										className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+										className={`rounded-md px-2.5 py-1 transition-colors cursor-pointer ${
 											typeFilter === "room"
-												? "bg-card text-foreground shadow-2xs"
+												? "bg-card text-foreground font-semibold shadow-2xs"
 												: "text-muted-foreground hover:text-foreground"
 										}`}
 									>
-										Ruangan
+										ROOM
 									</button>
 									<button
 										type="button"
 										onClick={() => setTypeFilter("dormitory")}
-										className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+										className={`rounded-md px-2.5 py-1 transition-colors cursor-pointer ${
 											typeFilter === "dormitory"
-												? "bg-card text-foreground shadow-2xs"
+												? "bg-card text-foreground font-semibold shadow-2xs"
 												: "text-muted-foreground hover:text-foreground"
 										}`}
 									>
-										Asrama
+										ASRAMA
 									</button>
 									<button
 										type="button"
 										onClick={() => setTypeFilter("vehicle")}
-										className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+										className={`rounded-md px-2.5 py-1 transition-colors cursor-pointer ${
 											typeFilter === "vehicle"
-												? "bg-card text-foreground shadow-2xs"
+												? "bg-card text-foreground font-semibold shadow-2xs"
 												: "text-muted-foreground hover:text-foreground"
 										}`}
 									>
-										Kendaraan
-									</button>
-									<button
-										type="button"
-										onClick={() => setTypeFilter("field")}
-										className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
-											typeFilter === "field"
-												? "bg-card text-foreground shadow-2xs"
-												: "text-muted-foreground hover:text-foreground"
-										}`}
-									>
-										Lapangan
+										MOBIL
 									</button>
 									<button
 										type="button"
 										onClick={() => setTypeFilter("equipment")}
-										className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+										className={`rounded-md px-2.5 py-1 transition-colors cursor-pointer ${
 											typeFilter === "equipment"
-												? "bg-card text-foreground shadow-2xs"
+												? "bg-card text-foreground font-semibold shadow-2xs"
 												: "text-muted-foreground hover:text-foreground"
 										}`}
 									>
-										Peralatan
+										ALAT
 									</button>
 								</div>
 							</div>
@@ -293,16 +362,15 @@ function HomePage() {
 
 						{/* Catalog Grid */}
 						{filteredAssets.length === 0 ? (
-							<div className="rounded-2xl border border-dashed border-border p-12 text-center space-y-3">
-								<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-									<Filter className="h-6 w-6" />
+							<div className="rounded-xl border border-dashed border-border p-12 text-center space-y-2">
+								<div className="mx-auto flex h-10 w-10 items-center justify-center rounded-md border border-border bg-muted text-muted-foreground">
+									<Filter className="h-5 w-5" />
 								</div>
-								<h4 className="font-bold text-base text-foreground">
+								<h3 className="font-semibold text-sm text-foreground">
 									Tidak Ada Sarana Ditemukan
-								</h4>
-								<p className="text-sm text-muted-foreground max-w-sm mx-auto">
-									Coba sesuaikan kata kunci pencarian atau pilih filter kategori
-									lain.
+								</h3>
+								<p className="text-xs text-muted-foreground max-w-sm mx-auto">
+									Silakan sesuaikan kata kunci pencarian atau reset filter kategori.
 								</p>
 								<button
 									type="button"
@@ -310,13 +378,13 @@ function HomePage() {
 										setSearchQuery("");
 										setTypeFilter("all");
 									}}
-									className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline pt-2"
+									className="inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold text-primary hover:underline pt-2 cursor-pointer"
 								>
-									Reset Pencarian
+									[RESET FILTER]
 								</button>
 							</div>
 						) : (
-							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
 								{filteredAssets.map((asset) => (
 									<AssetCard
 										key={asset.id}

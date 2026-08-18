@@ -3,7 +3,7 @@ import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../../db/client.server";
 import { accounts, auditLogs, sessions, users } from "../../db/schema";
-import { authMiddleware, requireMinRole } from "../auth.middleware";
+import { requireMinRole } from "../auth.middleware";
 
 export const getAdminsListFn = createServerFn({ method: "GET" })
 	.middleware([requireMinRole("admin")])

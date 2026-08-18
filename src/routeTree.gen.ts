@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as CheckBookingRouteImport } from './routes/check-booking'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminApprovalRouteImport } from './routes/admin/approval'
 import { Route as AdminAssetsRouteImport } from './routes/admin/assets'
 import { Route as AdminAuditRouteImport } from './routes/admin/audit'
 import { Route as AdminBookingsRouteImport } from './routes/admin/bookings'
@@ -33,6 +35,11 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckBookingRoute = CheckBookingRouteImport.update({
+  id: '/check-booking',
+  path: '/check-booking',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -41,6 +48,11 @@ const LoginRoute = LoginRouteImport.update({
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminApprovalRoute = AdminApprovalRouteImport.update({
+  id: '/approval',
+  path: '/approval',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAssetsRoute = AdminAssetsRouteImport.update({
@@ -92,7 +104,9 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/check-booking': typeof CheckBookingRoute
   '/login': typeof LoginRoute
+  '/admin/approval': typeof AdminApprovalRoute
   '/admin/assets': typeof AdminAssetsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/bookings': typeof AdminBookingsRoute
@@ -106,7 +120,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/check-booking': typeof CheckBookingRoute
   '/login': typeof LoginRoute
+  '/admin/approval': typeof AdminApprovalRoute
   '/admin/assets': typeof AdminAssetsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/bookings': typeof AdminBookingsRoute
@@ -122,7 +138,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/check-booking': typeof CheckBookingRoute
   '/login': typeof LoginRoute
+  '/admin/approval': typeof AdminApprovalRoute
   '/admin/assets': typeof AdminAssetsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/bookings': typeof AdminBookingsRoute
@@ -139,7 +157,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/check-booking'
     | '/login'
+    | '/admin/approval'
     | '/admin/assets'
     | '/admin/audit'
     | '/admin/bookings'
@@ -153,7 +173,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/check-booking'
     | '/login'
+    | '/admin/approval'
     | '/admin/assets'
     | '/admin/audit'
     | '/admin/bookings'
@@ -168,7 +190,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/check-booking'
     | '/login'
+    | '/admin/approval'
     | '/admin/assets'
     | '/admin/audit'
     | '/admin/bookings'
@@ -184,6 +208,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  CheckBookingRoute: typeof CheckBookingRoute
   LoginRoute: typeof LoginRoute
   BookAssetIdRoute: typeof BookAssetIdRoute
   StatusRefRoute: typeof StatusRefRoute
@@ -207,6 +232,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/check-booking': {
+      id: '/check-booking'
+      path: '/check-booking'
+      fullPath: '/check-booking'
+      preLoaderRoute: typeof CheckBookingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -219,6 +251,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/approval': {
+      id: '/admin/approval'
+      path: '/approval'
+      fullPath: '/admin/approval'
+      preLoaderRoute: typeof AdminApprovalRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/assets': {
@@ -288,6 +327,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminApprovalRoute: typeof AdminApprovalRoute
   AdminAssetsRoute: typeof AdminAssetsRoute
   AdminAuditRoute: typeof AdminAuditRoute
   AdminBookingsRoute: typeof AdminBookingsRoute
@@ -297,6 +337,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminApprovalRoute: AdminApprovalRoute,
   AdminAssetsRoute: AdminAssetsRoute,
   AdminAuditRoute: AdminAuditRoute,
   AdminBookingsRoute: AdminBookingsRoute,
@@ -310,6 +351,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  CheckBookingRoute: CheckBookingRoute,
   LoginRoute: LoginRoute,
   BookAssetIdRoute: BookAssetIdRoute,
   StatusRefRoute: StatusRefRoute,

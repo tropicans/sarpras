@@ -1,15 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
 	AlertCircle,
-	CalendarCheck2,
 	CheckCircle,
 	ChevronLeft,
 	ChevronRight,
-	Clock,
 	Eye,
 	Inbox,
 	Users,
-	XCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { z } from "zod";
@@ -30,16 +27,14 @@ import { formatJakartaDisplay } from "#/lib/timezone/datetime";
 const BookingsSearchSchema = z.object({
 	status: z
 		.enum(["all", "pending", "approved", "rejected", "cancelled"])
-		.optional()
-		.default("all"),
+		.optional(),
 	assetType: z
 		.enum(["all", "room", "dormitory", "vehicle", "field", "equipment"])
-		.optional()
-		.default("all"),
+		.optional(),
 	startDate: z.string().optional(),
 	endDate: z.string().optional(),
 	search: z.string().optional(),
-	page: z.coerce.number().int().min(1).optional().default(1),
+	page: z.coerce.number().int().min(1).optional(),
 });
 
 export const Route = createFileRoute("/admin/bookings")({
@@ -364,7 +359,7 @@ function AdminBookingsComponent() {
 													<span>Tinjau</span>
 												</button>
 
-												{currentUser.role !== "pimpinan" &&
+												{(currentUser as any)?.role !== "pimpinan" &&
 													item.status === "pending" && (
 														<>
 															<button
@@ -448,7 +443,7 @@ function AdminBookingsComponent() {
 						assetName: booking.assetName,
 					});
 				}}
-				isReadOnly={currentUser.role === "pimpinan"}
+				isReadOnly={(currentUser as any)?.role === "pimpinan"}
 			/>
 
 			{/* Rejection Modal */}

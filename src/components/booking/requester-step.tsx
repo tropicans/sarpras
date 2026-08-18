@@ -64,25 +64,24 @@ export function RequesterStep({
 	};
 
 	return (
-		<div className="space-y-6">
-			<div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-6">
-				<div className="border-b border-border/60 pb-4">
-					<h3 className="text-lg font-bold text-foreground">
-						Identitas Pemohon & Detail Kegiatan
+		<div className="space-y-4">
+			<div className="rounded-lg border border-border bg-card p-5 space-y-4">
+				<div className="border-b border-border pb-3">
+					<h3 className="font-mono text-xs font-bold uppercase tracking-wider text-foreground">
+						IDENTITAS PENANGGUNG JAWAB & DETAIL ACARA
 					</h3>
-					<p className="text-xs text-muted-foreground">
-						Lengkapi data diri penanggung jawab permohonan. Kode referensi
-						pelacakan status akan dikaitkan dengan email ini.
+					<p className="text-xs text-muted-foreground mt-0.5">
+						Data kontak ini akan digunakan untuk pengiriman kode referensi dan pembaruan notifikasi.
 					</p>
 				</div>
 
-				<div className="space-y-4">
+				<div className="space-y-3 font-mono text-xs">
 					{/* Name & Email */}
-					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-						<div className="space-y-1.5">
-							<label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+						<div className="space-y-1">
+							<label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
 								<User className="h-3.5 w-3.5 text-primary" />
-								Nama Lengkap Penanggung Jawab
+								Nama Lengkap
 							</label>
 							<input
 								type="text"
@@ -91,16 +90,16 @@ export function RequesterStep({
 									setName(e.target.value);
 									if (errors.name) setErrors({ ...errors, name: "" });
 								}}
-								placeholder="Contoh: Dr. Budi Santoso, M.Kes"
-								className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-hidden"
+								placeholder="Dr. Budi Santoso, M.Kes"
+								className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-sans"
 							/>
 							{errors.name && (
-								<p className="text-xs text-destructive">{errors.name}</p>
+								<p className="text-[11px] text-destructive">{errors.name}</p>
 							)}
 						</div>
 
-						<div className="space-y-1.5">
-							<label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+						<div className="space-y-1">
+							<label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
 								<Mail className="h-3.5 w-3.5 text-primary" />
 								Email Kedinasan / Aktif
 							</label>
@@ -111,21 +110,21 @@ export function RequesterStep({
 									setEmail(e.target.value);
 									if (errors.email) setErrors({ ...errors, email: "" });
 								}}
-								placeholder="nama@kemkes.go.id"
-								className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-hidden"
+								placeholder="nama@setneg.go.id"
+								className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-sans"
 							/>
 							{errors.email && (
-								<p className="text-xs text-destructive">{errors.email}</p>
+								<p className="text-[11px] text-destructive">{errors.email}</p>
 							)}
 						</div>
 					</div>
 
 					{/* Phone & Organization */}
-					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-						<div className="space-y-1.5">
-							<label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+						<div className="space-y-1">
+							<label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
 								<Phone className="h-3.5 w-3.5 text-primary" />
-								Nomor WhatsApp / Telepon
+								Nomor WhatsApp
 							</label>
 							<input
 								type="tel"
@@ -135,15 +134,15 @@ export function RequesterStep({
 									if (errors.phone) setErrors({ ...errors, phone: "" });
 								}}
 								placeholder="081234567890"
-								className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-hidden"
+								className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-sans"
 							/>
 							{errors.phone && (
-								<p className="text-xs text-destructive">{errors.phone}</p>
+								<p className="text-[11px] text-destructive">{errors.phone}</p>
 							)}
 						</div>
 
-						<div className="space-y-1.5">
-							<label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+						<div className="space-y-1">
+							<label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
 								<Building className="h-3.5 w-3.5 text-primary" />
 								Unit Kerja / Instansi
 							</label>
@@ -156,10 +155,10 @@ export function RequesterStep({
 										setErrors({ ...errors, organization: "" });
 								}}
 								placeholder="Pusat Pengembangan Kompetensi ASN"
-								className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-hidden"
+								className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-sans"
 							/>
 							{errors.organization && (
-								<p className="text-xs text-destructive">
+								<p className="text-[11px] text-destructive">
 									{errors.organization}
 								</p>
 							)}
@@ -167,8 +166,8 @@ export function RequesterStep({
 					</div>
 
 					{/* Purpose */}
-					<div className="space-y-1.5">
-						<label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+					<div className="space-y-1">
+						<label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
 							<FileText className="h-3.5 w-3.5 text-primary" />
 							Tujuan Penggunaan / Nama Kegiatan
 						</label>
@@ -180,30 +179,31 @@ export function RequesterStep({
 								if (errors.purpose) setErrors({ ...errors, purpose: "" });
 							}}
 							placeholder="Jelaskan agenda kegiatan secara ringkas..."
-							className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-primary focus:outline-hidden resize-none"
+							className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-hidden resize-none font-sans"
 						/>
 						{errors.purpose && (
-							<p className="text-xs text-destructive">{errors.purpose}</p>
+							<p className="text-[11px] text-destructive">{errors.purpose}</p>
 						)}
 					</div>
 				</div>
 			</div>
 
 			{/* Action Nav */}
-			<div className="flex items-center justify-between">
+			<div className="flex items-center justify-between font-mono">
 				<button
 					type="button"
 					onClick={onBack}
-					className="inline-flex items-center justify-center rounded-xl border border-border bg-background px-5 py-3 text-sm font-semibold text-foreground hover:bg-muted transition-all"
+					className="inline-flex items-center justify-center rounded-md border border-border bg-card px-4 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
 				>
-					&larr; Kembali
+					&larr; KEMBALI
 				</button>
 				<button
 					type="button"
 					onClick={handleProceed}
-					className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition-all"
+					className="inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer shadow-2xs"
 				>
-					Lanjut ke Konfirmasi &rarr;
+					<span>LANJUT KE KONFIRMASI</span>
+					<span>&rarr;</span>
 				</button>
 			</div>
 		</div>

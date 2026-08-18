@@ -44,9 +44,9 @@ const LegacyBookingSchema = z.object({
 	updated_at: z.string().optional().nullable(),
 });
 
-type LegacyAsset = z.infer<typeof LegacyAssetSchema>;
-type LegacyAdmin = z.infer<typeof LegacyAdminSchema>;
-type LegacyBooking = z.infer<typeof LegacyBookingSchema>;
+export type LegacyAsset = z.infer<typeof LegacyAssetSchema>;
+export type LegacyAdmin = z.infer<typeof LegacyAdminSchema>;
+export type LegacyBooking = z.infer<typeof LegacyBookingSchema>;
 
 // --- Helper: Redact sensitive information ---
 function redactSensitive(obj: any): any {

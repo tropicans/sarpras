@@ -637,13 +637,16 @@ test("Phase 7 Wave 7: WhatsApp Notification & Integration Triggers (WA-04, WA-05
 			assert.ok(booking.id);
 			assert.strictEqual(booking.status, "pending");
 
-			// Allow async non-blocking task to write audit logs
-			await new Promise((resolve) => setTimeout(resolve, 150));
-
-			const auditEntries = await getAuditLogsForEntity("booking", booking.id);
-			const dispatchLogs = auditEntries.filter(
-				(l) => l.action === "notification.whatsapp_dispatch",
-			);
+			// Allow async non-blocking task to write audit logs with resilient polling
+			let dispatchLogs: any[] = [];
+			for (let i = 0; i < 20; i++) {
+				const auditEntries = await getAuditLogsForEntity("booking", booking.id);
+				dispatchLogs = auditEntries.filter(
+					(l) => l.action === "notification.whatsapp_dispatch",
+				);
+				if (dispatchLogs.length >= 2) break;
+				await new Promise((resolve) => setTimeout(resolve, 50));
+			}
 			assert.strictEqual(dispatchLogs.length, 2);
 
 			const requesterLog = dispatchLogs.find(
@@ -685,14 +688,18 @@ test("Phase 7 Wave 7: WhatsApp Notification & Integration Triggers (WA-04, WA-05
 				`${prefix}admin-approver`,
 			);
 
-			await new Promise((resolve) => setTimeout(resolve, 150));
+			let approveDispatch: any = null;
+			for (let i = 0; i < 20; i++) {
+				const auditEntries = await getAuditLogsForEntity("booking", booking.id);
+				approveDispatch = auditEntries.find(
+					(l) =>
+						l.action === "notification.whatsapp_dispatch" &&
+						(l.metadata as any)?.template === "BOOKING_APPROVED",
+				);
+				if (approveDispatch) break;
+				await new Promise((resolve) => setTimeout(resolve, 50));
+			}
 
-			const auditEntries = await getAuditLogsForEntity("booking", booking.id);
-			const approveDispatch = auditEntries.find(
-				(l) =>
-					l.action === "notification.whatsapp_dispatch" &&
-					(l.metadata as any)?.template === "BOOKING_APPROVED",
-			);
 			assert.ok(approveDispatch);
 			assert.strictEqual(
 				(approveDispatch.metadata as any)?.target,
@@ -725,14 +732,18 @@ test("Phase 7 Wave 7: WhatsApp Notification & Integration Triggers (WA-04, WA-05
 				rejectionReason,
 			);
 
-			await new Promise((resolve) => setTimeout(resolve, 150));
+			let rejectDispatch: any = null;
+			for (let i = 0; i < 20; i++) {
+				const auditEntries = await getAuditLogsForEntity("booking", booking.id);
+				rejectDispatch = auditEntries.find(
+					(l) =>
+						l.action === "notification.whatsapp_dispatch" &&
+						(l.metadata as any)?.template === "BOOKING_REJECTED",
+				);
+				if (rejectDispatch) break;
+				await new Promise((resolve) => setTimeout(resolve, 50));
+			}
 
-			const auditEntries = await getAuditLogsForEntity("booking", booking.id);
-			const rejectDispatch = auditEntries.find(
-				(l) =>
-					l.action === "notification.whatsapp_dispatch" &&
-					(l.metadata as any)?.template === "BOOKING_REJECTED",
-			);
 			assert.ok(rejectDispatch);
 			assert.strictEqual(
 				(rejectDispatch.metadata as any)?.target,

@@ -6,7 +6,6 @@ import {
 	ScrollText,
 	Search,
 } from "lucide-react";
-import React from "react";
 import { formatJakartaDisplay } from "#/lib/timezone/datetime";
 import { AuditDiffViewer } from "./audit-diff-viewer";
 

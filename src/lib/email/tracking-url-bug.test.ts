@@ -7,7 +7,6 @@ import {
 	buildBookingSubmissionRequesterEmail,
 } from "./templates";
 import {
-	buildBookingApprovalMessage,
 	buildBookingSubmissionAdminMessage,
 	buildBookingSubmissionRequesterMessage,
 } from "../whatsapp/templates";
@@ -67,6 +66,7 @@ describe("Bug Reproduction: Tracking and Admin Queue URLs", () => {
 			assetName: "Asrama Cempaka Kamar 101",
 			startDate: "2026-08-14T07:00:00.000Z",
 			endDate: "2026-08-15T05:00:00.000Z",
+			attendance: 1,
 		});
 
 		assert.ok(

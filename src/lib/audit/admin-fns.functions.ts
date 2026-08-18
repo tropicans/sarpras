@@ -3,7 +3,7 @@ import { and, count, desc, eq, gte, ilike, lte, or } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../../db/client.server";
 import { auditLogs, users } from "../../db/schema";
-import { authMiddleware, requireMinRole } from "../auth.middleware";
+import { requireMinRole } from "../auth.middleware";
 import { normalizeDate } from "../timezone/datetime";
 
 export const AdminAuditLogsFilterSchema = z.object({

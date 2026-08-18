@@ -11,7 +11,8 @@ export const Route = createFileRoute("/check-booking")({
 	beforeLoad: ({ search }) => {
 		if (search.ref && search.ref.trim()) {
 			throw redirect({
-				to: `/status/${encodeURIComponent(search.ref.trim())}`,
+				to: "/status/$ref",
+				params: { ref: search.ref.trim() },
 			});
 		}
 		throw redirect({

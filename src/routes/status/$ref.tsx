@@ -1,30 +1,19 @@
 import {
 	createFileRoute,
 	Link,
-	useNavigate,
 	useRouter,
 } from "@tanstack/react-router";
 import {
 	AlertCircle,
 	AlertTriangle,
 	Ban,
-	BedDouble,
 	Building,
 	Calendar,
 	CheckCircle2,
-	ChevronRight,
 	Clock,
-	DoorOpen,
-	FileText,
-	HelpCircle,
 	Loader2,
-	MapPin,
-	RefreshCw,
 	Search,
 	ShieldAlert,
-	ShieldCheck,
-	User,
-	Users,
 	XCircle,
 } from "lucide-react";
 import { useState } from "react";
@@ -47,23 +36,20 @@ export const Route = createFileRoute("/status/$ref")({
 function BookingStatusDetailPage() {
 	const { booking, ref } = Route.useLoaderData();
 	const router = useRouter();
-	const navigate = useNavigate();
 
 	const [cancelModalOpen, setCancelModalOpen] = useState(false);
 	const [cancelReason, setCancelReason] = useState("");
 	const [cancelling, setCancelling] = useState(false);
 	const [cancelError, setCancelError] = useState<string | null>(null);
 
-	const isRoom = booking?.assetType === "room";
-
 	const formatDateTime = (isoString?: string) => {
 		if (!isoString) return "-";
 		const d = new Date(isoString);
 		return d.toLocaleDateString("id-ID", {
 			timeZone: "Asia/Jakarta",
-			weekday: "long",
+			weekday: "short",
 			day: "numeric",
-			month: "long",
+			month: "short",
 			year: "numeric",
 			hour: "2-digit",
 			minute: "2-digit",
@@ -107,33 +93,35 @@ function BookingStatusDetailPage() {
 		return (
 			<div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-primary/20">
 				<PublicHeader />
-				<main className="flex-1 py-16 sm:py-24">
-					<div className="mx-auto max-w-xl px-4 text-center space-y-6">
-						<div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
-							<AlertCircle className="h-8 w-8" />
+				<main className="flex-1 py-16 sm:py-20">
+					<div className="mx-auto max-w-md px-4 text-center space-y-4">
+						<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400">
+							<AlertCircle className="h-6 w-6" />
 						</div>
-						<div className="space-y-2">
-							<h1 className="text-2xl font-bold text-foreground">
-								Permohonan Tidak Ditemukan
+						<div className="space-y-1">
+							<h1 className="text-xl font-bold font-mono text-foreground">
+								PERMOHONAN TIDAK DITEMUKAN
 							</h1>
-							<p className="text-sm text-muted-foreground">
-								Kode referensi <strong>"{ref}"</strong> tidak sesuai dengan data
-								permohonan peminjaman manapun di sistem.
+							<p className="text-xs text-muted-foreground font-mono">
+								ID / Ref: <span className="text-foreground">{ref}</span>
 							</p>
 						</div>
-						<div className="pt-4 flex items-center justify-center gap-3">
+						<p className="text-xs text-muted-foreground leading-relaxed">
+							Kode referensi tidak sesuai dengan data permohonan peminjaman di sistem. Pastikan UUID lengkap telah dimasukkan dengan benar.
+						</p>
+						<div className="pt-2 flex items-center justify-center gap-2 font-mono text-xs">
 							<Link
 								to="/status"
-								className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition-all"
+								className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3.5 py-1.5 font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
 							>
-								<Search className="h-4 w-4" />
-								Cari Ulang Kode Referensi
+								<Search className="h-3.5 w-3.5" />
+								<span>CARI ULANG</span>
 							</Link>
 							<Link
 								to="/"
-								className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-3 text-sm font-semibold text-foreground hover:bg-muted transition-all"
+								className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3.5 py-1.5 font-medium text-foreground hover:bg-muted transition-colors"
 							>
-								Beranda
+								BERANDA
 							</Link>
 						</div>
 					</div>
@@ -153,80 +141,74 @@ function BookingStatusDetailPage() {
 			<PublicHeader />
 
 			<main className="flex-1 py-8 sm:py-12">
-				<div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-8">
+				<div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-6">
 					{/* Breadcrumbs */}
-					<nav className="flex items-center gap-2 text-xs text-muted-foreground">
+					<nav className="flex items-center gap-1.5 font-mono text-[11px] text-muted-foreground">
 						<Link to="/" className="hover:text-foreground transition-colors">
-							Beranda
+							ROOT
 						</Link>
-						<ChevronRight className="h-3.5 w-3.5" />
-						<Link
-							to="/status"
-							className="hover:text-foreground transition-colors"
-						>
-							Cek Status
+						<span>/</span>
+						<Link to="/status" className="hover:text-foreground transition-colors">
+							STATUS
 						</Link>
-						<ChevronRight className="h-3.5 w-3.5" />
-						<span className="text-foreground font-medium truncate">
-							{booking.id}
-						</span>
+						<span>/</span>
+						<span className="text-foreground font-semibold truncate">{booking.id.slice(0, 8)}...</span>
 					</nav>
 
 					{/* Top Header Card */}
-					<div className="rounded-3xl border border-border/80 bg-card p-6 sm:p-8 shadow-xs space-y-6">
-						<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/60 pb-6">
+					<div className="rounded-lg border border-border bg-card p-5 space-y-5">
+						<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
 							<div className="space-y-1">
-								<p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-									Status Permohonan Peminjaman
-								</p>
-								<h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+								<div className="flex items-center gap-2 font-mono text-[10px] uppercase text-muted-foreground">
+									<span>STATUS // TIKET PEMINJAMAN</span>
+									<span className="text-border">•</span>
+									<span className="text-foreground font-mono font-medium">#{booking.id}</span>
+								</div>
+								<h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
 									{booking.assetName}
 								</h1>
-								<p className="text-xs text-muted-foreground font-mono">
-									ID: {booking.id}
-								</p>
 							</div>
 
 							{/* Status Badges */}
 							<div>
 								{isPending && (
-									<span className="inline-flex items-center gap-2 rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-2 text-xs font-bold text-amber-800 dark:text-amber-300">
-										<Clock className="h-4 w-4 animate-pulse text-amber-600 dark:text-amber-400" />
-										Menunggu Verifikasi
+									<span className="inline-flex items-center gap-1.5 rounded border border-amber-500/30 bg-amber-500/10 px-3 py-1 font-mono text-xs font-semibold text-amber-800 dark:text-amber-300">
+										<Clock className="h-3.5 w-3.5 animate-pulse text-amber-600 dark:text-amber-400" />
+										<span>[PENDING // VERIFIKASI]</span>
 									</span>
 								)}
 								{isApproved && (
-									<span className="inline-flex items-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 text-xs font-bold text-emerald-800 dark:text-emerald-300">
-										<CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-										Disetujui Petugas
+									<span className="inline-flex items-center gap-1.5 rounded border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-mono text-xs font-semibold text-emerald-800 dark:text-emerald-300">
+										<CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+										<span>[APPROVED // DISETUJUI]</span>
 									</span>
 								)}
 								{isRejected && (
-									<span className="inline-flex items-center gap-2 rounded-xl bg-destructive/10 border border-destructive/20 px-4 py-2 text-xs font-bold text-destructive">
-										<XCircle className="h-4 w-4" />
-										Permohonan Ditolak
+									<span className="inline-flex items-center gap-1.5 rounded border border-destructive/30 bg-destructive/10 px-3 py-1 font-mono text-xs font-semibold text-destructive">
+										<XCircle className="h-3.5 w-3.5" />
+										<span>[REJECTED // DITOLAK]</span>
 									</span>
 								)}
 								{isCancelled && (
-									<span className="inline-flex items-center gap-2 rounded-xl bg-muted border border-border px-4 py-2 text-xs font-bold text-muted-foreground">
-										<Ban className="h-4 w-4" />
-										Permohonan Dibatalkan
+									<span className="inline-flex items-center gap-1.5 rounded border border-border bg-muted px-3 py-1 font-mono text-xs font-semibold text-muted-foreground">
+										<Ban className="h-3.5 w-3.5" />
+										<span>[CANCELLED // BATAL]</span>
 									</span>
 								)}
 							</div>
 						</div>
 
-						{/* Visual Status Progress Timeline */}
-						<div className="py-2 space-y-3">
-							<p className="text-xs font-semibold text-muted-foreground">
-								Progres Alur Persetujuan:
-							</p>
-							<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+						{/* Visual Pipeline Log */}
+						<div className="space-y-2">
+							<span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground block">
+								AUDIT LOG ALUR PERSETUJUAN:
+							</span>
+							<div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 font-mono">
 								{/* Step 1: Diajukan */}
-								<div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3.5 space-y-1">
-									<div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
-										<CheckCircle2 className="h-4 w-4" />
-										1. Permohonan Diajukan
+								<div className="rounded border border-emerald-500/30 bg-emerald-500/5 p-3 space-y-0.5">
+									<div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
+										<CheckCircle2 className="h-3.5 w-3.5" />
+										<span>01. PENGAJUAN</span>
 									</div>
 									<p className="text-[11px] text-muted-foreground">
 										{formatDateTime(booking.createdAt)} WIB
@@ -235,43 +217,43 @@ function BookingStatusDetailPage() {
 
 								{/* Step 2: Verifikasi */}
 								<div
-									className={`rounded-xl border p-3.5 space-y-1 ${
+									className={`rounded border p-3 space-y-0.5 ${
 										isPending
 											? "border-amber-500/40 bg-amber-500/5 text-amber-800 dark:text-amber-300"
-											: "border-border bg-card text-muted-foreground"
+											: "border-border bg-muted/20 text-muted-foreground"
 									}`}
 								>
-									<div className="flex items-center gap-2 text-xs font-bold">
-										<Clock className="h-4 w-4" />
-										2. Verifikasi Operator
+									<div className="flex items-center gap-1.5 text-xs font-bold">
+										<Clock className="h-3.5 w-3.5" />
+										<span>02. VERIFIKASI OPERATOR</span>
 									</div>
 									<p className="text-[11px] text-muted-foreground">
 										{isPending
-											? "Sedang diperiksa petugas"
+											? "Sedang diverifikasi petugas"
 											: isApproved || isRejected || isCancelled
 												? "Pemeriksaan selesai"
 												: "Antrean verifikasi"}
 									</p>
 								</div>
 
-								{/* Step 3: Keputusan Final */}
+								{/* Step 3: Keputusan */}
 								<div
-									className={`rounded-xl border p-3.5 space-y-1 ${
+									className={`rounded border p-3 space-y-0.5 ${
 										isApproved
 											? "border-emerald-500/30 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300"
 											: isRejected
 												? "border-destructive/30 bg-destructive/5 text-destructive"
 												: isCancelled
-													? "border-border bg-muted/40 text-muted-foreground"
-													: "border-border bg-card text-muted-foreground"
+													? "border-border bg-muted text-muted-foreground"
+													: "border-border bg-muted/20 text-muted-foreground"
 									}`}
 								>
-									<div className="flex items-center gap-2 text-xs font-bold">
-										{isApproved && <CheckCircle2 className="h-4 w-4" />}
-										{isRejected && <XCircle className="h-4 w-4" />}
-										{isCancelled && <Ban className="h-4 w-4" />}
-										{isPending && <Clock className="h-4 w-4" />}
-										3. Keputusan Layanan
+									<div className="flex items-center gap-1.5 text-xs font-bold">
+										{isApproved && <CheckCircle2 className="h-3.5 w-3.5" />}
+										{isRejected && <XCircle className="h-3.5 w-3.5" />}
+										{isCancelled && <Ban className="h-3.5 w-3.5" />}
+										{isPending && <Clock className="h-3.5 w-3.5" />}
+										<span>03. KEPUTUSAN FINAL</span>
 									</div>
 									<p className="text-[11px] text-muted-foreground">
 										{isApproved
@@ -279,111 +261,93 @@ function BookingStatusDetailPage() {
 											: isRejected
 												? "Permohonan Ditolak"
 												: isCancelled
-													? "Peminjaman Dibatalkan"
-													: "Menunggu Keputusan"}
+													? "Dibatalkan Pemohon"
+													: "Menunggu Hasil"}
 									</p>
 								</div>
 							</div>
 						</div>
 
-						{/* Rejection Alert Box */}
+						{/* Rejection Alert */}
 						{isRejected && booking.rejectionReason && (
-							<div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-5 space-y-2">
-								<div className="flex items-center gap-2 text-destructive font-bold text-sm">
-									<AlertCircle className="h-5 w-5 shrink-0" />
-									<span>Alasan Penolakan dari Petugas Verifikator:</span>
+							<div className="rounded border border-destructive/30 bg-destructive/5 p-4 space-y-1.5 font-mono">
+								<div className="flex items-center gap-2 text-destructive font-bold text-xs">
+									<AlertCircle className="h-4 w-4 shrink-0" />
+									<span>CATATAN PENOLAKAN VERIFIKATOR:</span>
 								</div>
-								<p className="text-sm text-destructive/90 bg-background/80 rounded-xl p-3.5 border border-destructive/20 font-medium">
+								<p className="text-xs text-destructive/90 bg-background rounded p-2.5 border border-destructive/20">
 									"{booking.rejectionReason}"
 								</p>
 							</div>
 						)}
 
-						{/* Asset & Schedule Details Card */}
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-							<div className="rounded-2xl border border-border/60 bg-muted/20 p-5 space-y-3">
-								<h3 className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+						{/* Asset & Schedule Spec Sheet */}
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 font-mono text-xs">
+							<div className="rounded border border-border bg-muted/30 p-4 space-y-2">
+								<span className="text-[10px] uppercase text-primary font-bold flex items-center gap-1.5">
 									<Building className="h-3.5 w-3.5" />
-									Informasi Sarana
-								</h3>
-								<div className="space-y-2 text-xs">
-									<div>
-										<span className="text-muted-foreground">Sarana:</span>
-										<p className="font-semibold text-foreground text-sm">
-											{booking.assetName}
-										</p>
+									SPESIFIKASI SARANA
+								</span>
+								<div className="space-y-1.5 pt-1">
+									<div className="flex justify-between border-b border-border/40 pb-1">
+										<span className="text-muted-foreground">Sarana</span>
+										<span className="font-semibold text-foreground">{booking.assetName}</span>
 									</div>
-									<div>
-										<span className="text-muted-foreground">
-											Kategori & Lokasi:
+									<div className="flex justify-between border-b border-border/40 pb-1">
+										<span className="text-muted-foreground">Kategori</span>
+										<span className="font-semibold text-foreground">
+											{ASSET_TYPE_LABELS[booking.assetType as AssetType] || booking.assetType}
 										</span>
-										<p className="font-medium text-foreground">
-											{ASSET_TYPE_LABELS[booking.assetType as AssetType] ||
-												booking.assetType}{" "}
-											&bull; {booking.assetLocation || "Gedung Utama PPKASN"}
-										</p>
 									</div>
-									<div>
-										<span className="text-muted-foreground">
-											Peserta / Tamu:
+									<div className="flex justify-between border-b border-border/40 pb-1">
+										<span className="text-muted-foreground">Lokasi</span>
+										<span className="font-semibold text-foreground">
+											{booking.assetLocation || "Gedung Utama PPKASN"}
 										</span>
-										<p className="font-semibold text-primary">
-											{booking.attendance} Orang (Kapasitas Maksimal:{" "}
-											{booking.capacity})
-										</p>
+									</div>
+									<div className="flex justify-between">
+										<span className="text-muted-foreground">Jumlah Peserta</span>
+										<span className="font-bold text-primary">{booking.attendance} Pax</span>
 									</div>
 								</div>
 							</div>
 
-							<div className="rounded-2xl border border-border/60 bg-muted/20 p-5 space-y-3">
-								<h3 className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+							<div className="rounded border border-border bg-muted/30 p-4 space-y-2">
+								<span className="text-[10px] uppercase text-primary font-bold flex items-center gap-1.5">
 									<Calendar className="h-3.5 w-3.5" />
-									Jadwal Penggunaan (WIB)
-								</h3>
-								<div className="space-y-2 text-xs">
-									<div>
-										<span className="text-muted-foreground">Waktu Mulai:</span>
-										<p className="font-semibold text-foreground">
-											{formatDateTime(booking.startDate)} WIB
-										</p>
+									PERIODE WAKTU (WIB)
+								</span>
+								<div className="space-y-1.5 pt-1">
+									<div className="flex justify-between border-b border-border/40 pb-1">
+										<span className="text-muted-foreground">Mulai</span>
+										<span className="font-semibold text-foreground">{formatDateTime(booking.startDate)} WIB</span>
 									</div>
-									<div>
-										<span className="text-muted-foreground">
-											Waktu Selesai:
-										</span>
-										<p className="font-semibold text-foreground">
-											{formatDateTime(booking.endDate)} WIB
-										</p>
+									<div className="flex justify-between border-b border-border/40 pb-1">
+										<span className="text-muted-foreground">Selesai</span>
+										<span className="font-semibold text-foreground">{formatDateTime(booking.endDate)} WIB</span>
 									</div>
-									<div>
-										<span className="text-muted-foreground">
-											Terakhir Diperbarui:
-										</span>
-										<p className="font-medium text-muted-foreground">
-											{formatDateTime(booking.updatedAt)} WIB
-										</p>
+									<div className="flex justify-between">
+										<span className="text-muted-foreground">Update Terakhir</span>
+										<span className="text-muted-foreground">{formatDateTime(booking.updatedAt)} WIB</span>
 									</div>
 								</div>
 							</div>
 						</div>
 
-						{/* Self-Service Cancellation Option (D-07) */}
+						{/* Self-Service Cancellation Option */}
 						{(isPending || isApproved) && (
-							<div className="pt-4 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-4">
-								<div className="text-xs text-muted-foreground flex items-center gap-2">
-									<ShieldAlert className="h-4 w-4 text-muted-foreground shrink-0" />
-									<span>
-										Perlu membatalkan kegiatan? Anda dapat melakukan pembatalan
-										mandiri sebelum jadwal pelaksanaan.
-									</span>
+							<div className="pt-3 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 font-mono text-xs">
+								<div className="text-muted-foreground flex items-center gap-1.5">
+									<ShieldAlert className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+									<span>Perlu membatalkan jadwal ini sebelum waktu pelaksanaan?</span>
 								</div>
 								<button
 									type="button"
 									onClick={() => setCancelModalOpen(true)}
-									className="inline-flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-xs font-bold text-destructive hover:bg-destructive/20 transition-colors cursor-pointer shrink-0"
+									className="inline-flex items-center gap-1.5 rounded border border-destructive/30 bg-destructive/10 px-3 py-1.5 text-xs font-semibold text-destructive hover:bg-destructive/20 transition-colors cursor-pointer shrink-0"
 								>
-									<Ban className="h-4 w-4" />
-									Batalkan Permohonan Ini
+									<Ban className="h-3.5 w-3.5" />
+									<span>[BATALKAN PERMOHONAN]</span>
 								</button>
 							</div>
 						)}
@@ -393,40 +357,40 @@ function BookingStatusDetailPage() {
 
 			{/* Cancellation Confirmation Modal */}
 			{cancelModalOpen && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+				<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150">
 					<div
-						className="relative w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-5"
+						className="relative w-full max-w-md rounded-lg border border-border bg-card p-5 shadow-2xl space-y-4 font-mono text-xs"
 						role="dialog"
 						aria-modal="true"
 					>
-						<div className="flex items-center gap-3 text-destructive">
-							<div className="flex h-10 w-10 items-center justify-center rounded-xl bg-destructive/10">
-								<AlertTriangle className="h-5 w-5" />
+						<div className="flex items-center gap-2.5 text-destructive border-b border-border pb-3">
+							<div className="flex h-7 w-7 items-center justify-center rounded border border-destructive/30 bg-destructive/10">
+								<AlertTriangle className="h-4 w-4" />
 							</div>
 							<div>
-								<h3 className="font-bold text-base text-foreground">
-									Konfirmasi Pembatalan
+								<h3 className="font-bold text-sm text-foreground">
+									KONFIRMASI PEMBATALAN
 								</h3>
-								<p className="text-xs text-muted-foreground">
-									Tindakan ini tidak dapat diurungkan.
+								<p className="text-[11px] text-muted-foreground">
+									Tindakan ini permanen dan tidak dapat diurungkan.
 								</p>
 							</div>
 						</div>
 
 						{cancelError && (
-							<div className="rounded-xl bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive">
+							<div className="rounded bg-destructive/10 border border-destructive/20 p-2.5 text-destructive text-[11px]">
 								{cancelError}
 							</div>
 						)}
 
-						<p className="text-xs text-foreground/90 leading-relaxed">
+						<p className="text-foreground/90 leading-relaxed font-sans text-xs">
 							Apakah Anda yakin ingin membatalkan permohonan peminjaman untuk{" "}
-							<strong>{booking.assetName}</strong> pada jadwal{" "}
+							<strong>{booking.assetName}</strong> pada tanggal{" "}
 							{formatDateTime(booking.startDate)} WIB?
 						</p>
 
-						<div className="space-y-1.5">
-							<label className="text-xs font-semibold text-foreground">
+						<div className="space-y-1">
+							<label className="text-[11px] font-semibold text-foreground block uppercase">
 								Alasan Pembatalan <span className="text-destructive">*</span>:
 							</label>
 							<textarea
@@ -436,33 +400,33 @@ function BookingStatusDetailPage() {
 									setCancelReason(e.target.value);
 									if (cancelError) setCancelError(null);
 								}}
-								placeholder="Tuliskan alasan pembatalan peminjaman (wajib)..."
-								className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-hidden resize-none"
+								placeholder="Tuliskan alasan pembatalan peminjaman..."
+								className="w-full rounded border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-hidden resize-none font-sans"
 							/>
 						</div>
 
-						<div className="flex items-center justify-end gap-2.5 pt-2">
+						<div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
 							<button
 								type="button"
 								disabled={cancelling}
 								onClick={() => setCancelModalOpen(false)}
-								className="rounded-xl border border-border bg-background px-4 py-2.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors disabled:opacity-50"
+								className="rounded border border-border bg-background px-3 py-1.5 font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-50 cursor-pointer"
 							>
-								Kembali
+								KEMBALI
 							</button>
 							<button
 								type="button"
 								disabled={cancelling}
 								onClick={handleCancelBooking}
-								className="inline-flex items-center gap-1.5 rounded-xl bg-destructive px-4 py-2.5 text-xs font-bold text-destructive-foreground shadow-sm hover:bg-destructive/90 transition-all disabled:opacity-50"
+								className="inline-flex items-center gap-1.5 rounded bg-destructive px-3 py-1.5 font-bold text-destructive-foreground hover:bg-destructive/90 transition-all disabled:opacity-50 cursor-pointer"
 							>
 								{cancelling ? (
 									<>
 										<Loader2 className="h-3.5 w-3.5 animate-spin" />
-										Membatalkan...
+										MEMPROSES...
 									</>
 								) : (
-									"Ya, Batalkan Permohonan"
+									"YA, BATALKAN"
 								)}
 							</button>
 						</div>

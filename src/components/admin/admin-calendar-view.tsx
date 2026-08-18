@@ -5,28 +5,20 @@ import {
 	endOfMonth,
 	endOfWeek,
 	format,
-	isSameDay,
 	isSameMonth,
 	isToday,
 	parseISO,
 	startOfMonth,
 	startOfWeek,
-	subDays,
 	subMonths,
 	subWeeks,
 } from "date-fns";
 import {
-	AlertTriangle,
 	Building2,
-	Calendar as CalendarIcon,
 	ChevronLeft,
 	ChevronRight,
-	Clock,
-	Filter,
-	Layers,
-	Users,
 } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
 	type CalendarEventItem,
 	CalendarEventPopover,

@@ -3,17 +3,11 @@ import {
 	AlertTriangle,
 	Building2,
 	Calendar,
-	CalendarCheck2,
-	Clock,
 	ExternalLink,
-	Mail,
-	MapPin,
-	Phone,
 	User,
 	Users,
 	X,
 } from "lucide-react";
-import React from "react";
 import { formatJakartaDisplay } from "#/lib/timezone/datetime";
 
 export interface CalendarEventItem {

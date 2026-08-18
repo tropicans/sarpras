@@ -1,5 +1,6 @@
 import assert from "node:assert";
 import test from "node:test";
+import { and, eq, ne } from "drizzle-orm";
 import { db } from "../../db/client.server";
 import {
 	assetAvailability,
@@ -11,17 +12,12 @@ import {
 } from "../../db/schema";
 import {
 	AdminAuditLogsFilterSchema,
-	getAdminAuditLogsFn,
 } from "../audit/admin-fns.functions";
 import { recordAuditEvent } from "../audit/audit.server";
 import {
 	AdminBookingsFilterSchema,
-	getAdminBookingsFn,
-	getAdminCalendarEventsFn,
-	getAdminDashboardOverviewFn,
-	getBookingConflictContextFn,
 } from "./admin-fns.functions";
-import { BookingConflictError, BookingService } from "./service.server";
+import { BookingService } from "./service.server";
 
 test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {
 	// Setup test user, assets, and seed data
@@ -53,7 +49,7 @@ test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {
 		.returning();
 
 	// Create test dormitory asset
-	const [testDorm] = await db
+	await db
 		.insert(assets)
 		.values({
 			name: `Asrama UAT Admin ${Date.now()}`,
@@ -63,8 +59,7 @@ test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {
 			status: "active",
 			createdAt: new Date(),
 			updatedAt: new Date(),
-		})
-		.returning();
+		});
 
 	// Add room availability (Mon-Fri 08:00 - 18:00)
 	for (let day = 1; day <= 5; day++) {
@@ -78,7 +73,7 @@ test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {
 
 	await t.test(
 		"FLOW-02: Live Conflict Detection & Context Logic",
-		async (st) => {
+		async () => {
 			// Create base pending booking A
 			const bookingA = await BookingService.createBookingRequest({
 				assetId: testRoom.id,
@@ -88,8 +83,8 @@ test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {
 				requesterOrganization: "Divisi Kepegawaian",
 				purpose: "Rapat Koordinasi Internal",
 				attendance: 15,
-				startDate: "2026-09-10T09:00:00+07:00",
-				endDate: "2026-09-10T12:00:00+07:00",
+				startDate: new Date("2026-09-10T09:00:00+07:00"),
+				endDate: new Date("2026-09-10T12:00:00+07:00"),
 				timezone: "Asia/Jakarta",
 			});
 
@@ -102,8 +97,8 @@ test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {
 				requesterOrganization: "Divisi TI",
 				purpose: "Pelatihan IT Sarpras",
 				attendance: 10,
-				startDate: "2026-09-10T10:00:00+07:00",
-				endDate: "2026-09-10T13:00:00+07:00",
+				startDate: new Date("2026-09-10T10:00:00+07:00"),
+				endDate: new Date("2026-09-10T13:00:00+07:00"),
 				timezone: "Asia/Jakarta",
 			});
 
@@ -154,7 +149,7 @@ test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {
 
 	await t.test(
 		"FLOW-03: Accountable Decision Execution (Approve/Reject)",
-		async (st) => {
+		async () => {
 			// Create a pending booking to reject
 			const bookingToReject = await BookingService.createBookingRequest({
 				assetId: testRoom.id,
@@ -162,8 +157,8 @@ test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {
 				requesterEmail: "tolak@example.com",
 				purpose: "Kegiatan yang Ditolak",
 				attendance: 5,
-				startDate: "2026-09-15T09:00:00+07:00",
-				endDate: "2026-09-15T11:00:00+07:00",
+				startDate: new Date("2026-09-15T09:00:00+07:00"),
+				endDate: new Date("2026-09-15T11:00:00+07:00"),
 				timezone: "Asia/Jakarta",
 			});
 
@@ -216,7 +211,7 @@ test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {
 
 	await t.test(
 		"OPS-01: Dashboard Overview KPIs & Filter Validation",
-		async (st) => {
+		async () => {
 			// Test Filter schema parsing
 			const filterAll = AdminBookingsFilterSchema.parse({});
 			assert.strictEqual(filterAll.status, "all");
@@ -241,7 +236,7 @@ test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {
 
 	await t.test(
 		"OPS-02: Calendar Events Query (Bookings & Closures)",
-		async (st) => {
+		async () => {
 			// Add a closure date to testRoom
 			const closureDate = new Date("2026-09-20T00:00:00+07:00");
 			const [closure] = await db
@@ -270,7 +265,7 @@ test("Phase 5 Plan 01: Admin Decisions & Operations Tests", async (t) => {
 		},
 	);
 
-	await t.test("OPS-04: System Audit History Query & Details", async (st) => {
+	await t.test("OPS-04: System Audit History Query & Details", async () => {
 		// Test audit filter schema
 		const auditFilter = AdminAuditLogsFilterSchema.parse({
 			action: "booking.approve",

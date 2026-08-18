@@ -58,7 +58,7 @@ export function ScheduleModal({ asset, isOpen, onClose }: ScheduleModalProps) {
 					setLoading(false);
 				}
 			})
-			.catch((err) => {
+			.catch(() => {
 				if (isMounted) {
 					setError("Gagal memuat data jadwal sarana. Silakan coba kembali.");
 					setLoading(false);
@@ -71,19 +71,6 @@ export function ScheduleModal({ asset, isOpen, onClose }: ScheduleModalProps) {
 	}, [isOpen, asset]);
 
 	if (!isOpen || !asset) return null;
-
-	const formatSlotTime = (isoString: string) => {
-		const d = new Date(isoString);
-		return d.toLocaleDateString("id-ID", {
-			timeZone: "Asia/Jakarta",
-			weekday: "short",
-			day: "numeric",
-			month: "short",
-			year: "numeric",
-			hour: "2-digit",
-			minute: "2-digit",
-		});
-	};
 
 	const formatRange = (startIso: string, endIso: string) => {
 		const s = new Date(startIso);
@@ -108,91 +95,88 @@ export function ScheduleModal({ asset, isOpen, onClose }: ScheduleModalProps) {
 	};
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150">
 			<div
-				className="relative w-full max-w-2xl rounded-2xl border border-border bg-card shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+				className="relative w-full max-w-xl rounded-lg border border-border bg-card shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
 				role="dialog"
 				aria-modal="true"
 			>
 				{/* Modal Header */}
-				<div className="flex items-center justify-between border-b border-border/80 px-6 py-4 bg-muted/40">
-					<div className="flex items-center gap-3">
-						<div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-							<Calendar className="h-5 w-5" />
+				<div className="flex items-center justify-between border-b border-border px-5 py-3.5 bg-muted/30">
+					<div className="flex items-center gap-2.5">
+						<div className="flex h-7 w-7 items-center justify-center rounded-md border border-primary/30 bg-primary/10 text-primary">
+							<Calendar className="h-3.5 w-3.5" />
 						</div>
 						<div>
-							<h3 className="font-bold text-lg text-foreground">
-								Jadwal Penggunaan Sarana
+							<h3 className="font-mono text-xs font-bold uppercase tracking-wider text-foreground">
+								JADWAL FASILITAS // {asset.name}
 							</h3>
-							<p className="text-xs text-muted-foreground">
-								{asset.name} &bull;{" "}
-								{asset.type === "room" ? "Ruang Rapat" : "Asrama / Wisma"}
+							<p className="text-[11px] text-muted-foreground">
+								{asset.location || "Gedung Utama PPKASN"} &bull; Kapasitas {asset.capacity} Orang
 							</p>
 						</div>
 					</div>
 					<button
 						type="button"
 						onClick={onClose}
-						className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+						className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
 						aria-label="Tutup Modal"
 					>
-						<X className="h-5 w-5" />
+						<X className="h-4 w-4" />
 					</button>
 				</div>
 
 				{/* Privacy Notice Banner */}
-				<div className="bg-emerald-500/10 border-b border-emerald-500/20 px-6 py-2.5 flex items-center gap-2.5 text-xs text-emerald-800 dark:text-emerald-300">
-					<ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+				<div className="bg-sky-500/10 border-b border-sky-500/20 px-5 py-2 flex items-center gap-2 text-[11px] font-mono text-sky-800 dark:text-sky-300">
+					<ShieldCheck className="h-3.5 w-3.5 shrink-0 text-sky-600 dark:text-sky-400" />
 					<span>
-						<strong>Privasi Terlindungi:</strong> Tampilan jadwal publik hanya
-						menampilkan blok waktu ketersediaan tanpa memuat informasi pribadi
-						pemohon.
+						<strong>PRIVACY PROTECTED:</strong> Hanya menampilkan blok waktu terisi tanpa data pribadi pemohon.
 					</span>
 				</div>
 
 				{/* Modal Body */}
-				<div className="p-6 overflow-y-auto space-y-6 flex-1">
+				<div className="p-5 overflow-y-auto space-y-4 flex-1">
 					{loading && (
-						<div className="py-12 flex flex-col items-center justify-center text-center space-y-3">
-							<div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-							<p className="text-sm text-muted-foreground">
-								Memuat data ketersediaan jadwal...
+						<div className="py-10 flex flex-col items-center justify-center text-center space-y-2 font-mono">
+							<div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+							<p className="text-xs text-muted-foreground">
+								MEMUAT JADWAL KETERSEDIAAN...
 							</p>
 						</div>
 					)}
 
 					{error && (
-						<div className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 flex items-start gap-3 text-destructive text-sm">
-							<AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+						<div className="rounded-md bg-destructive/10 border border-destructive/20 p-3 flex items-start gap-2.5 text-destructive text-xs font-mono">
+							<AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
 							<p>{error}</p>
 						</div>
 					)}
 
 					{!loading && !error && schedule && (
-						<div className="space-y-6">
+						<div className="space-y-4">
 							{/* Closures Section */}
 							{schedule.closureSlots.length > 0 && (
-								<div className="space-y-2.5">
-									<h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-										<span className="h-2 w-2 rounded-full bg-amber-500" />
-										Jadwal Penutupan / Pemeliharaan
-									</h4>
-									<div className="space-y-2">
+								<div className="space-y-2">
+									<div className="flex items-center gap-2 font-mono text-[10px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+										<span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+										<span>Jadwal Penutupan / Maintenance</span>
+									</div>
+									<div className="space-y-1.5">
 										{schedule.closureSlots.map((slot, idx) => (
 											<div
 												key={`closure-${idx}`}
-												className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 flex items-start justify-between gap-4"
+												className="rounded-md border border-amber-500/30 bg-amber-500/5 p-2.5 flex items-start justify-between gap-3 font-mono"
 											>
 												<div className="space-y-0.5">
-													<div className="text-sm font-medium text-amber-900 dark:text-amber-200">
+													<div className="text-xs font-semibold text-amber-900 dark:text-amber-200">
 														{formatRange(slot.startDate, slot.endDate)}
 													</div>
-													<p className="text-xs text-amber-700/80 dark:text-amber-300/80">
+													<p className="text-[11px] text-amber-700/80 dark:text-amber-300/80">
 														{slot.reason || "Penutupan Layanan / Hari Libur"}
 													</p>
 												</div>
-												<span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[11px] font-semibold text-amber-800 dark:text-amber-300 shrink-0">
-													Tutup
+												<span className="rounded border border-amber-500/30 bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300 shrink-0">
+													CLOSED
 												</span>
 											</div>
 										))}
@@ -201,36 +185,35 @@ export function ScheduleModal({ asset, isOpen, onClose }: ScheduleModalProps) {
 							)}
 
 							{/* Booked Slots Section */}
-							<div className="space-y-2.5">
-								<h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-									<span className="h-2 w-2 rounded-full bg-blue-500" />
-									Jadwal Peminjaman Disetujui
-								</h4>
+							<div className="space-y-2">
+								<div className="flex items-center gap-2 font-mono text-[10px] font-semibold uppercase tracking-wider text-primary">
+									<span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
+									<span>Jadwal Terisi (Disetujui)</span>
+								</div>
 								{schedule.bookedSlots.length === 0 ? (
-									<div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-										Belum ada jadwal peminjaman yang disetujui. Sarana saat ini
-										siap dipinjam.
+									<div className="rounded-md border border-dashed border-border p-6 text-center text-xs font-mono text-muted-foreground">
+										Belum ada jadwal peminjaman pada periode ini. Sarana siap diajukan.
 									</div>
 								) : (
-									<div className="space-y-2">
+									<div className="space-y-1.5">
 										{schedule.bookedSlots.map((slot, idx) => (
 											<div
 												key={`booked-${idx}`}
-												className="rounded-xl border border-border bg-muted/30 p-3.5 flex items-center justify-between gap-4"
+												className="rounded-md border border-border bg-muted/40 p-2.5 flex items-center justify-between gap-3 font-mono"
 											>
-												<div className="flex items-center gap-3">
-													<Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+												<div className="flex items-center gap-2.5">
+													<Clock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
 													<div>
-														<div className="text-sm font-medium text-foreground">
+														<div className="text-xs font-medium text-foreground">
 															{formatRange(slot.startDate, slot.endDate)}
 														</div>
-														<p className="text-xs text-muted-foreground">
-															Slot Terisi (Disetujui Petugas)
+														<p className="text-[10px] text-muted-foreground">
+															Slot Terisi &bull; Disetujui Petugas
 														</p>
 													</div>
 												</div>
-												<span className="rounded-md bg-blue-500/10 px-2 py-0.5 text-[11px] font-semibold text-blue-700 dark:text-blue-300 shrink-0">
-													Terisi
+												<span className="rounded border border-sky-500/30 bg-sky-500/10 px-1.5 py-0.5 text-[10px] font-bold text-sky-700 dark:text-sky-300 shrink-0">
+													BOOKED
 												</span>
 											</div>
 										))}
@@ -242,15 +225,15 @@ export function ScheduleModal({ asset, isOpen, onClose }: ScheduleModalProps) {
 				</div>
 
 				{/* Modal Footer */}
-				<div className="border-t border-border/80 px-6 py-3.5 bg-muted/20 flex items-center justify-between">
-					<div className="text-xs text-muted-foreground flex items-center gap-1.5">
-						<Lock className="h-3.5 w-3.5" />
-						Jadwal diperbarui secara real-time
+				<div className="border-t border-border px-5 py-3 bg-muted/20 flex items-center justify-between font-mono text-xs">
+					<div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+						<Lock className="h-3 w-3" />
+						<span>REAL-TIME LIVE DATA</span>
 					</div>
 					<button
 						type="button"
 						onClick={onClose}
-						className="rounded-lg bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80 transition-colors"
+						className="rounded-md border border-border bg-card px-3 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
 					>
 						Tutup
 					</button>

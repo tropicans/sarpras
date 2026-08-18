@@ -1,106 +1,101 @@
 import { Link } from "@tanstack/react-router";
 import {
-	ArrowRight,
 	Check,
 	CheckCircle2,
-	Clock,
 	Copy,
 	Home,
-	Info,
 	Search,
-	ShieldCheck,
 } from "lucide-react";
 import { useState } from "react";
 
 interface SuccessCardProps {
 	bookingId: string;
-	assetName: string;
+	assetName?: string;
+	onReset?: () => void;
 }
 
-export function SuccessCard({ bookingId, assetName }: SuccessCardProps) {
+export function SuccessCard({ bookingId }: SuccessCardProps) {
 	const [copied, setCopied] = useState(false);
 
 	const handleCopy = () => {
 		navigator.clipboard.writeText(bookingId);
 		setCopied(true);
-		setTimeout(() => setCopied(false), 2500);
+		setTimeout(() => setCopied(false), 2000);
 	};
 
 	return (
-		<div className="max-w-2xl mx-auto rounded-3xl border border-border/80 bg-card p-8 sm:p-10 shadow-lg text-center space-y-8 animate-in fade-in zoom-in-95 duration-300">
-			{/* Top Success Icon */}
-			<div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-				<CheckCircle2 className="h-10 w-10" />
+		<div className="rounded-xl border border-emerald-500/30 bg-card p-6 sm:p-8 space-y-6 text-center shadow-sm">
+			{/* Icon and status badge */}
+			<div className="flex flex-col items-center justify-center gap-3">
+				<div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+					<CheckCircle2 className="h-8 w-8" />
+				</div>
+				<span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-mono text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">
+					STATUS // PERMOHONAN BERHASIL DIAJUKAN
+				</span>
 			</div>
 
-			{/* Title & Description */}
-			<div className="space-y-2">
-				<h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-					Permohonan Berhasil Dikirim!
+			{/* Main text */}
+			<div className="space-y-2 max-w-lg mx-auto">
+				<h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+					Permohonan Peminjaman Diterima
 				</h2>
-				<p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-					Pengajuan peminjaman untuk <strong>{assetName}</strong> telah diterima
-					sistem dan sedang dalam antrean verifikasi petugas operator.
+				<p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+					Pengajuan peminjaman fasilitas Anda telah tercatat dalam sistem dan
+					sedang menunggu peninjauan oleh administrator. Notifikasi update akan
+					dikirimkan melalui Email & WhatsApp yang terdaftar.
 				</p>
 			</div>
 
-			{/* Reference Code Box */}
-			<div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 space-y-3">
-				<p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-					Kode Referensi / ID Permohonan
-				</p>
-				<div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-					<span className="font-mono text-xl sm:text-2xl font-black text-primary tracking-wider break-all">
+			{/* Booking reference code display */}
+			<div className="mx-auto max-w-md rounded-lg border border-border bg-muted/40 p-4 space-y-2 font-mono">
+				<div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+					KODE REFERENSI TIKET (REF ID)
+				</div>
+				<div className="flex items-center justify-between gap-2 rounded bg-background px-3 py-2 border border-border">
+					<code className="text-xs sm:text-sm font-bold text-primary select-all break-all">
 						{bookingId}
-					</span>
+					</code>
 					<button
 						type="button"
 						onClick={handleCopy}
-						className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-3.5 py-2 text-xs font-semibold text-foreground shadow-2xs hover:bg-muted transition-all cursor-pointer shrink-0"
+						className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground font-sans transition-colors cursor-pointer shrink-0"
+						title="Salin Kode"
 					>
 						{copied ? (
 							<>
-								<Check className="h-3.5 w-3.5 text-emerald-600" />
-								<span className="text-emerald-600 font-bold">Tersalin!</span>
+								<Check className="h-3.5 w-3.5 text-emerald-500" />
+								<span className="text-emerald-600 font-semibold">Tersalin</span>
 							</>
 						) : (
 							<>
-								<Copy className="h-3.5 w-3.5 text-muted-foreground" />
-								<span>Salin Kode</span>
+								<Copy className="h-3.5 w-3.5" />
+								<span>Salin</span>
 							</>
 						)}
 					</button>
 				</div>
-				<p className="text-[11px] text-muted-foreground">
-					Simpan kode ini untuk memeriksa status persetujuan atau melakukan
-					pembatalan sewaktu-waktu.
+				<p className="text-[10px] text-muted-foreground">
+					Simpan kode ini untuk mengecek status permohonan atau melakukan pembatalan.
 				</p>
 			</div>
 
-			{/* Status Hint */}
-			<div className="rounded-xl bg-muted/40 p-4 text-xs text-muted-foreground flex items-center justify-center gap-2">
-				<Clock className="h-4 w-4 text-primary shrink-0" />
-				<span>
-					Proses verifikasi oleh petugas umumnya memerlukan waktu 1x24 jam
-					kerja.
-				</span>
-			</div>
-
 			{/* Action CTA Buttons */}
-			<div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+			<div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-2 font-mono text-xs">
 				<Link
-					to={`/status/${bookingId}`}
-					className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition-all cursor-pointer"
+					to="/status/$ref"
+					params={{ ref: bookingId }}
+					className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer shadow-2xs"
 				>
-					<Search className="h-4 w-4" />
-					Pantau Status Permohonan
+					<Search className="h-3.5 w-3.5" />
+					<span>[PANTAU STATUS TIKET]</span>
 				</Link>
 				<Link
 					to="/"
-					className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-6 py-3.5 text-sm font-semibold text-foreground hover:bg-muted transition-all cursor-pointer"
+					className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-md border border-border bg-card px-4 py-2 font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
 				>
-					<Home className="h-4 w-4 text-muted-foreground" />
-					Kembali ke Beranda
+					<Home className="h-3.5 w-3.5 text-muted-foreground" />
+					<span>KEMBALI KE BERANDA</span>
 				</Link>
 			</div>
 		</div>

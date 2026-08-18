@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { endOfMonth, format, startOfMonth } from "date-fns";
-import { AlertCircle, Calendar, RefreshCw } from "lucide-react";
+import { endOfMonth, startOfMonth } from "date-fns";
+import { AlertCircle, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AdminCalendarView } from "#/components/admin/admin-calendar-view";
 import type { CalendarEventItem } from "#/components/admin/calendar-event-popover";

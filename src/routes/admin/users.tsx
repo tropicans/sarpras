@@ -3,8 +3,6 @@ import {
 	AlertCircle,
 	CheckCircle2,
 	Mail,
-	Plus,
-	Shield,
 	Trash2,
 	UserCheck,
 	UserPlus,
@@ -196,7 +194,7 @@ function AdminUsersComponent() {
 					</p>
 				</div>
 
-				{currentUser.role === "admin" && (
+				{(currentUser as any)?.role === "admin" && (
 					<button
 						type="button"
 						onClick={() => {
@@ -301,7 +299,7 @@ function AdminUsersComponent() {
 												</span>
 											</td>
 											<td className="p-4 text-right">
-												{!isSelf && currentUser.role === "admin" && (
+												{!isSelf && (currentUser as any)?.role === "admin" && (
 													<div className="flex items-center justify-end gap-1">
 														<button
 															type="button"
@@ -433,7 +431,7 @@ function AdminUsersComponent() {
 									required
 									value={newEmail}
 									onChange={(e) => setNewEmail(e.target.value)}
-									placeholder="nama@gmail.com / nama@kemkes.go.id"
+									placeholder="nama@gmail.com / nama@setneg.go.id"
 									className="px-3.5 py-2.5 border border-[#e4e4e7] rounded-xl text-xs focus:ring-2 focus:ring-[#09090b] focus:outline-none"
 								/>
 								<span className="text-[11px] text-[#71717a]">

@@ -4,9 +4,7 @@ import {
 	BedDouble,
 	Building2,
 	Car,
-	ChevronRight,
 	DoorOpen,
-	MapPin,
 	Package,
 	Users,
 } from "lucide-react";
@@ -128,65 +126,63 @@ function BookingWizardPage() {
 		<div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-primary/20">
 			<PublicHeader />
 
-			<main className="flex-1 py-10 sm:py-14">
-				<div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-8">
+			<main className="flex-1 py-8 sm:py-12">
+				<div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-6">
 					{/* Breadcrumb Nav */}
 					<nav
 						aria-label="Breadcrumb"
-						className="flex items-center gap-2 text-xs text-muted-foreground"
+						className="flex items-center gap-1.5 font-mono text-[11px] text-muted-foreground"
 					>
 						<Link to="/" className="hover:text-foreground transition-colors">
-							Beranda
+							ROOT
 						</Link>
-						<ChevronRight className="h-3.5 w-3.5" />
+						<span>/</span>
 						<a
 							href="/#katalog"
 							className="hover:text-foreground transition-colors"
 						>
-							Katalog Sarana
+							KATALOG
 						</a>
-						<ChevronRight className="h-3.5 w-3.5" />
-						<span className="text-foreground font-medium truncate">
-							Pengajuan {asset.name}
+						<span>/</span>
+						<span className="text-foreground font-semibold truncate">
+							BOOKING // {asset.name}
 						</span>
 					</nav>
 
 					{currentStep !== "success" && (
 						<>
 							{/* Asset Header Info Card */}
-							<div className="rounded-2xl border border-border/80 bg-gradient-to-r from-primary/5 via-card to-card p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-								<div className="space-y-1.5">
+							<div className="rounded-lg border border-border bg-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+								<div className="space-y-1">
 									<div className="flex items-center gap-2">
-										<span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-0.5 text-xs font-semibold bg-primary/10 text-primary">
+										<span className="inline-flex items-center gap-1.5 rounded border border-primary/30 bg-primary/10 px-2 py-0.5 font-mono text-[11px] font-semibold text-primary">
 											{getTypeIcon()}
-											{typeLabel}
+											<span>{typeLabel.toUpperCase()}</span>
 										</span>
-										<span className="text-xs text-muted-foreground">
-											&bull; {asset.location || "Gedung Utama PPKASN"}
+										<span className="text-xs text-muted-foreground font-mono">
+											#{asset.id.slice(0, 8)} &bull; {asset.location || "Gedung Utama PPKASN"}
 										</span>
 									</div>
-									<h1 className="text-2xl font-bold text-foreground">
-										{asset.name}
+									<h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+										Formulir Peminjaman: {asset.name}
 									</h1>
 								</div>
 
-								<div className="flex items-center gap-3">
-									<div className="flex items-center gap-1.5 rounded-xl border border-border bg-background px-3 py-2 text-xs font-semibold">
-										<Users className="h-4 w-4 text-primary" />
-										<span>
+								<div className="flex items-center gap-2 font-mono text-xs">
+									<div className="flex items-center gap-1.5 rounded border border-border bg-muted/40 px-3 py-1.5">
+										<Users className="h-3.5 w-3.5 text-primary" />
+										<span className="font-semibold">
 											Kapasitas {asset.capacity}{" "}
 											{asset.type === "vehicle" || asset.type === "equipment"
-												? "Unit/Pax"
-												: "Orang"}
+												? "Unit"
+												: "Pax"}
 										</span>
 									</div>
 								</div>
 							</div>
 
 							{/* Wizard Stepper */}
-							<WizardStepper
-								currentStep={currentStep === "success" ? 3 : currentStep}
-							/>
+							<WizardStepper currentStep={currentStep} />
 
 							{/* Step Content */}
 							{currentStep === 1 && (

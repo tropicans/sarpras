@@ -3,7 +3,6 @@ import {
 	AlertCircle,
 	Archive,
 	Calendar,
-	Check,
 	Clock,
 	Edit2,
 	Plus,
@@ -300,7 +299,7 @@ function AdminAssetsComponent() {
 						operasional, dan hari libur
 					</p>
 				</div>
-				{currentUser.role !== "pimpinan" && (
+				{(currentUser as any)?.role !== "pimpinan" && (
 					<button
 						onClick={handleOpenCreate}
 						className="flex items-center gap-2 px-3 py-2 bg-[#09090b] text-white hover:bg-[#27272a] rounded-md text-xs font-semibold shadow-sm outline-none transition-colors"
@@ -385,7 +384,7 @@ function AdminAssetsComponent() {
 											</span>
 										</td>
 										<td className="p-4 text-right">
-											{currentUser.role !== "pimpinan" &&
+											{(currentUser as any)?.role !== "pimpinan" &&
 												asset.status !== "archived" && (
 													<div className="flex items-center justify-end gap-1.5">
 														<button

@@ -128,12 +128,16 @@ export const checkAvailabilityPreflightFn = createServerFn({ method: "POST" })
 			.parse(data),
 	)
 	.handler(async ({ data }) => {
-		return await BookingService.checkPreflightAvailability({
+		const res = await BookingService.checkPreflightAvailability({
 			assetId: data.assetId,
 			startDate: data.startDate,
 			endDate: data.endDate,
 			attendance: data.attendance,
 		});
+		return {
+			available: res.available,
+			reason: res.reason,
+		};
 	});
 
 /**

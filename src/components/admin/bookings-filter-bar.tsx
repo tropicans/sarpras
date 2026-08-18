@@ -1,5 +1,4 @@
-import { Filter, RotateCcw, Search } from "lucide-react";
-import React from "react";
+import { RotateCcw, Search } from "lucide-react";
 
 export interface BookingsFilterState {
 	status: "all" | "pending" | "approved" | "rejected" | "cancelled";

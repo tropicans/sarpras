@@ -388,7 +388,7 @@ export async function dispatchBookingCancelledNotifications(
 			startDate: data.startDate,
 			endDate: data.endDate,
 			reason: data.reason,
-			cancelledBy: data.cancelledBy,
+			cancelledBy: data.cancelledBy || undefined,
 		});
 
 		whatsappPromises.push(

@@ -1,0 +1,30 @@
+{
+  "name": "@sarpras/api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "db:migrate-legacy": "tsx src/db/migrate-legacy.ts"
+  },
+  "dependencies": {
+    "@better-auth/drizzle-adapter": "^1.1.20",
+    "@hono/node-server": "^1.13.8",
+    "@sarpras/shared": "*",
+    "better-auth": "^1.1.20",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.39.3",
+    "hono": "^4.7.2",
+    "postgres": "^3.4.5",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.30.5",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  }
+}

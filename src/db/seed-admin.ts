@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { hashPassword } from "better-auth/crypto";
 import { eq } from "drizzle-orm";
+import { auth } from "./auth.server";
 import { db } from "./client.server";
 import { accounts, users } from "./schema";
 

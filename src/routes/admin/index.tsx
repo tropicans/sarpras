@@ -7,7 +7,6 @@ import {
 	CalendarX,
 	Clock,
 	ScrollText,
-	Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { KpiCard } from "#/components/admin/kpi-card";
@@ -173,7 +172,7 @@ function AdminDashboardComponent() {
 								<ArrowUpRight size={14} className="text-[#71717a]" />
 							</Link>
 
-							{currentUser.role === "admin" && (
+							{(currentUser as any)?.role === "admin" && (
 								<Link
 									to="/admin/audit"
 									className="p-3 bg-white border border-[#e4e4e7] rounded-lg hover:border-[#09090b] transition-all flex items-center justify-between text-xs font-medium text-[#09090b]"
