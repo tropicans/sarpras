@@ -421,8 +421,12 @@ html_content = """<!DOCTYPE html>
 </html>
 """
 
-output_html = r"c:\Users\yudhiar\Downloads\oprek\Dev\sarpras\Laporan_Harian_Teknikal_SARPRAS_2026-08-14.html"
-output_pdf = r"c:\Users\yudhiar\Downloads\oprek\Dev\sarpras\Laporan_Harian_Teknikal_SARPRAS_2026-08-14.pdf"
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+REPORTS_DIR = os.path.join(REPO_ROOT, "docs", "reports")
+os.makedirs(REPORTS_DIR, exist_ok=True)
+
+output_html = os.path.join(REPORTS_DIR, "Laporan_Harian_Teknikal_SARPRAS_2026-08-14.html")
+output_pdf = os.path.join(REPORTS_DIR, "Laporan_Harian_Teknikal_SARPRAS_2026-08-14.pdf")
 
 with open(output_html, "w", encoding="utf-8") as f:
     f.write(html_content)
