@@ -1,122 +1,84 @@
-# Architectural Patterns & System Design
+# System Architecture & Design Patterns
 
-**Analysis Date:** 2026-08-14
+**Analysis Date:** 2026-08-18
 
 ---
 
-## 1. High-Level Architectural Pattern
+## 1. High-Level Architectural Overview
 
-The application follows an **Isomorphic Full-Stack TypeScript Architecture** powered by **TanStack Start**, **React 19**, and **Drizzle ORM**. It utilizes RPC-style Server Functions (`createServerFn`) to provide end-to-end type safety between client components and backend services without manual REST API route boilerplate.
+Sarpras PPKASN is a full-stack facility & asset reservation management system built on **TanStack Start** (SSR + Server Functions) and **React 19**, styled with **Tailwind CSS v4** and backed by **PostgreSQL** via **Drizzle ORM**.
 
 ```
-┌────────────────────────────────────────────────────────┐
-│               Client / UI Layer (React 19)              │
-│  - Public Catalog & Stepper Booking Wizard              │
-│  - Admin Operations Dashboard, Calendar & Audit Table  │
-└──────────────────────────┬─────────────────────────────┘
-                           │ TanStack Router / RPC
-┌──────────────────────────▼─────────────────────────────┐
-│           Server Functions & Middleware Layer          │
-│  - Auth Middleware (Session validation, Status check)   │
-│  - RBAC Middleware (Role hierarchy: Admin/Pimpinan/Op) │
-│  - Zod Input Validation & CSRF Protection               │
-└──────────────────────────┬─────────────────────────────┘
-                           │
-┌──────────────────────────▼─────────────────────────────┐
-│             Domain & Business Logic Layer              │
-│  - Booking Engine (Availability, Dormitory, Overlap)   │
-│  - WhatsApp Notification Dispatcher (Fonnte / Mock)    │
-│  - Audit Logging Subsystem                             │
-│  - Timezone Normalization Engine (Asia/Jakarta)        │
-└──────────────────────────┬─────────────────────────────┘
-                           │
-┌──────────────────────────▼─────────────────────────────┐
-│            Data Persistence Layer (Drizzle ORM)        │
-│  - PostgreSQL Pool (pg)                                │
-│  - Relational Schema & Strong Foreign Key Constraints  │
-└────────────────────────────────────────────────────────┘
+                           ┌───────────────────────────────┐
+                           │    TanStack Router Client     │
+                           │ (Public Landing, Booking Flow │
+                           │  Admin Dashboard, Calendar)   │
+                           └───────────────┬───────────────┘
+                                           │ RPC / Server Functions
+                                           ▼
+                           ┌───────────────────────────────┐
+                           │   TanStack Start RPC Engine   │
+                           │  - Auth & Role Middlewares    │
+                           │  - Server Functions (.server) │
+                           └───────────────┬───────────────┘
+                                           │
+                ┌──────────────────────────┼──────────────────────────┐
+                ▼                          ▼                          ▼
+      ┌──────────────────┐       ┌──────────────────┐       ┌──────────────────┐
+      │   Drizzle ORM    │       │  Better Auth     │       │ Notification Svc │
+      │  (PostgreSQL DB) │       │  (TOTP / 2FA)    │       │ (WA & Email)     │
+      └──────────────────┘       └──────────────────┘       └──────────────────┘
 ```
 
 ---
 
 ## 2. Core Architectural Layers
 
-### 1. Presentation & Routing Layer (`src/routes/` & `src/components/`)
-- **Route Definitions:** Built with TanStack Router file-based route definitions (`createFileRoute`).
-- **Layouts & Guards:**
-  - `src/routes/__root.tsx`: Document shell with Geist variable fonts, meta tags, and DevTools.
-  - `src/routes/admin.tsx`: Authenticated admin layout with role-aware navigation bar, user session badge, and route protection.
-  - `src/routes/index.tsx`: Public portal with asset cards, category filtering, and direct availability inspection modal.
-  - `src/routes/book/$assetId.tsx`: 4-step wizard stepper for creating bookings.
-  - `src/routes/status/index.tsx` & `src/routes/status/$ref.tsx`: Public tracking portal to search and view reservation status by UUID.
+### Presentation Layer (`src/routes/` & `src/components/`)
+- **Public Portal:**
+  - `src/routes/index.tsx`: Interactive hero console, bento showcase, asset catalog, category filter chips, and public availability drawer.
+  - `src/routes/book/$assetId.tsx`: Multi-step booking wizard (`ScheduleStep` -> `RequesterStep` -> `ReviewStep` -> `SuccessCard`).
+  - `src/routes/status/$ref.tsx`: Real-time booking tracking page with timeline and letter download.
+  - `src/routes/check-booking.tsx`: Quick reference code lookup.
+- **Admin Portal (`src/routes/admin/`):**
+  - `src/routes/admin.tsx`: Layout container with sidebar navigation, user profile, 2FA setup modal trigger, and theme toggle.
+  - `src/routes/admin/index.tsx`: Dashboard with urgent booking widgets, KPIs, quick actions.
+  - `src/routes/admin/assets.tsx`: Asset management with dynamic facility tagger, capacity slider, room layout configurations, and schedule overrides.
+  - `src/routes/admin/bookings.tsx`: Comprehensive booking data table with filters, search, and batch operations.
+  - `src/routes/admin/calendar.tsx`: Interactive monthly/weekly asset calendar with popover event cards.
+  - `src/routes/admin/users.tsx`: User role & status management (Admin, Operator, Pimpinan).
+  - `src/routes/admin/audit.tsx`: Visual audit log viewer with JSON diff inspector.
 
-### 2. Server Functions & RPC Layer (`src/lib/**/*.functions.ts`)
-- **Pattern:** Declarative `createServerFn({ method: "GET" | "POST" })` endpoints with `.validator(zodSchema)` and `.middleware([authMiddleware])`.
-- **Key Modules:**
-  - `src/lib/booking/public-fns.functions.ts`: Public actions (fetch public assets, submit booking, check reference status).
-  - `src/lib/booking/admin-fns.functions.ts`: Admin actions (list bookings with filters, approve/reject/cancel, KPI metrics).
-  - `src/lib/assets/assets.functions.ts`: Asset catalog management (CRUD, availability rules, closure dates, archiving).
-  - `src/lib/auth/auth.functions.ts`: Authentication management (password change, user account status).
-  - `src/lib/audit/admin-fns.functions.ts`: Audit trail retrieval with actor and date filters.
+### Server Functions & RPC Layer (`src/lib/**/*.functions.ts`)
+- Utilizes TanStack Start `createServerFn` to define type-safe server RPC endpoints.
+- Middlewares:
+  - `authMiddleware`: Ensures caller has an active session.
+  - `requireRoleMiddleware(['admin', 'operator'])`: Enforces hierarchical RBAC rank checking.
 
-### 3. Middleware & Security Layer (`src/lib/auth.middleware.ts`)
-- **Session Enforcement:** Validates Better Auth session cookies on every protected RPC call.
-- **Account Inactivity Guard:** Rejects suspended or inactive accounts immediately.
-- **RBAC Hierarchy:**
-  - `admin` (Rank 3): Full administrative privileges, user management, and configuration.
-  - `pimpinan` (Rank 2): Executive oversight, approval review, and audit trail inspection.
-  - `operator` (Rank 1): Day-to-day facility monitoring and booking operations.
+### Domain Service Layer (`src/lib/**/*.server.ts`)
+- Pure server-side logic encapsulating business rules, validations, and database interactions:
+  - `src/lib/booking/service.server.ts`: Booking creation, double-booking validation, status transitions, approval/rejection workflows.
+  - `src/lib/booking/availability.ts`: Asset working hours, daily slots, and closure date calculations.
+  - `src/lib/booking/dormitory.ts`: Multi-day dormitory bed capacity and overlap accounting.
+  - `src/lib/notifications/service.server.ts`: Unified dual-channel notification dispatcher.
+  - `src/lib/whatsapp/service.server.ts` & `src/lib/email/service.server.ts`: Specific notification transports.
+  - `src/lib/audit/audit.server.ts`: Central audit event logger.
 
-### 4. Domain & Business Logic Services (`src/lib/`)
-- **Booking Engine (`src/lib/booking/service.server.ts`):**
-  - **Availability Validation:** Prevents double-booking for rooms by verifying time slot overlap (`src/lib/booking/availability.ts`).
-  - **Dormitory Capacity Management:** Tracks bed/room occupancy limits (`src/lib/booking/dormitory.ts`).
-  - **Closure Dates Enforcement:** Blocks bookings on blacklisted dates (`asset_closures`).
-  - **State Machine Transitions:** Governs transitions across `pending` -> `approved` / `rejected` / `cancelled`.
-- **Notification Subsystem (`src/lib/whatsapp/service.server.ts`):**
-  - Sends transactional WhatsApp notifications on submission, approval, rejection, and cancellation.
-  - Fail-safe non-blocking execution with audit trail recording.
-- **Timezone Management (`src/lib/timezone/datetime.ts`):**
-  - Enforces `Asia/Jakarta` (WIB) across date parsing, UI formatting, and database storage.
-
-### 5. Data Access Layer (`src/db/`)
-- **ORM:** Drizzle ORM configured with relational queries (`db.query.*`) and typed SQL builders.
-- **Connection Management:** Connection pool singleton via `pg.Pool`.
+### Persistence Layer (`src/db/`)
+- `src/db/schema.ts`: Drizzle PostgreSQL schemas for `users`, `sessions`, `accounts`, `verifications`, `two_factors`, `assets`, `bookings`, `asset_availability`, `asset_closures`, `audit_logs`.
+- `src/db/client.server.ts`: Singleton PostgreSQL client pool.
+- `src/db/migrate.ts`: DDL runner.
 
 ---
 
-## 3. Data Flow & Request Lifecycle
+## 3. Key Design Patterns
 
-```
-[User Browser]
-      │
-      │ (1) User Submits Booking Form / Admin Approves
-      ▼
-[TanStack Router Route Component]
-      │
-      │ (2) Invokes Server Function (e.g. submitBookingFn / approveBookingFn)
-      ▼
-[Server Function Middleware]
-      │ - Validates Request Payload via Zod
-      │ - Checks Auth & RBAC Permissions
-      ▼
-[Domain Service (e.g. BookingService)]
-      │ - Validates asset active status & operating hours
-      │ - Checks overlapping bookings & closures
-      │ - Inserts / Updates booking record
-      │ - Dispatches Audit Log Entry (AuditService)
-      │ - Dispatches WhatsApp Notification asynchronously (WhatsAppService)
-      ▼
-[Drizzle ORM -> PostgreSQL]
-      │ - Executes transactional SQL query
-      ▼
-[Client Response]
-      │ - Returns typed result to TanStack Router
-      ▼
-[React UI Update]
-        - Renders confirmation or updates UI state
-```
+1. **Server Function RPC Pattern:** Client components call typed `createServerFn` functions without writing manual fetch boilerplate or API routes.
+2. **State Machine for Bookings:** Status transitions (`pending` -> `approved` / `rejected` / `cancelled`) are strictly validated in `src/lib/booking/state-machine.ts`.
+3. **Graceful Fallback / Mock Gateways:** Notification gateways automatically switch to structured console logging when API keys are absent or running in test environments.
+4. **Hierarchical RBAC:** Roles follow strict privilege hierarchy (`admin` > `pimpinan` > `operator`), verified through unified role helper functions.
+5. **Timezone Normalization:** All booking timestamps are stored in UTC with timezone context (`Asia/Jakarta`), converted explicitly via `src/lib/timezone/datetime.ts`.
 
 ---
 
-*Codebase architecture analysis: 2026-08-14*
+*Codebase architecture analysis: 2026-08-18*

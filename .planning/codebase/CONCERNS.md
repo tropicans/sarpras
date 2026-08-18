@@ -1,48 +1,48 @@
 # Technical Debt, Security & Architectural Concerns
 
-**Analysis Date:** 2026-08-14
+**Analysis Date:** 2026-08-18
 
 ---
 
 ## 1. Security & Environment Configuration
 
 - **Environment Secrets:**
-  - `BETTER_AUTH_SECRET` and `DATABASE_URL` must be strictly secured in production environments.
-  - `FONNTE_API_TOKEN` controls the outbound WhatsApp sender account; ensure tokens are rotated regularly.
-- **Legacy Password Migration:**
-  - Migrated accounts from the legacy PHP/MySQL database carry the `mustResetPassword: true` flag in the `user` table. Enforce the password reset prompt upon login before granting dashboard access.
-- **Access Control Boundaries:**
-  - All new server functions in `src/lib/**/*.functions.ts` must explicitly apply `authMiddleware` or `requireRoleMiddleware()` to prevent unauthorized RPC invocations.
+  - `BETTER_AUTH_SECRET` and `DATABASE_URL` must remain strictly confidential in production environments.
+  - `FONNTE_API_TOKEN` and `RESEND_API_KEY` control external communications; configure token rotation procedures.
+- **Legacy Account Security:**
+  - Ingested legacy user accounts carry `mustResetPassword: true`. Login flows must enforce immediate password change before granting dashboard access.
+- **Server Function Guarding:**
+  - Ensure all administrative RPC endpoints in `src/lib/**/*.functions.ts` are guarded by `authMiddleware` or `requireRoleMiddleware`.
 
 ---
 
 ## 2. Concurrency & Data Integrity
 
 - **Double-Booking Race Conditions:**
-  - Room double-booking is currently checked via query inspection before insertion in `src/lib/booking/service.server.ts`. Under extreme concurrent submissions for the exact same millisecond slot, PostgreSQL transaction locks or database exclusion constraints (`EXCLUDE USING gist`) should be considered.
+  - Room double-booking is checked in `src/lib/booking/service.server.ts` before inserting records. Under high-concurrency bursts for identical time windows, PostgreSQL exclusion constraints (`EXCLUDE USING gist`) or advisory transaction locks should be maintained.
 - **Dormitory Capacity Accounting:**
-  - Bed/occupancy math calculates total active attendance across overlapping date windows. Ensure cancelled/rejected bookings are excluded from active occupancy calculations (governed by state machine in `src/lib/booking/dormitory.ts`).
+  - Multi-day dormitory occupancy math calculates cumulative active attendance across overlapping date windows. Rejected or cancelled bookings must never count towards active bed occupancy.
 
 ---
 
 ## 3. Performance & Scalability
 
 - **Database Indexes:**
-  - Add composite index on `bookings(asset_id, start_date, end_date, status)` to ensure sub-millisecond calendar range queries as booking records grow.
-  - Ensure index on `audit_logs(created_at DESC)` and `audit_logs(entity_type, entity_id)` for responsive audit trail pagination.
-- **Outbound Notification Queueing:**
-  - WhatsApp dispatches run asynchronously via `safeDispatchNotification()`. For high-volume multi-recipient broadcasts, integrating a lightweight persistent task queue (e.g., pg-boss or Redis/BullMQ) will prevent rate-limit throttling from external API gateways.
-- **Audit Table Growth:**
-  - `audit_logs` records all entity mutations and notification attempts. Establish an archiving or retention policy for historical data older than 12-24 months.
+  - Maintain compound indexes on `bookings(asset_id, start_date, end_date, status)` for responsive calendar queries.
+  - Maintain indexes on `audit_logs(created_at DESC)` and `audit_logs(entity_type, entity_id)` for scalable audit log inspection.
+- **Notification Queuing:**
+  - Outbound WhatsApp and Email notifications run asynchronously. For high-volume multi-recipient notifications, consider integrating a background task queue (e.g. pg-boss or BullMQ) to avoid gateway rate limits.
+- **Audit Log Retention:**
+  - `audit_logs` records all entity mutations and notification attempts. Establish an archiving policy for logs older than 12-24 months.
 
 ---
 
 ## 4. Operational Monitoring
 
-- **Gateway Status Monitoring:**
-  - Monitor Fonnte API credit balances and token validity to prevent silent notification drops in production.
-  - Mock mode logs visual cards in local development console, providing seamless debugging without consuming real SMS/WhatsApp quotas.
+- **Gateway Quotas & Health:**
+  - Monitor Fonnte and Resend API quota limits and delivery rates.
+  - Mock mode logs structured JSON cards in development/test environments, avoiding accidental production notification dispatches.
 
 ---
 
-*Codebase concerns and technical debt analysis: 2026-08-14*
+*Codebase concerns and technical debt analysis: 2026-08-18*

@@ -1,39 +1,57 @@
-# Testing Strategy & Test Suites
+# Testing Patterns & Quality Assurance
 
-**Analysis Date:** 2026-08-14
-
----
-
-## 1. Testing Framework & Execution
-
-- **Runner:** Node.js native test runner (`node:test` + `node:assert/strict`).
-- **Execution Script:** `npm test` / `node --import tsx --test ...`
-- **Environment:** Test runs use in-memory / test database configuration and mock external services (`FONNTE_MOCK=true` or `NODE_ENV=test`).
-- **Pass Rate:** 53 / 53 passing automated tests.
+**Analysis Date:** 2026-08-18
 
 ---
 
-## 2. Test Suite Architecture
+## 1. Testing Framework & Philosophy
 
-| Test Suite File | Domain / Scope | Key Test Cases |
-|-----------------|----------------|----------------|
-| `src/db/migration.test.ts` | Data & Migrations | Legacy data migration idempotency, canonical column mapping, relational constraints. |
-| `src/db/auth.test.ts` | Auth & Asset Setup | User deactivation, session revocation, asset availability table rules, asset closure dates, timezone validation. |
-| `src/lib/auth/rbac.test.ts` | RBAC & Security | Role hierarchy rankings (`admin` > `pimpinan` > `operator`), permission resolution, middleware rank assertions. |
-| `src/lib/booking/booking.test.ts` | Booking Domain Engine | Room double-booking prevention, dormitory capacity & occupancy math, closure date blocking, state machine transitions. |
-| `src/lib/booking/admin.test.ts` | Admin Operations | Booking filtering by status/date/asset, KPI metrics aggregation, bulk actions. |
-| `src/lib/whatsapp/phone.test.ts` | WhatsApp Phone Utilities | Phone normalization (`08xx`, `+628xx` -> `628xx`), invalid number rejection, group JID support (`@g.us`), comma-separated recipient lists. |
-| `src/lib/whatsapp/templates.test.ts` | Notification Templates | Template formatting for submission, admin alert, approval, rejection with mandatory reason, cancellation. |
-| `src/lib/whatsapp/service.test.ts` | WhatsApp Gateway & Audit | Real Fonnte HTTP payload structure, console mock fallback, error resilience, audit log creation. |
+- **Test Runner:** Node.js native test runner (`node:test` + `node:assert/strict`) loaded via `tsx` (`node --import tsx --test`).
+- **Execution Command:** `pnpm test` (or targeted file execution: `node --import tsx --test path/to/file.test.ts`).
+- **Test File Pattern:** Co-located test files named `*.test.ts` alongside implementation modules.
 
 ---
 
-## 3. Mocking & Isolation Patterns
+## 2. Test Suite Breakdown
 
-- **External Gateway Mocking:** When `FONNTE_API_TOKEN` is unset or during automated tests, `WhatsAppService` intercepts outbound notifications, prints formatted terminal box visualizers, and writes mock audit logs without network calls.
-- **Database Isolation:** Test suites clean up test records or execute within isolated transactions to avoid polluting production datasets.
-- **Side-Effect Safety:** Tests verify that auxiliary service failures (e.g. invalid phone number) do not break the primary business operations.
+| Domain | Test File | Key Coverage Areas |
+| :--- | :--- | :--- |
+| **Assets & Facilities** | `src/lib/assets/facilities.test.ts` | Dynamic tag sanitization, casing deduplication, length limits, default presets |
+| **Database Migrations** | `src/db/migration.test.ts` | Schema migration verification, constraints, indexes |
+| **Auth & Security** | `src/db/auth.test.ts` | Better Auth adapter, session creation, password hashing |
+| **RBAC** | `src/lib/auth/rbac.test.ts` | Role hierarchy rank evaluation, privilege gates (`admin`, `operator`, `pimpinan`) |
+| **2FA & MFA** | `src/lib/auth/two-factor.test.ts` | TOTP secret generation, backup code verification, login lockouts |
+| **2FA Bug Regression** | `src/lib/auth/two-factor-enable-bug.test.ts` | Enablement flow and verification states |
+| **2FA Password Regression**| `src/lib/auth/two-factor-password-bug.test.ts` | Password verification during 2FA enrollment |
+| **OAuth Bug Regression** | `src/lib/auth/oauth-linking-bug.test.ts` | OAuth account linking edge cases |
+| **Booking Engine** | `src/lib/booking/booking.test.ts` | Conflict detection, date overlap checking, room capacity validation |
+| **Booking Admin** | `src/lib/booking/admin.test.ts` | State machine transitions (`pending` -> `approved` / `rejected`), review workflows |
+| **WhatsApp Service** | `src/lib/whatsapp/phone.test.ts` | Indonesian phone number normalization (`08...`, `+628...` -> `628...`) |
+| **WhatsApp Templates** | `src/lib/whatsapp/templates.test.ts` | Dynamic message rendering for submission, approval, rejection, cancellation |
+| **WhatsApp Gateway** | `src/lib/whatsapp/service.test.ts` | Fonnte API call handling, mock console output fallback |
+| **Email Templates** | `src/lib/email/templates.test.ts` | Responsive HTML template generation, action buttons, metadata blocks |
+| **Email Service** | `src/lib/email/service.test.ts` | Resend API payload dispatch, mock fallback, RFC 5322 validation |
+| **Tracking URL Regression** | `src/lib/email/tracking-url-bug.test.ts` | Status link formation and URL scheme safety |
+| **Unified Notifications** | `src/lib/notifications/service.test.ts` | Dual-channel concurrent dispatching and recipient fanout |
 
 ---
 
-*Codebase testing strategy analysis: 2026-08-14*
+## 3. Writing Unit & Integration Tests
+
+```typescript
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import { sanitizeFacilities } from "./facilities";
+
+describe("Facility Tag Sanitization", () => {
+  it("trims whitespace and deduplicates tags case-insensitively", () => {
+    const dirty = ["  AC  ", "ac", "Wi-Fi", "  Proyektor  "];
+    const cleaned = sanitizeFacilities(dirty);
+    assert.deepEqual(cleaned, ["AC", "Wi-Fi", "Proyektor"]);
+  });
+});
+```
+
+---
+
+*Codebase testing analysis: 2026-08-18*

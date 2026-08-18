@@ -1,61 +1,57 @@
-# Coding Conventions & Design Patterns
+# Code Conventions & Style Guide
 
-**Analysis Date:** 2026-08-14
+**Analysis Date:** 2026-08-18
 
 ---
 
 ## 1. Code Style & Formatting
 
-- **Linter & Formatter:** Configured via Biome (`biome.json`).
-  - **Indentation:** Tabs (`indentStyle: "tab"`).
-  - **Line Width:** 80 characters.
-  - **Quotes:** Double quotes (`quoteStyle: "double"`).
-  - **Semicolons:** Required (`semicolons: "always"`).
-  - **Trailing Commas:** ES5 style (`trailingCommas: "es5"`).
-- **Import Ordering & Aliasing:**
-  - Standard/third-party imports at top.
-  - Subpath imports use `#/*` alias pointing to `src/*` (e.g. `import { db } from "#/db/client.server"`).
+- **Formatter & Linter:** Biome (`biome.json`) enforces 2-space indentation, double quotes, and strict linting rules.
+- **Imports:**
+  - Internal project imports use `#/*` path alias mapping to `./src/*`.
+  - Type-only imports use `import type { ... }` syntax.
+- **Naming Conventions:**
+  - Components: PascalCase (e.g., `AssetCard`, `BookingReviewDrawer`).
+  - Route Files: kebab-case with TanStack conventions (e.g., `check-booking.tsx`, `$assetId.tsx`).
+  - Server Functions: CamelCase ending with `Fn` (e.g., `getAssetsListFn`, `createBookingFn`).
+  - Services: PascalCase classes or camelCase factory functions (e.g., `EmailService`, `recordAuditEvent`).
 
 ---
 
-## 2. Server Functions & RPC Patterns
+## 2. Server Function Patterns
 
-- **Definition:** Use TanStack Start `createServerFn` with explicit HTTP methods:
-  ```typescript
-  export const updateAssetFn = createServerFn({ method: "POST" })
-    .middleware([requireRoleMiddleware("admin")])
-    .validator((data: unknown) => updateAssetSchema.parse(data))
-    .handler(async ({ data, context }) => {
-      // implementation
-    });
-  ```
-- **Validation:** All incoming request payloads must be validated using `zod` schemas.
-- **Middleware Stacking:** Authenticated functions must be chained with `authMiddleware` or `requireRoleMiddleware(role)` to guarantee security at the RPC boundary.
+- Define server functions with `createServerFn({ method: "GET" | "POST" })`.
+- Validate payloads with `.validator(zodSchema)`.
+- Enforce authentication via `.middleware([authMiddleware])` or `.middleware([requireRoleMiddleware(["admin", "operator"])])`.
+- Return structured error responses or throw standard errors with user-friendly messages.
 
----
-
-## 3. Timezone & DateTime Standards
-
-- **Standard Timezone:** All business operations, operating hours, closures, and calendar views are anchored to `Asia/Jakarta` (WIB, UTC+7).
-- **Database Storage:** All timestamp columns use `withTimezone: true` (`timestamp("column", { withTimezone: true })`).
-- **Formatting Utilities:** Always use helpers from `src/lib/timezone/datetime.ts` (`formatWibDate`, `formatWibTime`, `formatWibDateTime`) to avoid client-side timezone drift.
+```typescript
+export const updateAssetFn = createServerFn({ method: "POST" })
+  .middleware([requireRoleMiddleware(["admin", "operator"])])
+  .validator(zodAssetSchema)
+  .handler(async ({ data, context }) => {
+    // Business logic...
+  });
+```
 
 ---
 
-## 4. Error Handling & Resilience
+## 3. Database & Schema Conventions
 
-- **Public Endpoints:** Catch unhandled exceptions and return structured `{ success: false, error: "Friendly message" }` objects to avoid leaking server internals.
-- **Side-Effect Resilience:** Auxiliary operations (such as sending WhatsApp notifications via `safeDispatchNotification`) must run non-blocking and catch all errors internally so they never abort core database transactions.
-- **Audit Tracking:** Critical actions (mutations, approvals, rejections, status transitions, and notification dispatches) must call `recordAuditEvent()` with relevant actor ID and metadata payload.
-
----
-
-## 5. UI & State Management
-
-- **Client Navigation:** Use TanStack Router's typed `<Link to="...">` and `useNavigate()` rather than raw `window.location`.
-- **Styling Patterns:** Use Tailwind CSS v4 utility classes composed with `cn(...)` from `src/lib/utils.ts`.
-- **Forms & Inputs:** Controlled inputs with immediate client-side validation feedback before RPC invocation.
+- All table names use plural or snake_case conventions in PostgreSQL (e.g., `assets`, `bookings`, `audit_logs`, `two_factor`).
+- Primary keys use UUIDs (`uuid("id").defaultRandom().primaryKey()`) or Better Auth text IDs.
+- Timestamps include timezone (`timestamp("created_at", { withTimezone: true })`).
+- Relations are explicitly declared using Drizzle `relations(...)`.
 
 ---
 
-*Codebase conventions and practices analysis: 2026-08-14*
+## 4. UI & Styling Guidelines
+
+- Use Tailwind CSS v4 design tokens defined in `src/styles.css` (`bg-background`, `text-foreground`, `border-border`, `bg-card`, etc.).
+- Always maintain high contrast in both light and dark modes (avoid hardcoded neutral hex codes; use semantic theme variables).
+- Micro-animations using `tw-animate-css` for modals, popovers, and interactive status badges.
+- All user-facing times formatted in Indonesian locale (`WIB`) via `src/lib/timezone/datetime.ts`.
+
+---
+
+*Codebase conventions and patterns analysis: 2026-08-18*
