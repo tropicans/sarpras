@@ -4,11 +4,11 @@
 
 ### Two-Factor Authentication (2FA)
 
-- [ ] **2FA-01**: User (Google SSO and hybrid accounts) can initiate 2FA TOTP activation without encountering 400 Bad Request or "Invalid password" errors.
-- [ ] **2FA-02**: User can scan TOTP QR code / input manual secret in Authenticator app, verify with 6-digit TOTP code, and receive emergency backup codes.
-- [ ] **2FA-03**: User can disable 2FA safely from the security modal.
-- [ ] **2FA-04**: 2FA challenge flow during login prompts for 6-digit verification code or backup code and grants session access upon successful verification.
-- [ ] **2FA-05**: Automated reproduction and regression test suite verifying 2FA enable, verify, challenge, and disable flows.
+- [x] **2FA-01**: User (Google SSO and hybrid accounts) can initiate 2FA TOTP activation without encountering 400 Bad Request or "Invalid password" errors.
+- [x] **2FA-02**: User can scan TOTP QR code / input manual secret in Authenticator app, verify with 6-digit TOTP code, and receive emergency backup codes.
+- [x] **2FA-03**: User can disable 2FA safely from the security modal.
+- [x] **2FA-04**: 2FA challenge flow during login prompts for 6-digit verification code or backup code and grants session access upon successful verification.
+- [x] **2FA-05**: Automated reproduction and regression test suite verifying 2FA enable, verify, challenge, and disable flows.
 
 ## Future Requirements
 
@@ -24,8 +24,8 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| **2FA-01** | Phase 9 | Pending |
-| **2FA-02** | Phase 9 | Pending |
-| **2FA-03** | Phase 9 | Pending |
-| **2FA-04** | Phase 9 | Pending |
-| **2FA-05** | Phase 9 | Pending |
+| **2FA-01** | Phase 9 | Satisfied |
+| **2FA-02** | Phase 9 | Satisfied |
+| **2FA-03** | Phase 9 | Satisfied |
+| **2FA-04** | Phase 9 | Satisfied |
+| **2FA-05** | Phase 9 | Satisfied |
