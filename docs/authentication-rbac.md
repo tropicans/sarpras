@@ -93,3 +93,14 @@ Untuk akun baru yang dibuatkan oleh Super Admin atau akun hasil migrasi database
 1. Kolom `must_reset_password` pada tabel `user` diset menjadi `true`.
 2. Saat staf berhasil login pertama kali, middleware akan mengarahkan pengguna ke halaman penggantian password wajib sebelum dapat mengakses fitur operasional lainnya.
 3. Setelah password berhasil diperbarui, flag `must_reset_password` otomatis diubah menjadi `false`.
+
+---
+
+## 🔒 Proteksi Whitelist Akun Google (Google OAuth Restricted)
+
+Untuk mencegah sembarang akun Gmail/Google publik dapat masuk ke sistem, sistem menerapkan **Strict Google OAuth Whitelist**:
+1. **`disableSignUp: true` & `disableImplicitSignUp: true`**: Pendaftaran mandiri via Google OAuth dimatikan secara total.
+2. **Pre-Registration oleh Administrator**: Pengguna Google harus didaftarkan terlebih dahulu oleh Super Admin melalui menu **Manajemen Pengguna** (`/admin/users`) atau melalui file seeding `.env`.
+3. **Database Hooks Guard**: Saat pengguna mencoba login dengan Google, Better Auth memvalidasi apakah alamat email sudah ada di tabel `user` dengan status `active`. Jika belum didaftarkan atau status akun `inactive`, sistem otomatis menolak login dengan pesan kesalahan:
+   > *"Akun Google ini belum didaftarkan di sistem. Silakan hubungi Administrator untuk mendaftarkan email Anda."*
+
