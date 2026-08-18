@@ -7,6 +7,7 @@ import {
 	X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { getAssetFacilities } from "#/lib/assets/facilities";
 import { getAssetPublicScheduleFn } from "#/lib/booking/public-fns.functions";
 
 interface ScheduleModalProps {
@@ -16,6 +17,7 @@ interface ScheduleModalProps {
 		type: string;
 		location: string | null;
 		capacity: number;
+		facilities?: string[] | null;
 	} | null;
 	isOpen: boolean;
 	onClose: () => void;
@@ -72,6 +74,8 @@ export function ScheduleModal({ asset, isOpen, onClose }: ScheduleModalProps) {
 
 	if (!isOpen || !asset) return null;
 
+	const facilities = getAssetFacilities(asset);
+
 	const formatRange = (startIso: string, endIso: string) => {
 		const s = new Date(startIso);
 		const e = new Date(endIso);
@@ -102,28 +106,44 @@ export function ScheduleModal({ asset, isOpen, onClose }: ScheduleModalProps) {
 				aria-modal="true"
 			>
 				{/* Modal Header */}
-				<div className="flex items-center justify-between border-b border-border px-5 py-3.5 bg-muted/30">
-					<div className="flex items-center gap-2.5">
-						<div className="flex h-7 w-7 items-center justify-center rounded-md border border-primary/30 bg-primary/10 text-primary">
-							<Calendar className="h-3.5 w-3.5" />
+				<div className="border-b border-border px-5 py-3.5 bg-muted/30 space-y-2.5">
+					<div className="flex items-center justify-between">
+						<div className="flex items-center gap-2.5">
+							<div className="flex h-7 w-7 items-center justify-center rounded-md border border-primary/30 bg-primary/10 text-primary">
+								<Calendar className="h-3.5 w-3.5" />
+							</div>
+							<div>
+								<h3 className="font-mono text-xs font-bold uppercase tracking-wider text-foreground">
+									JADWAL FASILITAS // {asset.name}
+								</h3>
+								<p className="text-[11px] text-muted-foreground">
+									{asset.location || "Gedung Utama PPKASN"} &bull; Kapasitas {asset.capacity} Orang
+								</p>
+							</div>
 						</div>
-						<div>
-							<h3 className="font-mono text-xs font-bold uppercase tracking-wider text-foreground">
-								JADWAL FASILITAS // {asset.name}
-							</h3>
-							<p className="text-[11px] text-muted-foreground">
-								{asset.location || "Gedung Utama PPKASN"} &bull; Kapasitas {asset.capacity} Orang
-							</p>
-						</div>
+						<button
+							type="button"
+							onClick={onClose}
+							className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+							aria-label="Tutup Modal"
+						>
+							<X className="h-4 w-4" />
+						</button>
 					</div>
-					<button
-						type="button"
-						onClick={onClose}
-						className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
-						aria-label="Tutup Modal"
-					>
-						<X className="h-4 w-4" />
-					</button>
+
+					{/* Facility tags */}
+					{facilities.length > 0 && (
+						<div className="flex flex-wrap gap-1 items-center pt-0.5">
+							{facilities.map((fac, idx) => (
+								<span
+									key={idx}
+									className="inline-flex items-center rounded border border-border/70 bg-card/80 px-2 py-0.5 text-[10px] text-foreground/80 font-medium shadow-2xs"
+								>
+									{fac}
+								</span>
+							))}
+						</div>
+					)}
 				</div>
 
 				{/* Privacy Notice Banner */}

@@ -3,9 +3,12 @@ import {
 	AlertCircle,
 	Archive,
 	Calendar,
+	Check,
 	Clock,
 	Edit2,
 	Plus,
+	Sparkles,
+	Tag,
 	X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -16,6 +19,10 @@ import {
 	saveAssetFn,
 	saveAssetSchedulesFn,
 } from "#/lib/assets/assets.functions";
+import {
+	CATEGORY_FACILITY_PRESETS,
+	getAssetFacilities,
+} from "#/lib/assets/facilities";
 import {
 	ASSET_TYPE_LABELS,
 	ASSET_TYPES,
@@ -35,6 +42,7 @@ type Asset = {
 	location?: string | null;
 	capacity: number;
 	roomLayouts?: Array<{ id: string; name: string; maxCapacity: number }> | null;
+	facilities?: string[] | null;
 	status: string;
 	createdAt: string | Date;
 };
@@ -62,6 +70,8 @@ function AdminAssetsComponent() {
 	const [formType, setFormType] = useState<string>("room");
 	const [formLocation, setFormLocation] = useState("");
 	const [formCapacity, setFormCapacity] = useState(50);
+	const [formFacilities, setFormFacilities] = useState<string[]>([]);
+	const [customTagInput, setCustomTagInput] = useState("");
 	const [formStatus, setFormStatus] = useState("active");
 	const [formError, setFormError] = useState<string | null>(null);
 	const [formLoading, setFormLoading] = useState(false);
@@ -119,6 +129,8 @@ function AdminAssetsComponent() {
 		setFormType("room");
 		setFormLocation("");
 		setFormCapacity(50);
+		setFormFacilities([]);
+		setCustomTagInput("");
 		setFormLayoutIslandEnabled(true);
 		setFormLayoutIslandCap(35);
 		setFormLayoutUshapeEnabled(true);
@@ -136,6 +148,8 @@ function AdminAssetsComponent() {
 		setFormType(asset.type);
 		setFormLocation(asset.location || "");
 		setFormCapacity(asset.capacity);
+		setFormFacilities(asset.facilities ? [...asset.facilities] : []);
+		setCustomTagInput("");
 		setFormStatus(asset.status);
 
 		if (asset.roomLayouts !== undefined && asset.roomLayouts !== null) {
@@ -173,6 +187,36 @@ function AdminAssetsComponent() {
 		}
 	};
 
+	const handleAddTag = (tagToAdd: string) => {
+		const trimmed = tagToAdd.trim();
+		if (!trimmed) return;
+		if (formFacilities.some((t) => t.toLowerCase() === trimmed.toLowerCase())) {
+			return;
+		}
+		if (formFacilities.length >= 20) {
+			return;
+		}
+		setFormFacilities((prev) => [...prev, trimmed.slice(0, 40)]);
+		setCustomTagInput("");
+	};
+
+	const handleRemoveTag = (tagToRemove: string) => {
+		setFormFacilities((prev) => prev.filter((t) => t !== tagToRemove));
+	};
+
+	const handleTogglePreset = (presetTag: string) => {
+		const exists = formFacilities.some(
+			(t) => t.toLowerCase() === presetTag.toLowerCase(),
+		);
+		if (exists) {
+			setFormFacilities((prev) =>
+				prev.filter((t) => t.toLowerCase() !== presetTag.toLowerCase()),
+			);
+		} else {
+			handleAddTag(presetTag);
+		}
+	};
+
 	const handleSaveAsset = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!formName || formCapacity <= 0) {
@@ -205,6 +249,7 @@ function AdminAssetsComponent() {
 					location: formLocation,
 					capacity: formCapacity,
 					roomLayouts: formType === "room" ? roomLayoutsList : null,
+					facilities: formFacilities,
 					status: formStatus,
 				},
 			});
@@ -418,7 +463,36 @@ function AdminAssetsComponent() {
 								paginatedAssets.map((asset) => (
 									<tr key={asset.id} className="hover:bg-muted/30 transition-colors">
 										<td className="p-4 font-medium text-foreground">
-											{asset.name}
+											<div className="flex flex-col gap-1">
+												<span>{asset.name}</span>
+												{(() => {
+													const facs = getAssetFacilities(asset);
+													const isCustom = Boolean(
+														asset.facilities && asset.facilities.length > 0,
+													);
+													return (
+														<div className="flex flex-wrap gap-1 items-center">
+															{facs.slice(0, 3).map((f) => (
+																<span
+																	key={f}
+																	className={`px-1.5 py-0.5 text-[9px] rounded font-medium border ${
+																		isCustom
+																			? "bg-primary/10 text-primary border-primary/20"
+																			: "bg-muted text-muted-foreground border-border"
+																	}`}
+																>
+																	{f}
+																</span>
+															))}
+															{facs.length > 3 && (
+																<span className="text-[9px] text-muted-foreground font-mono">
+																	+{facs.length - 3} lainnya
+																</span>
+															)}
+														</div>
+													);
+												})()}
+											</div>
 										</td>
 										<td className="p-4">{getAssetTypeBadge(asset.type)}</td>
 										<td className="p-4 text-muted-foreground">
@@ -707,6 +781,110 @@ function AdminAssetsComponent() {
 								</div>
 							</div>
 						)}
+
+						{/* Facilities & Amenities Tags Editor */}
+						<div className="p-3.5 bg-muted/40 border border-border rounded-lg flex flex-col gap-3">
+							<div className="flex items-center justify-between">
+								<label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+									<Tag size={14} className="text-primary" />
+									<span>Fasilitas & Kelengkapan (Tags/Badges)</span>
+								</label>
+								<span className="text-[10px] text-muted-foreground font-mono">
+									{formFacilities.length}/20 Tag
+								</span>
+							</div>
+							<p className="text-[11px] text-muted-foreground leading-tight">
+								Pilih rekomendasi fasilitas untuk tipe {ASSET_TYPE_LABELS[formType as AssetType] || formType} atau ketik tag kustom (misal: "Smart TV 75\"", "Wi-Fi Cepat", "Kamar Mandi Dalam").
+							</p>
+
+							{/* Active Tags */}
+							<div className="flex flex-wrap gap-1.5 min-h-[32px] p-2 bg-background border border-border rounded-md items-center">
+								{formFacilities.length === 0 ? (
+									<span className="text-xs text-muted-foreground/60 italic">
+										Belum ada fasilitas kustom (akan menggunakan fasilitas default kategori).
+									</span>
+								) : (
+									formFacilities.map((tag) => (
+										<span
+											key={tag}
+											className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-primary/10 text-primary border border-primary/20 rounded-md animate-in fade-in zoom-in-95 duration-100"
+										>
+											{tag}
+											<button
+												type="button"
+												onClick={() => handleRemoveTag(tag)}
+												className="hover:text-destructive hover:bg-destructive/10 rounded p-0.5 transition-colors cursor-pointer"
+												title={`Hapus tag ${tag}`}
+											>
+												<X size={12} />
+											</button>
+										</span>
+									))
+								)}
+							</div>
+
+							{/* Category Preset Quick Suggestions */}
+							{CATEGORY_FACILITY_PRESETS[formType as AssetType] && (
+								<div className="flex flex-col gap-1.5">
+									<div className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
+										<Sparkles size={12} className="text-amber-500" />
+										<span>Rekomendasi Cepat ({ASSET_TYPE_LABELS[formType as AssetType]}):</span>
+									</div>
+									<div className="flex flex-wrap gap-1.5">
+										{CATEGORY_FACILITY_PRESETS[formType as AssetType].map((preset) => {
+											const isSelected = formFacilities.some(
+												(t) => t.toLowerCase() === preset.toLowerCase(),
+											);
+											return (
+												<button
+													key={preset}
+													type="button"
+													onClick={() => handleTogglePreset(preset)}
+													className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded border transition-colors cursor-pointer ${
+														isSelected
+															? "bg-primary text-primary-foreground border-primary font-medium shadow-2xs"
+															: "bg-background text-foreground border-border hover:bg-muted"
+													}`}
+												>
+													{isSelected && <Check size={10} />}
+													<span>{preset}</span>
+												</button>
+											);
+										})}
+									</div>
+								</div>
+							)}
+
+							{/* Custom Tag Input */}
+							<div className="flex gap-2 items-center pt-1">
+								<input
+									type="text"
+									disabled={formLoading || formFacilities.length >= 20}
+									value={customTagInput}
+									onChange={(e) => setCustomTagInput(e.target.value)}
+									onKeyDown={(e) => {
+										if (e.key === "Enter") {
+											e.preventDefault();
+											handleAddTag(customTagInput);
+										}
+									}}
+									placeholder={
+										formFacilities.length >= 20
+											? "Maksimal 20 tag tercapai"
+											: "Ketik tag kustom & tekan Enter..."
+									}
+									className="flex-1 px-3 py-1.5 bg-background border border-border rounded-md text-xs text-foreground placeholder:text-muted-foreground/60 outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+								/>
+								<button
+									type="button"
+									disabled={formLoading || !customTagInput.trim() || formFacilities.length >= 20}
+									onClick={() => handleAddTag(customTagInput)}
+									className="px-3 py-1.5 bg-secondary text-secondary-foreground text-xs font-semibold rounded-md hover:bg-secondary/80 disabled:opacity-40 cursor-pointer"
+								>
+									Tambah
+								</button>
+							</div>
+						</div>
 
 						<div className="flex flex-col gap-1">
 							<label

@@ -9,6 +9,7 @@ import {
 	auditLogs,
 } from "../../db/schema";
 import { authMiddleware, requireMinRole } from "../auth.middleware";
+import { sanitizeFacilities } from "./facilities";
 
 export const getAssetsListFn = createServerFn({ method: "GET" })
 	.middleware([authMiddleware])
@@ -46,6 +47,7 @@ export const saveAssetFn = createServerFn({ method: "POST" })
 			location?: string;
 			capacity: number;
 			roomLayouts?: Array<{ id: string; name: string; maxCapacity: number }> | null;
+			facilities?: string[] | null;
 			status: string;
 		}) => data,
 	)
@@ -55,6 +57,7 @@ export const saveAssetFn = createServerFn({ method: "POST" })
 		}
 
 		let assetId = data.id;
+		const sanitizedFacilities = sanitizeFacilities(data.facilities);
 
 		if (assetId) {
 			// Update
@@ -66,6 +69,7 @@ export const saveAssetFn = createServerFn({ method: "POST" })
 					location: data.location || null,
 					capacity: data.capacity,
 					roomLayouts: data.type === "room" ? (data.roomLayouts || null) : null,
+					facilities: sanitizedFacilities,
 					status: data.status,
 					updatedAt: new Date(),
 				})
@@ -77,7 +81,12 @@ export const saveAssetFn = createServerFn({ method: "POST" })
 				action: "asset.update",
 				entityType: "asset",
 				entityId: assetId,
-				metadata: { updatedValues: data },
+				metadata: {
+					updatedValues: {
+						...data,
+						facilities: sanitizedFacilities,
+					},
+				},
 			});
 		} else {
 			// Create
@@ -89,6 +98,7 @@ export const saveAssetFn = createServerFn({ method: "POST" })
 					location: data.location || null,
 					capacity: data.capacity,
 					roomLayouts: data.type === "room" ? (data.roomLayouts || null) : null,
+					facilities: sanitizedFacilities,
 					status: data.status,
 				})
 				.returning();
@@ -101,7 +111,12 @@ export const saveAssetFn = createServerFn({ method: "POST" })
 				action: "asset.create",
 				entityType: "asset",
 				entityId: assetId,
-				metadata: { createdValues: data },
+				metadata: {
+					createdValues: {
+						...data,
+						facilities: sanitizedFacilities,
+					},
+				},
 			});
 		}
 

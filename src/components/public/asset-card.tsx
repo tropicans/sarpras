@@ -1,18 +1,17 @@
 import { Link } from "@tanstack/react-router";
 import {
-	AlertTriangle,
 	ArrowUpRight,
 	BedDouble,
 	Building,
 	Calendar,
 	Car,
 	CheckCircle2,
-	Clock,
 	DoorOpen,
 	MapPin,
 	Package,
 	XCircle,
 } from "lucide-react";
+import { getAssetFacilities } from "#/lib/assets/facilities";
 import { ASSET_TYPE_LABELS, type AssetType } from "#/lib/booking/types";
 
 export interface PublicAssetItem {
@@ -21,6 +20,7 @@ export interface PublicAssetItem {
 	type: string;
 	location: string | null;
 	capacity: number;
+	facilities?: string[] | null;
 	status: string;
 }
 
@@ -250,7 +250,7 @@ export function AssetCard({
 
 					{/* Visual Feature Tags */}
 					<div className="flex flex-wrap gap-1 pt-1">
-						{theme.tags.map((tag, idx) => (
+						{getAssetFacilities(asset).map((tag, idx) => (
 							<span
 								key={idx}
 								className="inline-flex items-center rounded border border-border/60 bg-muted/40 px-2 py-0.5 text-[10px] text-muted-foreground font-medium"

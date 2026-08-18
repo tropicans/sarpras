@@ -23,6 +23,7 @@ import { SuccessCard } from "#/components/booking/success-card";
 import { WizardStepper } from "#/components/booking/wizard-stepper";
 import { PublicFooter } from "#/components/public/public-footer";
 import { PublicHeader } from "#/components/public/public-header";
+import { getAssetFacilities } from "#/lib/assets/facilities";
 import {
 	getPublicAssetByIdFn,
 	getPublicAssetsListFn,
@@ -229,8 +230,8 @@ function BookingWizardPage() {
 						<>
 							{/* Asset Header Info Card */}
 							<div className="rounded-lg border border-border bg-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-								<div className="space-y-1">
-									<div className="flex items-center gap-2">
+								<div className="space-y-2">
+									<div className="flex items-center gap-2 flex-wrap">
 										<span className="inline-flex items-center gap-1.5 rounded border border-primary/30 bg-primary/10 px-2 py-0.5 font-mono text-[11px] font-semibold text-primary">
 											{getTypeIcon()}
 											<span>{typeLabel.toUpperCase()}</span>
@@ -248,9 +249,26 @@ function BookingWizardPage() {
 									<h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
 										Formulir Peminjaman: {asset.name}
 									</h1>
+									{/* Dynamic Facility Badges */}
+									{(() => {
+										const facilities = getAssetFacilities(asset);
+										if (facilities.length === 0) return null;
+										return (
+											<div className="flex flex-wrap gap-1.5 pt-0.5">
+												{facilities.map((tag, idx) => (
+													<span
+														key={idx}
+														className="inline-flex items-center rounded border border-border/70 bg-muted/40 px-2 py-0.5 text-[10px] text-muted-foreground font-medium"
+													>
+														{tag}
+													</span>
+												))}
+											</div>
+										);
+									})()}
 								</div>
 
-								<div className="flex items-center gap-2 font-mono text-xs">
+								<div className="flex items-center gap-2 font-mono text-xs shrink-0">
 									<div className="flex items-center gap-1.5 rounded border border-border bg-muted/40 px-3 py-1.5">
 										<Users className="h-3.5 w-3.5 text-primary" />
 										<span className="font-semibold">

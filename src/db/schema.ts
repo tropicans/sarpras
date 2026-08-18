@@ -109,6 +109,7 @@ export const assets = pgTable("assets", {
 		jsonb("room_layouts").$type<
 			Array<{ id: string; name: string; maxCapacity: number }>
 		>(),
+	facilities: jsonb("facilities").$type<string[]>(),
 	status: text("status").default("active").notNull(), // active, archived, inactive
 	legacyId: text("legacy_id").unique(),
 	createdAt: timestamp("created_at", { withTimezone: true })

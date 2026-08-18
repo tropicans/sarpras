@@ -7,7 +7,7 @@
 - **v1.2 WhatsApp Notification Integration** — Phase 7 (Shipped 2026-08-16)
 - **v1.3 Dual-Channel Notification Integration** — Phase 8 (Shipped 2026-08-17)
 - **v1.4 Google 2FA & Account Security** — Phase 9 (Shipped 2026-08-18)
-- **v1.5 Dynamic Asset Facilities & Tags** — Phase 10 (Current)
+- **v1.5 Dynamic Asset Facilities & Tags** — Phase 10 (Shipped 2026-08-18)
 
 ---
 

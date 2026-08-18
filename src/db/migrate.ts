@@ -16,6 +16,9 @@ export async function runMigrations() {
 		sql`ALTER TABLE "assets" ADD COLUMN IF NOT EXISTS "room_layouts" jsonb;`,
 	);
 	await db.execute(
+		sql`ALTER TABLE "assets" ADD COLUMN IF NOT EXISTS "facilities" jsonb;`,
+	);
+	await db.execute(
 		sql`ALTER TABLE "bookings" ADD COLUMN IF NOT EXISTS "room_layout" text;`,
 	);
 	await db.execute(

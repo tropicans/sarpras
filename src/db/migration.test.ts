@@ -127,7 +127,42 @@ test("Phase 1 Canonical Data & Migration Tests", async (t) => {
 		},
 	);
 
+	await t.test(
+		"ASSET-FAC-01 & ASSET-FAC-02: Assets facilities JSONB column persistence",
+		async () => {
+			const testFacilities = [
+				"Smart TV 75\"",
+				"Proyektor Laser",
+				"Sound System",
+			];
+			const testAssetLegacyId = `${testPrefix}asset-facilities`;
+
+			const [inserted] = await db
+				.insert(assets)
+				.values({
+					name: "Auditorium VIP",
+					type: "room",
+					capacity: 50,
+					facilities: testFacilities,
+					legacyId: testAssetLegacyId,
+				})
+				.returning();
+
+			assert.ok(inserted.id);
+			assert.deepStrictEqual(inserted.facilities, testFacilities);
+
+			const fetched = await db
+				.select()
+				.from(assets)
+				.where(eq(assets.legacyId, testAssetLegacyId));
+
+			assert.strictEqual(fetched.length, 1);
+			assert.deepStrictEqual(fetched[0].facilities, testFacilities);
+		},
+	);
+
 	// Post-test cleanup
 	await db.delete(bookings).where(like(bookings.legacyId, `${testPrefix}%`));
 	await db.delete(assets).where(like(assets.legacyId, `${testPrefix}%`));
 });
+
