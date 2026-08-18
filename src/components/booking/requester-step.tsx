@@ -1,5 +1,6 @@
 import { Building, FileText, Mail, Phone, User } from "lucide-react";
 import { useState } from "react";
+import { normalizePhoneNumber } from "#/lib/whatsapp/phone";
 
 export interface RequesterStepData {
 	requesterName: string;
@@ -40,7 +41,12 @@ export function RequesterStep({
 		} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
 			newErrors.email = "Format email tidak valid";
 		}
-		if (!phone.trim()) newErrors.phone = "Nomor WhatsApp / telepon wajib diisi";
+		if (!phone.trim()) {
+			newErrors.phone = "Nomor WhatsApp wajib diisi";
+		} else if (normalizePhoneNumber(phone.trim()) === null) {
+			newErrors.phone =
+				"Format nomor WhatsApp tidak valid (contoh: 08123456789 atau 628123456789)";
+		}
 		if (!organization.trim())
 			newErrors.organization = "Unit kerja / instansi wajib diisi";
 		if (!purpose.trim())
@@ -122,10 +128,15 @@ export function RequesterStep({
 					{/* Phone & Organization */}
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 						<div className="space-y-1">
-							<label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
-								<Phone className="h-3.5 w-3.5 text-primary" />
-								Nomor WhatsApp
-							</label>
+							<div className="flex items-center justify-between">
+								<label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
+									<Phone className="h-3.5 w-3.5 text-primary" />
+									Nomor WhatsApp
+								</label>
+								<span className="text-[10px] text-muted-foreground">
+									Contoh: 08123456789
+								</span>
+							</div>
 							<input
 								type="tel"
 								value={phone}
@@ -133,8 +144,21 @@ export function RequesterStep({
 									setPhone(e.target.value);
 									if (errors.phone) setErrors({ ...errors, phone: "" });
 								}}
+								onBlur={() => {
+									if (phone.trim() && normalizePhoneNumber(phone.trim()) === null) {
+										setErrors((prev) => ({
+											...prev,
+											phone:
+												"Format nomor WhatsApp tidak valid (contoh: 08123456789 atau 628123456789)",
+										}));
+									}
+								}}
 								placeholder="081234567890"
-								className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-sans"
+								className={`w-full rounded-md border bg-background px-3 py-2 text-xs text-foreground focus:outline-hidden font-sans ${
+									errors.phone
+										? "border-destructive focus:border-destructive"
+										: "border-border focus:border-primary"
+								}`}
 							/>
 							{errors.phone && (
 								<p className="text-[11px] text-destructive">{errors.phone}</p>

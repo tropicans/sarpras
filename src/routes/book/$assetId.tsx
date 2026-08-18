@@ -178,9 +178,14 @@ function BookingWizardPage() {
 			setConfirmedBookingId(res.groupId || res.bookings[0]?.id || "");
 			setCurrentStep("success");
 		} catch (err: any) {
-			setSubmitError(
-				err.message || "Terjadi kesalahan saat mengirim pengajuan.",
-			);
+			let message = err?.message || "Terjadi kesalahan saat mengirim pengajuan.";
+			try {
+				const parsed = JSON.parse(message);
+				if (Array.isArray(parsed) && parsed.length > 0) {
+					message = parsed.map((p: any) => p.message || p.code).join(", ");
+				}
+			} catch {}
+			setSubmitError(message);
 		} finally {
 			setIsSubmitting(false);
 		}
