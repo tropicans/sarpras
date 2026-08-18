@@ -21,4 +21,4 @@
 
 | Phase | Plans | Status | Completed At |
 |-------|-------|--------|--------------|
-| **Phase 9: Google 2FA Fix & Multi-Factor Security** | 0/1 | Ready | — |
+| **Phase 9: Google 2FA Fix & Multi-Factor Security** | 0/1 | Planned | — |
