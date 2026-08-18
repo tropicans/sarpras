@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
+import { twoFactor } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { eq } from "drizzle-orm";
 import { db } from "./client.server";
@@ -14,9 +15,15 @@ export const auth = betterAuth({
 			session: schema.sessions,
 			account: schema.accounts,
 			verification: schema.verifications,
+			twoFactor: schema.twoFactors,
 		},
 	}),
-	plugins: [tanstackStartCookies()],
+	plugins: [
+		tanstackStartCookies(),
+		twoFactor({
+			issuer: "SARPRAS PPKASN",
+		}),
+	],
 	account: {
 		accountLinking: {
 			enabled: true,

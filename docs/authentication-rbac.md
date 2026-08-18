@@ -104,3 +104,25 @@ Untuk mencegah sembarang akun Gmail/Google publik dapat masuk ke sistem, sistem 
 3. **Database Hooks Guard**: Saat pengguna mencoba login dengan Google, Better Auth memvalidasi apakah alamat email sudah ada di tabel `user` dengan status `active`. Jika belum didaftarkan atau status akun `inactive`, sistem otomatis menolak login dengan pesan kesalahan:
    > *"Akun Google ini belum didaftarkan di sistem. Silakan hubungi Administrator untuk mendaftarkan email Anda."*
 
+---
+
+## 📱 Two-Factor Authentication (Google Authenticator / TOTP)
+
+SARPRAS mengintegrasikan plugin **`twoFactor`** Better Auth untuk menyediakan lapisan keamanan ganda berbasis TOTP:
+
+```mermaid
+graph LR
+    A[Masuk dengan Google] --> B{2FA Aktif?}
+    B -->|Tidak| C[Masuk ke Dasbor /admin]
+    B -->|Ya| D[Halaman /two-factor]
+    D -->|Input 6-Digit PIN / Backup Code| E{Kode Valid?}
+    E -->|Ya| C
+    E -->|Salah/Kedaluwarsa| D
+```
+
+1. **Aktivasi Mandiri**: Staf dapat mengaktifkan atau menonaktifkan 2FA melalui tombol **"KEAMANAN 2FA"** di bilah navigasi samping dasbor admin.
+2. **Pindai QR Code**: Sistem menghasilkan QR Code yang dapat langsung dipindai menggunakan aplikasi **Google Authenticator**, **Microsoft Authenticator**, atau **Authy**.
+3. **Kode Cadangan Darurat (Backup Codes)**: Saat 2FA diaktifkan, sistem memberikan 10 kode cadangan sekali pakai (*one-time use*) yang dapat disimpan petugas untuk mengakses akun jika ponsel hilang/tidak tersedia.
+4. **Verifikasi Login**: Setiap kali login Google, jika akun mengaktifkan 2FA, sistem otomatis mengarahkan ke rute `/two-factor` untuk memvalidasi kode 6-digit sebelum memberikan tiket sesi resmi.
+
+

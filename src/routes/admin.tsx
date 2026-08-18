@@ -12,8 +12,11 @@ import {
 	LayoutDashboard,
 	LogOut,
 	ScrollText,
+	ShieldCheck,
 	Users,
 } from "lucide-react";
+import { useState } from "react";
+import { TwoFactorSetupModal } from "#/components/admin/two-factor-setup-modal";
 import { ThemeToggle } from "#/components/ui/theme-toggle";
 import { getSessionFn } from "#/lib/auth.middleware";
 import { authClient } from "#/lib/auth-client";
@@ -38,6 +41,10 @@ export const Route = createFileRoute("/admin")({
 function AdminLayout() {
 	const { user } = Route.useRouteContext();
 	const navigate = useNavigate();
+	const [twoFactorModalOpen, setTwoFactorModalOpen] = useState(false);
+	const [isTwoFactorEnabled, setIsTwoFactorEnabled] = useState(
+		(user as any)?.twoFactorEnabled ?? false,
+	);
 
 	const handleLogout = async () => {
 		await authClient.signOut();
@@ -173,7 +180,27 @@ function AdminLayout() {
 					</nav>
 				</div>
 
-				<div className="pt-3 border-t border-border font-mono">
+				<div className="pt-3 border-t border-border font-mono flex flex-col gap-1">
+					<button
+						type="button"
+						onClick={() => setTwoFactorModalOpen(true)}
+						className="flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors w-full text-left cursor-pointer"
+					>
+						<div className="flex items-center gap-2">
+							<ShieldCheck size={15} className={isTwoFactorEnabled ? "text-emerald-500" : "text-zinc-400"} />
+							<span>KEAMANAN 2FA</span>
+						</div>
+						<span
+							className={`text-[9px] px-1.5 py-0.2 rounded font-bold ${
+								isTwoFactorEnabled
+									? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+									: "bg-muted text-muted-foreground"
+							}`}
+						>
+							{isTwoFactorEnabled ? "AKTIF" : "OFF"}
+						</span>
+					</button>
+
 					<button
 						type="button"
 						onClick={handleLogout}
@@ -189,6 +216,14 @@ function AdminLayout() {
 			<main className="flex-1 bg-background p-6 lg:p-8 overflow-y-auto">
 				<Outlet />
 			</main>
+
+			{/* Two-Factor Authentication Setup / Management Modal */}
+			<TwoFactorSetupModal
+				isOpen={twoFactorModalOpen}
+				onClose={() => setTwoFactorModalOpen(false)}
+				userTwoFactorEnabled={isTwoFactorEnabled}
+				onStatusChange={(enabled) => setIsTwoFactorEnabled(enabled)}
+			/>
 		</div>
 	);
 }

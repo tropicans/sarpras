@@ -23,6 +23,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as BookAssetIdRouteImport } from './routes/book/$assetId'
 import { Route as StatusIndexRouteImport } from './routes/status/index'
 import { Route as StatusRefRouteImport } from './routes/status/$ref'
+import { Route as TwoFactorRouteImport } from './routes/two-factor'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -43,6 +44,11 @@ const CheckBookingRoute = CheckBookingRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TwoFactorRoute = TwoFactorRouteImport.update({
+  id: '/two-factor',
+  path: '/two-factor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -106,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/check-booking': typeof CheckBookingRoute
   '/login': typeof LoginRoute
+  '/two-factor': typeof TwoFactorRoute
   '/admin/approval': typeof AdminApprovalRoute
   '/admin/assets': typeof AdminAssetsRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/check-booking': typeof CheckBookingRoute
   '/login': typeof LoginRoute
+  '/two-factor': typeof TwoFactorRoute
   '/admin/approval': typeof AdminApprovalRoute
   '/admin/assets': typeof AdminAssetsRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/check-booking': typeof CheckBookingRoute
   '/login': typeof LoginRoute
+  '/two-factor': typeof TwoFactorRoute
   '/admin/approval': typeof AdminApprovalRoute
   '/admin/assets': typeof AdminAssetsRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -210,6 +219,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   CheckBookingRoute: typeof CheckBookingRoute
   LoginRoute: typeof LoginRoute
+  TwoFactorRoute: typeof TwoFactorRoute
   BookAssetIdRoute: typeof BookAssetIdRoute
   StatusRefRoute: typeof StatusRefRoute
   StatusIndexRoute: typeof StatusIndexRoute
@@ -244,6 +254,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/two-factor': {
+      id: '/two-factor'
+      path: '/two-factor'
+      fullPath: '/two-factor'
+      preLoaderRoute: typeof TwoFactorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -353,6 +370,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   CheckBookingRoute: CheckBookingRoute,
   LoginRoute: LoginRoute,
+  TwoFactorRoute: TwoFactorRoute,
   BookAssetIdRoute: BookAssetIdRoute,
   StatusRefRoute: StatusRefRoute,
   StatusIndexRoute: StatusIndexRoute,

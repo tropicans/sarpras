@@ -21,6 +21,7 @@ export const users = pgTable("user", {
 	role: text("role").default("operator").notNull(), // admin, operator, pimpinan
 	status: text("status").default("active").notNull(), // active, inactive
 	mustResetPassword: boolean("must_reset_password").default(false).notNull(),
+	twoFactorEnabled: boolean("two_factor_enabled").default(false).notNull(),
 	legacyId: text("legacy_id").unique(),
 	createdAt: timestamp("created_at", { withTimezone: true })
 		.defaultNow()
@@ -82,6 +83,17 @@ export const verifications = pgTable("verification", {
 	expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true }),
 	updatedAt: timestamp("updated_at", { withTimezone: true }),
+});
+
+export const twoFactors = pgTable("two_factor", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
+	secret: text("secret").notNull(),
+	backupCodes: text("backup_codes").notNull(),
+	userId: text("user_id")
+		.notNull()
+		.references(() => users.id, { onDelete: "cascade" }),
 });
 
 // --- Sarpras PPKASN Core Tables ---
