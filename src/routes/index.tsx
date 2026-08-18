@@ -32,6 +32,7 @@ import {
 	checkCatalogAvailabilityFn,
 	getPublicAssetsListFn,
 } from "#/lib/booking/public-fns.functions";
+import { ASSET_TYPE_LABELS, type AssetType } from "#/lib/booking/types";
 
 export const Route = createFileRoute("/")({
 	loader: async () => {
@@ -140,6 +141,38 @@ function HomePage() {
 		const vehicleCount = assets.filter((a) => a.type === "vehicle").length;
 		const otherCount = assets.length - (roomCount + dormCount + vehicleCount);
 		return { roomCount, dormCount, vehicleCount, otherCount, total: assets.length };
+	}, [assets]);
+
+	// Dynamic category list based on existing assets in database
+	const availableCategories = useMemo(() => {
+		const order: AssetType[] = [
+			"room",
+			"dormitory",
+			"field",
+			"vehicle",
+			"equipment",
+		];
+		const counts: Record<string, number> = {};
+		for (const a of assets) {
+			counts[a.type] = (counts[a.type] || 0) + 1;
+		}
+
+		// Sort by predefined order first, then any extra custom types
+		const existingTypes = Object.keys(counts);
+		existingTypes.sort((a, b) => {
+			const idxA = order.indexOf(a as AssetType);
+			const idxB = order.indexOf(b as AssetType);
+			if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+			if (idxA !== -1) return -1;
+			if (idxB !== -1) return 1;
+			return a.localeCompare(b);
+		});
+
+		return existingTypes.map((type) => ({
+			type,
+			label: ASSET_TYPE_LABELS[type as AssetType] || type.toUpperCase(),
+			count: counts[type],
+		}));
 	}, [assets]);
 
 	const filteredAssets = useMemo(() => {
@@ -433,63 +466,22 @@ function HomePage() {
 												: "text-muted-foreground hover:text-foreground"
 										}`}
 									>
-										ALL ({assets.length})
+										SEMUA ({assets.length})
 									</button>
-									<button
-										type="button"
-										onClick={() => setTypeFilter("room")}
-										className={`rounded-md px-2.5 py-1 transition-colors cursor-pointer ${
-											typeFilter === "room"
-												? "bg-card text-foreground font-semibold shadow-2xs"
-												: "text-muted-foreground hover:text-foreground"
-										}`}
-									>
-										ROOM
-									</button>
-									<button
-										type="button"
-										onClick={() => setTypeFilter("dormitory")}
-										className={`rounded-md px-2.5 py-1 transition-colors cursor-pointer ${
-											typeFilter === "dormitory"
-												? "bg-card text-foreground font-semibold shadow-2xs"
-												: "text-muted-foreground hover:text-foreground"
-										}`}
-									>
-										ASRAMA
-									</button>
-									<button
-										type="button"
-										onClick={() => setTypeFilter("field")}
-										className={`rounded-md px-2.5 py-1 transition-colors cursor-pointer ${
-											typeFilter === "field"
-												? "bg-card text-foreground font-semibold shadow-2xs"
-												: "text-muted-foreground hover:text-foreground"
-										}`}
-									>
-										LAPANGAN
-									</button>
-									<button
-										type="button"
-										onClick={() => setTypeFilter("vehicle")}
-										className={`rounded-md px-2.5 py-1 transition-colors cursor-pointer ${
-											typeFilter === "vehicle"
-												? "bg-card text-foreground font-semibold shadow-2xs"
-												: "text-muted-foreground hover:text-foreground"
-										}`}
-									>
-										MOBIL
-									</button>
-									<button
-										type="button"
-										onClick={() => setTypeFilter("equipment")}
-										className={`rounded-md px-2.5 py-1 transition-colors cursor-pointer ${
-											typeFilter === "equipment"
-												? "bg-card text-foreground font-semibold shadow-2xs"
-												: "text-muted-foreground hover:text-foreground"
-										}`}
-									>
-										ALAT
-									</button>
+									{availableCategories.map((cat) => (
+										<button
+											key={cat.type}
+											type="button"
+											onClick={() => setTypeFilter(cat.type)}
+											className={`rounded-md px-2.5 py-1 transition-colors cursor-pointer uppercase ${
+												typeFilter === cat.type
+													? "bg-card text-foreground font-semibold shadow-2xs"
+													: "text-muted-foreground hover:text-foreground"
+											}`}
+										>
+											{cat.label} ({cat.count})
+										</button>
+									))}
 								</div>
 							</div>
 						</div>
