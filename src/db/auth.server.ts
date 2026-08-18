@@ -22,6 +22,7 @@ export const auth = betterAuth({
 		tanstackStartCookies(),
 		twoFactor({
 			issuer: "SARPRAS PPKASN",
+			allowPasswordless: true,
 		}),
 	],
 	account: {

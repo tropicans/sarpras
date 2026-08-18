@@ -46,9 +46,7 @@ export function TwoFactorSetupModal({
 		setError(null);
 		try {
 			// Call Better Auth twoFactor enable endpoint
-			const res = await (authClient as any).twoFactor.enable({
-				password: "", // Not required for passwordless OAuth
-			});
+			const res = await (authClient as any).twoFactor.enable({});
 
 			if (res.error) {
 				throw new Error(res.error.message || "Gagal menginisialisasi 2FA.");
@@ -109,9 +107,7 @@ export function TwoFactorSetupModal({
 		setLoading(true);
 		setError(null);
 		try {
-			const res = await (authClient as any).twoFactor.disable({
-				password: "",
-			});
+			const res = await (authClient as any).twoFactor.disable({});
 
 			if (res.error) {
 				throw new Error(res.error.message || "Gagal menonaktifkan 2FA.");

@@ -12,11 +12,16 @@ test("Two-Factor Authentication (TOTP) Server Configuration & Schema Tests", () 
 	const twoFactorPlugin = plugins.find((p: any) => p.id === "two-factor");
 	assert.ok(twoFactorPlugin, "twoFactor plugin must be registered in Better Auth");
 
-	// 2. Verify issuer is configured
+	// 2. Verify issuer and allowPasswordless are configured
 	assert.strictEqual(
 		twoFactorPlugin.options?.issuer,
 		"SARPRAS PPKASN",
 		"twoFactor issuer should be 'SARPRAS PPKASN'",
+	);
+	assert.strictEqual(
+		twoFactorPlugin.options?.allowPasswordless,
+		true,
+		"twoFactor allowPasswordless should be true to support OAuth / passwordless 2FA enablement",
 	);
 
 	// 3. Verify two_factor schema table definition
