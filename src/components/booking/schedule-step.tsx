@@ -152,6 +152,29 @@ export function ScheduleStep({
 				return;
 			}
 
+			// Check intra-form overlap with additional sessions for the same asset
+			if (isRoom) {
+				const curStart = new Date(startIso);
+				const curEnd = new Date(endIso);
+				for (const extra of additionalRooms) {
+					if (
+						extra.asset.id === asset.id &&
+						extra.schedule.startDate &&
+						extra.schedule.endDate
+					) {
+						const extraStart = new Date(extra.schedule.startDate);
+						const extraEnd = new Date(extra.schedule.endDate);
+						if (curStart < extraEnd && curEnd > extraStart) {
+							setAvailabilityResult({
+								available: false,
+								reason: `Jadwal bertabrakan dengan sesi tambahan untuk ${asset.name} pada formulir.`,
+							});
+							return;
+						}
+					}
+				}
+			}
+
 			setChecking(true);
 			try {
 				const res = await checkAvailabilityPreflightFn({
@@ -433,10 +456,13 @@ export function ScheduleStep({
 								<AdditionalRoomCard
 									key={item.id}
 									item={item}
-									parentStartDate={startDateStr}
-									parentEndDate={endDateStr}
-									parentStartTime={startTime}
-									parentEndTime={endTime}
+									primaryAssetId={asset.id}
+									primaryAssetName={asset.name}
+									primaryStartDate={startDateStr}
+									primaryEndDate={endDateStr}
+									primaryStartTime={startTime}
+									primaryEndTime={endTime}
+									allAdditionalRooms={additionalRooms}
 									onUpdate={(upd) => onUpdateAdditionalRoom(item.id, upd)}
 									onRemove={() => onRemoveRoom(item.id)}
 								/>
@@ -503,18 +529,24 @@ export function ScheduleStep({
 
 function AdditionalRoomCard({
 	item,
-	parentStartDate,
-	parentEndDate,
-	parentStartTime,
-	parentEndTime,
+	primaryAssetId,
+	primaryAssetName,
+	primaryStartDate,
+	primaryEndDate,
+	primaryStartTime,
+	primaryEndTime,
+	allAdditionalRooms,
 	onUpdate,
 	onRemove,
 }: {
 	item: AdditionalRoomSelection;
-	parentStartDate: string;
-	parentEndDate: string;
-	parentStartTime: string;
-	parentEndTime: string;
+	primaryAssetId: string;
+	primaryAssetName: string;
+	primaryStartDate: string;
+	primaryEndDate: string;
+	primaryStartTime: string;
+	primaryEndTime: string;
+	allAdditionalRooms: AdditionalRoomSelection[];
 	onUpdate: (upd: Partial<ScheduleStepData>) => void;
 	onRemove: () => void;
 }) {
@@ -530,14 +562,14 @@ function AdditionalRoomCard({
 
 	// By default synced with primary room timings unless custom
 	const startDateStr =
-		item.schedule.startDateOnly || item.schedule.dateOnly || parentStartDate;
+		item.schedule.startDateOnly || item.schedule.dateOnly || primaryStartDate;
 	const endDateStr =
 		item.schedule.endDateOnly ||
 		item.schedule.dateOnly ||
 		item.schedule.startDateOnly ||
-		parentEndDate;
-	const startTime = item.schedule.startTime || parentStartTime;
-	const endTime = item.schedule.endTime || parentEndTime;
+		primaryEndDate;
+	const startTime = item.schedule.startTime || primaryStartTime;
+	const endTime = item.schedule.endTime || primaryEndTime;
 
 	useEffect(() => {
 		let isCancelled = false;
@@ -556,6 +588,90 @@ function AdditionalRoomCard({
 					reason: "Waktu selesai harus lebih akhir dari waktu mulai.",
 				});
 				return;
+			}
+
+			// 1. Check intra-form overlap with primary asset
+			if (
+				asset.id === primaryAssetId &&
+				primaryStartDate &&
+				primaryEndDate &&
+				primaryStartTime &&
+				primaryEndTime
+			) {
+				const pStartIso = new Date(
+					`${primaryStartDate}T${primaryStartTime}:00+07:00`,
+				).toISOString();
+				const pEndIso = new Date(
+					`${primaryEndDate}T${primaryEndTime}:00+07:00`,
+				).toISOString();
+				const pStart = new Date(pStartIso);
+				const pEnd = new Date(pEndIso);
+				const curStart = new Date(startIso);
+				const curEnd = new Date(endIso);
+				if (curStart < pEnd && curEnd > pStart) {
+					setResult({
+						available: false,
+						reason: `Jadwal bertabrakan dengan jadwal ruangan utama (${primaryAssetName}) pada tanggal/jam yang sama.`,
+					});
+					onUpdate({
+						startDate: startIso,
+						endDate: endIso,
+						startDateOnly: startDateStr,
+						endDateOnly: endDateStr,
+						dateOnly: startDateStr,
+						startTime,
+						endTime,
+						attendance,
+					});
+					return;
+				}
+			}
+
+			// 2. Check intra-form overlap with other additional rooms for the same asset
+			for (const other of allAdditionalRooms) {
+				if (other.id !== item.id && other.asset.id === asset.id) {
+					const otherStartStr =
+						other.schedule.startDateOnly ||
+						other.schedule.dateOnly ||
+						primaryStartDate;
+					const otherEndStr =
+						other.schedule.endDateOnly ||
+						other.schedule.dateOnly ||
+						other.schedule.startDateOnly ||
+						primaryEndDate;
+					const otherStartTime = other.schedule.startTime || primaryStartTime;
+					const otherEndTime = other.schedule.endTime || primaryEndTime;
+
+					if (otherStartStr && otherEndStr && otherStartTime && otherEndTime) {
+						const oStartIso = new Date(
+							`${otherStartStr}T${otherStartTime}:00+07:00`,
+						).toISOString();
+						const oEndIso = new Date(
+							`${otherEndStr}T${otherEndTime}:00+07:00`,
+						).toISOString();
+						const oStart = new Date(oStartIso);
+						const oEnd = new Date(oEndIso);
+						const curStart = new Date(startIso);
+						const curEnd = new Date(endIso);
+						if (curStart < oEnd && curEnd > oStart) {
+							setResult({
+								available: false,
+								reason: `Jadwal bertabrakan dengan sesi lain untuk ${asset.name} pada formulir.`,
+							});
+							onUpdate({
+								startDate: startIso,
+								endDate: endIso,
+								startDateOnly: startDateStr,
+								endDateOnly: endDateStr,
+								dateOnly: startDateStr,
+								startTime,
+								endTime,
+								attendance,
+							});
+							return;
+						}
+					}
+				}
 			}
 
 			setChecking(true);
@@ -594,12 +710,26 @@ function AdditionalRoomCard({
 			}
 		};
 
-		const t = setTimeout(check, 300);
+		const timer = setTimeout(check, 300);
 		return () => {
 			isCancelled = true;
-			clearTimeout(t);
+			clearTimeout(timer);
 		};
-	}, [asset.id, startDateStr, endDateStr, startTime, endTime, attendance]);
+	}, [
+		startDateStr,
+		endDateStr,
+		startTime,
+		endTime,
+		attendance,
+		asset.id,
+		primaryAssetId,
+		primaryAssetName,
+		primaryStartDate,
+		primaryEndDate,
+		primaryStartTime,
+		primaryEndTime,
+		allAdditionalRooms,
+	]);
 
 	return (
 		<div className="rounded-lg border border-border bg-card p-4 space-y-3 font-mono text-xs">

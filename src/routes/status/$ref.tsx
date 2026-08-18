@@ -22,6 +22,7 @@ import { PublicHeader } from "#/components/public/public-header";
 import { getPublicBookingStatusFn } from "#/lib/booking/public-fns.functions";
 import { cancelBookingByPublicReferenceFn } from "#/lib/booking/server-fns.functions";
 import { ASSET_TYPE_LABELS, type AssetType } from "#/lib/booking/types";
+import { formatScheduleRange } from "#/lib/timezone/datetime";
 
 export const Route = createFileRoute("/status/$ref")({
 	loader: async ({ params }) => {
@@ -339,8 +340,7 @@ function BookingStatusDetailPage() {
 													<div className="flex justify-between text-muted-foreground">
 														<span>Jadwal:</span>
 														<span className="text-foreground">
-															{formatDateTime(item.startDate)} s.d.{" "}
-															{formatDateTime(item.endDate)}
+															{formatScheduleRange(item.startDate, item.endDate)}
 														</span>
 													</div>
 													<div className="flex justify-between text-muted-foreground">

@@ -86,6 +86,47 @@ export function isSameJakartaDay(
 }
 
 /**
+ * Formats a schedule range intelligently:
+ * If same day: "Rab, 19 Agu 2026, 08:00 - 12:00 WIB"
+ * If different days: "Rab, 19 Agu 2026, 08:00 s.d. Jum, 21 Agu 2026, 12:00 WIB"
+ */
+export function formatScheduleRange(
+	startDate?: Date | string | number | null,
+	endDate?: Date | string | number | null,
+): string {
+	if (!startDate || !endDate) return "-";
+	const start = normalizeDate(startDate);
+	const end = normalizeDate(endDate);
+
+	const isSameDay = getJakartaDateKey(start) === getJakartaDateKey(end);
+
+	const startDayStr = start.toLocaleDateString("id-ID", {
+		timeZone: "Asia/Jakarta",
+		weekday: "short",
+		day: "numeric",
+		month: "short",
+		year: "numeric",
+	});
+
+	const startTimeStr = formatInJakarta(start, "HH:mm");
+	const endTimeStr = formatInJakarta(end, "HH:mm");
+
+	if (isSameDay) {
+		return `${startDayStr}, ${startTimeStr} - ${endTimeStr} WIB`;
+	}
+
+	const endDayStr = end.toLocaleDateString("id-ID", {
+		timeZone: "Asia/Jakarta",
+		weekday: "short",
+		day: "numeric",
+		month: "short",
+		year: "numeric",
+	});
+
+	return `${startDayStr}, ${startTimeStr} s.d. ${endDayStr}, ${endTimeStr} WIB`;
+}
+
+/**
  * Parses a wall-clock time string "HH:mm" into minutes from midnight (0..1439).
  */
 export function parseTimeToMinutes(timeStr: string): number {
@@ -95,3 +136,5 @@ export function parseTimeToMinutes(timeStr: string): number {
 	}
 	return hours * 60 + minutes;
 }
+
+

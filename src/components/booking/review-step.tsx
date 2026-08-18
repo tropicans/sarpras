@@ -6,6 +6,7 @@ import {
 	User,
 } from "lucide-react";
 import { useState } from "react";
+import { formatScheduleRange } from "#/lib/timezone/datetime";
 import type { RequesterStepData } from "./requester-step";
 import type {
 	AdditionalRoomSelection,
@@ -55,20 +56,6 @@ export function ReviewStep({
 			isPrimary: false,
 		})),
 	];
-
-	const formatDateTime = (isoString: string) => {
-		if (!isoString) return "-";
-		const d = new Date(isoString);
-		return d.toLocaleDateString("id-ID", {
-			timeZone: "Asia/Jakarta",
-			weekday: "short",
-			day: "numeric",
-			month: "short",
-			year: "numeric",
-			hour: "2-digit",
-			minute: "2-digit",
-		});
-	};
 
 	return (
 		<div className="space-y-4 font-mono text-xs">
@@ -126,8 +113,10 @@ export function ReviewStep({
 									<div className="flex justify-between text-[11px]">
 										<span className="text-muted-foreground">Jadwal:</span>
 										<span className="font-semibold text-foreground">
-											{formatDateTime(room.schedule.startDate)} s.d.{" "}
-											{formatDateTime(room.schedule.endDate)}
+											{formatScheduleRange(
+												room.schedule.startDate,
+												room.schedule.endDate,
+											)}
 										</span>
 									</div>
 
