@@ -980,6 +980,47 @@ test("Phase Multi-Room: Batch / Multi-Room Booking Verification", async (t) => {
 		},
 	);
 
+	await t.test(
+		"createBatchBookingRequest allows booking the same asset on multiple distinct dates in a single request",
+		async () => {
+			// Session 1: 19 Oct 2026
+			const start1 = new Date("2026-10-19T02:00:00.000Z");
+			const end1 = new Date("2026-10-19T06:00:00.000Z");
+			// Session 2: 25 Oct 2026 (same roomA - Auditorium)
+			const start2 = new Date("2026-10-25T02:00:00.000Z");
+			const end2 = new Date("2026-10-25T06:00:00.000Z");
+
+			const result = await BookingService.createBatchBookingRequest({
+				items: [
+					{
+						assetId: roomA.id,
+						startDate: start1,
+						endDate: end1,
+						attendance: 40,
+					},
+					{
+						assetId: roomA.id, // Same Auditorium on another date!
+						startDate: start2,
+						endDate: end2,
+						attendance: 40,
+					},
+				],
+				requesterName: "Dr. Multi Date",
+				requesterEmail: `${prefix}multidate@example.com`,
+				purpose: "Lokakarya 2 Sesi Auditorium",
+				timezone: "Asia/Jakarta",
+			});
+
+			assert.ok(result.groupId.startsWith("GRP-"));
+			assert.strictEqual(result.bookings.length, 2);
+			assert.strictEqual(result.bookings[0].assetId, roomA.id);
+			assert.strictEqual(result.bookings[1].assetId, roomA.id);
+			assert.strictEqual(result.bookings[0].groupId, result.groupId);
+			assert.strictEqual(result.bookings[1].groupId, result.groupId);
+		},
+	);
+
 	await cleanup();
 });
+
 

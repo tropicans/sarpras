@@ -28,6 +28,7 @@ export interface ScheduleStepData {
 }
 
 export interface AdditionalRoomSelection {
+	id: string;
 	asset: {
 		id: string;
 		name: string;
@@ -53,9 +54,9 @@ interface ScheduleStepProps {
 	onChange: (updated: Partial<ScheduleStepData>) => void;
 	additionalRooms: AdditionalRoomSelection[];
 	onAddRoom: (asset: any) => void;
-	onRemoveRoom: (assetId: string) => void;
+	onRemoveRoom: (selectionId: string) => void;
 	onUpdateAdditionalRoom: (
-		assetId: string,
+		selectionId: string,
 		updated: Partial<ScheduleStepData>,
 	) => void;
 	availableAssets: Array<{
@@ -118,12 +119,9 @@ export function ScheduleStep({
 	// Dropdown selector state
 	const [selectedAssetToAdd, setSelectedAssetToAdd] = useState<string>("");
 
-	// Filter available assets not already selected
-	const unselectedAssets = availableAssets.filter(
-		(a) =>
-			a.id !== asset.id &&
-			!additionalRooms.some((r) => r.asset.id === a.id) &&
-			a.type === "room", // Multi-booking primarily focused on rooms
+	// Available rooms list (allows selecting other rooms or the same room for multiple dates/sessions)
+	const availableRoomOptions = availableAssets.filter(
+		(a) => a.type === "room" || a.type === asset.type,
 	);
 
 	// Trigger preflight validation for primary room whenever inputs change
@@ -433,35 +431,39 @@ export function ScheduleStep({
 
 							{additionalRooms.map((item) => (
 								<AdditionalRoomCard
-									key={item.asset.id}
+									key={item.id}
 									item={item}
 									parentStartDate={startDateStr}
 									parentEndDate={endDateStr}
 									parentStartTime={startTime}
 									parentEndTime={endTime}
-									onUpdate={(upd) => onUpdateAdditionalRoom(item.asset.id, upd)}
-									onRemove={() => onRemoveRoom(item.asset.id)}
+									onUpdate={(upd) => onUpdateAdditionalRoom(item.id, upd)}
+									onRemove={() => onRemoveRoom(item.id)}
 								/>
 							))}
 						</div>
 					)}
 
 					{/* Add Room Bar */}
-					{unselectedAssets.length > 0 && (
+					{availableRoomOptions.length > 0 && (
 						<div className="rounded-lg border border-dashed border-border p-4 bg-muted/20 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
 							<div className="flex-1">
 								<label className="font-mono text-[11px] font-semibold text-muted-foreground block mb-1">
-									PINJAM RUANGAN LAIN DALAM ACARA YANG SAMA?
+									PINJAM RUANGAN LAIN ATAU TANGGAL/SESI TAMBAHAN?
 								</label>
 								<select
 									value={selectedAssetToAdd}
 									onChange={(e) => setSelectedAssetToAdd(e.target.value)}
 									className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden"
 								>
-									<option value="">-- Pilih Ruangan Tambahan --</option>
-									{unselectedAssets.map((a) => (
+									<option value="">-- Pilih Ruangan / Sesi Tambahan --</option>
+									{availableRoomOptions.map((a) => (
 										<option key={a.id} value={a.id}>
-											{a.name} ({a.location || "PPKASN"} - Kapasitas {a.capacity} Pax)
+											{a.name}{" "}
+											{a.id === asset.id
+												? "(Sesi/Tanggal Tambahan)"
+												: `(${a.location || "PPKASN"})`}{" "}
+											- Kapasitas {a.capacity} Pax
 										</option>
 									))}
 								</select>

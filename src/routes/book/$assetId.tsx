@@ -103,6 +103,7 @@ function BookingWizardPage() {
 		setAdditionalRooms((prev) => [
 			...prev,
 			{
+				id: crypto.randomUUID(),
 				asset: newAsset,
 				schedule: {
 					startDate: scheduleData.startDate,
@@ -119,17 +120,17 @@ function BookingWizardPage() {
 		]);
 	};
 
-	const handleRemoveRoom = (assetId: string) => {
-		setAdditionalRooms((prev) => prev.filter((r) => r.asset.id !== assetId));
+	const handleRemoveRoom = (selectionId: string) => {
+		setAdditionalRooms((prev) => prev.filter((r) => r.id !== selectionId));
 	};
 
 	const handleUpdateAdditionalRoom = (
-		assetId: string,
+		selectionId: string,
 		updated: Partial<ScheduleStepData>,
 	) => {
 		setAdditionalRooms((prev) =>
 			prev.map((r) =>
-				r.asset.id === assetId
+				r.id === selectionId
 					? { ...r, schedule: { ...r.schedule, ...updated } }
 					: r,
 			),

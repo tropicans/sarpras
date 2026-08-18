@@ -43,11 +43,13 @@ export function ReviewStep({
 	const isRoom = asset.type === "room";
 	const allRooms = [
 		{
+			id: `primary-${asset.id}`,
 			asset,
 			schedule,
 			isPrimary: true,
 		},
-		...additionalRooms.map((r) => ({
+		...additionalRooms.map((r, idx) => ({
+			id: r.id || `additional-${r.asset.id}-${idx}`,
 			asset: r.asset,
 			schedule: r.schedule,
 			isPrimary: false,
@@ -97,14 +99,14 @@ export function ReviewStep({
 						<span className="text-[10px] uppercase text-primary font-bold flex items-center justify-between">
 							<span className="flex items-center gap-1.5">
 								<Building className="h-3.5 w-3.5" />
-								RINCIAN FASILITAS ({allRooms.length} RUANGAN)
+								RINCIAN FASILITAS ({allRooms.length} SESI/RUANGAN)
 							</span>
 						</span>
 
 						<div className="space-y-2.5 pt-1 text-xs max-h-[260px] overflow-y-auto pr-1">
-							{allRooms.map((room, idx) => (
+							{allRooms.map((room) => (
 								<div
-									key={room.asset.id}
+									key={room.id}
 									className="rounded border border-border/60 bg-background/80 p-2.5 space-y-1"
 								>
 									<div className="flex justify-between items-center border-b border-border/40 pb-1">
