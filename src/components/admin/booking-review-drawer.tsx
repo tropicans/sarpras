@@ -389,6 +389,17 @@ export function BookingReviewDrawer({
 											<span>{target.assetLocation}</span>
 										</div>
 									)}
+									{target.roomLayout && (
+										<div className="flex items-center gap-2 text-[#71717a]">
+											<Building2 size={14} className="text-primary" />
+											<span>
+												Layout Ruangan:{" "}
+												<strong className="text-primary font-bold">
+													{target.roomLayout}
+												</strong>
+											</span>
+										</div>
+									)}
 									<div className="flex items-center gap-2 text-[#71717a]">
 										<Calendar size={14} />
 										<span>

@@ -101,9 +101,12 @@ export const twoFactors = pgTable("two_factor", {
 export const assets = pgTable("assets", {
 	id: uuid("id").defaultRandom().primaryKey(),
 	name: text("name").notNull(),
-	type: text("type").notNull(), // room, dormitory
+	type: text("type").notNull(), // room, dormitory, field, vehicle, equipment
 	location: text("location"),
 	capacity: integer("capacity").notNull(),
+	roomLayouts: jsonb("room_layouts").$type<
+		Array<{ id: string; name: string; maxCapacity: number }>
+	>(),
 	status: text("status").default("active").notNull(), // active, archived, inactive
 	legacyId: text("legacy_id").unique(),
 	createdAt: timestamp("created_at", { withTimezone: true })
@@ -125,6 +128,7 @@ export const bookings = pgTable("bookings", {
 	requesterOrganization: text("requester_organization"),
 	purpose: text("purpose"),
 	attendance: integer("attendance"),
+	roomLayout: text("room_layout"), // Island, U-Shape, Classroom, Theater, etc.
 	startDate: timestamp("start_date", { withTimezone: true }).notNull(),
 	endDate: timestamp("end_date", { withTimezone: true }).notNull(),
 	timezone: text("timezone").default("Asia/Jakarta").notNull(),

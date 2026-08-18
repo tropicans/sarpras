@@ -121,6 +121,15 @@ export function ReviewStep({
 										</span>
 									</div>
 
+									{room.schedule.roomLayout && (
+										<div className="flex justify-between text-[11px]">
+											<span className="text-muted-foreground">Layout Ruangan:</span>
+											<span className="font-semibold text-foreground">
+												{room.schedule.roomLayout}
+											</span>
+										</div>
+									)}
+
 									<div className="flex justify-between text-[11px]">
 										<span className="text-muted-foreground">Peserta:</span>
 										<span className="font-bold text-primary">

@@ -150,12 +150,14 @@ function BookingWizardPage() {
 				{
 					assetId: asset.id,
 					attendance: scheduleData.attendance,
+					roomLayout: scheduleData.roomLayout || null,
 					startDate: scheduleData.startDate,
 					endDate: scheduleData.endDate,
 				},
 				...additionalRooms.map((r) => ({
 					assetId: r.asset.id,
 					attendance: r.schedule.attendance,
+					roomLayout: r.schedule.roomLayout || null,
 					startDate: r.schedule.startDate,
 					endDate: r.schedule.endDate,
 				})),

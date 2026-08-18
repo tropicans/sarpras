@@ -230,6 +230,7 @@ export const getAdminBookingsFn = createServerFn({ method: "GET" })
 					requesterOrganization: bookings.requesterOrganization,
 					purpose: bookings.purpose,
 					attendance: bookings.attendance,
+					roomLayout: bookings.roomLayout,
 					startDate: bookings.startDate,
 					endDate: bookings.endDate,
 					timezone: bookings.timezone,
@@ -288,6 +289,7 @@ export const getBookingConflictContextFn = createServerFn({ method: "GET" })
 				requesterOrganization: bookings.requesterOrganization,
 				purpose: bookings.purpose,
 				attendance: bookings.attendance,
+				roomLayout: bookings.roomLayout,
 				startDate: bookings.startDate,
 				endDate: bookings.endDate,
 				timezone: bookings.timezone,
@@ -321,6 +323,7 @@ export const getBookingConflictContextFn = createServerFn({ method: "GET" })
 					startDate: bookings.startDate,
 					endDate: bookings.endDate,
 					attendance: bookings.attendance,
+					roomLayout: bookings.roomLayout,
 					status: bookings.status,
 					rejectionReason: bookings.rejectionReason,
 				})

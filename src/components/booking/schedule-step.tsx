@@ -12,7 +12,12 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { checkAvailabilityPreflightFn } from "#/lib/booking/public-fns.functions";
-import { ASSET_TYPE_LABELS, type AssetType } from "#/lib/booking/types";
+import {
+	ASSET_TYPE_LABELS,
+	type AssetType,
+	getRoomLayoutOptions,
+	type RoomLayoutOption,
+} from "#/lib/booking/types";
 
 export interface ScheduleStepData {
 	startDate: string; // ISO string
@@ -25,6 +30,7 @@ export interface ScheduleStepData {
 	checkInDate?: string; // YYYY-MM-DD
 	checkOutDate?: string; // YYYY-MM-DD
 	attendance: number;
+	roomLayout?: string; // Island, U-Shape, Classroom, etc.
 }
 
 export interface AdditionalRoomSelection {
@@ -105,8 +111,26 @@ export function ScheduleStep({
 		return tmrw.toISOString().split("T")[0];
 	});
 
+	// Room Layouts
+	const roomLayouts = isRoom
+		? getRoomLayoutOptions(asset.capacity, (asset as any).roomLayouts)
+		: [];
+	const [roomLayout, setRoomLayout] = useState<string>(
+		data.roomLayout || roomLayouts[0]?.name || "Island",
+	);
+
+	const selectedLayoutObj = isRoom
+		? roomLayouts.find(
+				(l) => l.name.toLowerCase() === roomLayout.toLowerCase(),
+		  ) || roomLayouts[0]
+		: null;
+
+	const maxAttendance = selectedLayoutObj
+		? selectedLayoutObj.maxCapacity
+		: asset.capacity;
+
 	const [attendance, setAttendance] = useState<number>(
-		data.attendance || (isRoom ? Math.min(10, asset.capacity) : 1),
+		data.attendance || (isRoom ? Math.min(10, maxAttendance) : 1),
 	);
 
 	// Preflight check state for primary room
@@ -201,6 +225,7 @@ export function ScheduleStep({
 							startTime,
 							endTime,
 							attendance,
+							roomLayout,
 						});
 					} else {
 						onChange({
@@ -408,6 +433,44 @@ export function ScheduleStep({
 					</div>
 				)}
 
+				{/* Pengaturan Ruangan (Room Layout) */}
+				{isRoom && (
+					<div className="space-y-1.5 pt-2 border-t border-border">
+						<div className="flex items-center justify-between">
+							<label className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
+								<Building2 className="h-3.5 w-3.5 text-primary" />
+								<span>Pengaturan Ruangan</span>
+								<span className="text-destructive">*</span>
+							</label>
+							{selectedLayoutObj && (
+								<span className="font-mono text-[10px] text-muted-foreground">
+									Kapasitas maks format <strong className="text-foreground">{selectedLayoutObj.name}</strong>:{" "}
+									<strong className="text-primary font-bold">{selectedLayoutObj.maxCapacity} Pax</strong>
+								</span>
+							)}
+						</div>
+						<select
+							value={roomLayout}
+							onChange={(e) => {
+								const val = e.target.value;
+								setRoomLayout(val);
+								const target = roomLayouts.find((l) => l.name === val);
+								if (target && attendance > target.maxCapacity) {
+									setAttendance(target.maxCapacity);
+								}
+							}}
+							className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-medium cursor-pointer"
+							required
+						>
+							{roomLayouts.map((layout) => (
+								<option key={layout.id} value={layout.name}>
+									{layout.name} (Maks {layout.maxCapacity} Orang)
+								</option>
+							))}
+						</select>
+					</div>
+				)}
+
 				{/* Attendance Input */}
 				<div className="space-y-1 pt-2 border-t border-border">
 					<div className="flex items-center justify-between">
@@ -416,13 +479,13 @@ export function ScheduleStep({
 							{isRoom ? "Jumlah Peserta Rapat" : "Jumlah Tamu Menginap"}
 						</label>
 						<span className="font-mono text-[10px] text-muted-foreground">
-							Kapasitas maksimal: <strong className="text-foreground">{asset.capacity}</strong>
+							Kapasitas maksimal: <strong className="text-foreground">{maxAttendance} Orang</strong>
 						</span>
 					</div>
 					<input
 						type="number"
 						min={1}
-						max={asset.capacity}
+						max={maxAttendance}
 						value={attendance}
 						onChange={(e) =>
 							setAttendance(Number.parseInt(e.target.value) || 1)
@@ -571,8 +634,26 @@ function AdditionalRoomCard({
 	onRemove: () => void;
 }) {
 	const asset = item.asset;
+	const isRoom = asset.type === "room";
+	const roomLayouts = isRoom
+		? getRoomLayoutOptions(asset.capacity, (asset as any).roomLayouts)
+		: [];
+	const [roomLayout, setRoomLayout] = useState<string>(
+		item.schedule.roomLayout || roomLayouts[0]?.name || "Island",
+	);
+
+	const selectedLayoutObj = isRoom
+		? roomLayouts.find(
+				(l) => l.name.toLowerCase() === roomLayout.toLowerCase(),
+		  ) || roomLayouts[0]
+		: null;
+
+	const maxCapacity = selectedLayoutObj
+		? selectedLayoutObj.maxCapacity
+		: asset.capacity;
+
 	const [attendance, setAttendance] = useState(
-		item.schedule.attendance || Math.min(10, asset.capacity),
+		item.schedule.attendance || (isRoom ? Math.min(10, maxCapacity) : 1),
 	);
 	const [checking, setChecking] = useState(false);
 	const [result, setResult] = useState<{
@@ -642,6 +723,7 @@ function AdditionalRoomCard({
 						startTime,
 						endTime,
 						attendance,
+						roomLayout: isRoom ? roomLayout : undefined,
 					});
 					return;
 				}
@@ -687,6 +769,7 @@ function AdditionalRoomCard({
 								startTime,
 								endTime,
 								attendance,
+								roomLayout: isRoom ? roomLayout : undefined,
 							});
 							return;
 						}
@@ -717,6 +800,7 @@ function AdditionalRoomCard({
 						startTime,
 						endTime,
 						attendance,
+						roomLayout: isRoom ? roomLayout : undefined,
 					});
 				}
 			} catch (err: any) {
@@ -741,6 +825,7 @@ function AdditionalRoomCard({
 		startTime,
 		endTime,
 		attendance,
+		roomLayout,
 		asset.id,
 		primaryAssetId,
 		primaryAssetName,
@@ -758,7 +843,8 @@ function AdditionalRoomCard({
 					<DoorOpen className="h-3.5 w-3.5 text-secondary-foreground" />
 					<strong className="text-foreground">{asset.name}</strong>
 					<span className="text-[10px] text-muted-foreground">
-						({asset.location || "PPKASN"} &bull; Kapasitas {asset.capacity} Pax)
+						({asset.location || "PPKASN"} &bull; Kapasitas {maxCapacity} Pax
+						{isRoom && roomLayout ? ` • Layout ${roomLayout}` : ""})
 					</span>
 				</div>
 				<button
@@ -771,7 +857,7 @@ function AdditionalRoomCard({
 				</button>
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 items-center">
+			<div className={`grid grid-cols-1 sm:grid-cols-2 ${isRoom ? "lg:grid-cols-6" : "lg:grid-cols-5"} gap-2 items-center`}>
 				<div>
 					<label className="text-[10px] text-muted-foreground block">
 						Tgl Mulai
@@ -842,14 +928,40 @@ function AdditionalRoomCard({
 						className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden cursor-pointer"
 					/>
 				</div>
+				{isRoom && (
+					<div>
+						<label className="text-[10px] text-muted-foreground block">
+							Pengaturan
+						</label>
+						<select
+							value={roomLayout}
+							onChange={(e) => {
+								const val = e.target.value;
+								setRoomLayout(val);
+								const target = roomLayouts.find((l) => l.name === val);
+								const newMax = target ? target.maxCapacity : asset.capacity;
+								const newAtt = attendance > newMax ? newMax : attendance;
+								setAttendance(newAtt);
+								onUpdate({ roomLayout: val, attendance: newAtt });
+							}}
+							className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden cursor-pointer"
+						>
+							{roomLayouts.map((layout) => (
+								<option key={layout.id} value={layout.name}>
+									{layout.name} ({layout.maxCapacity})
+								</option>
+							))}
+						</select>
+					</div>
+				)}
 				<div>
 					<label className="text-[10px] text-muted-foreground block">
-						Peserta (Maks: {asset.capacity})
+						Peserta (Maks: {maxCapacity})
 					</label>
 					<input
 						type="number"
 						min={1}
-						max={asset.capacity}
+						max={maxCapacity}
 						value={attendance}
 						onChange={(e) => {
 							const val = Number.parseInt(e.target.value) || 1;

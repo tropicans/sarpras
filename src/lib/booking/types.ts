@@ -28,6 +28,34 @@ export const ASSET_TYPE_LABELS: Record<AssetType, string> = {
 	equipment: "Peralatan",
 };
 
+export interface RoomLayoutOption {
+	id: string;
+	name: string;
+	maxCapacity: number;
+}
+
+export const DEFAULT_ROOM_LAYOUT_CONFIGS = [
+	{ id: "island", name: "Island", ratio: 0.7 },
+	{ id: "ushape", name: "U-Shape", ratio: 0.5 },
+	{ id: "classroom", name: "Classroom", ratio: 0.85 },
+	{ id: "theater", name: "Theater", ratio: 1.0 },
+	{ id: "boardroom", name: "Boardroom", ratio: 0.4 },
+] as const;
+
+export function getRoomLayoutOptions(
+	assetCapacity: number,
+	customLayouts?: RoomLayoutOption[] | null,
+): RoomLayoutOption[] {
+	if (customLayouts && customLayouts.length > 0) {
+		return customLayouts;
+	}
+	return DEFAULT_ROOM_LAYOUT_CONFIGS.map((cfg) => ({
+		id: cfg.id,
+		name: cfg.name,
+		maxCapacity: Math.max(1, Math.round(assetCapacity * cfg.ratio)),
+	}));
+}
+
 export const CreateBookingInputSchema = z
 	.object({
 		assetId: z.string().uuid("Invalid asset ID"),
@@ -48,6 +76,7 @@ export const CreateBookingInputSchema = z
 		requesterOrganization: z.string().optional().nullable(),
 		purpose: z.string().optional().nullable(),
 		attendance: z.number().int().positive("Jumlah peserta/tamu minimal 1"),
+		roomLayout: z.string().optional().nullable(),
 		startDate: z.coerce.date(),
 		endDate: z.coerce.date(),
 		timezone: z.string().default("Asia/Jakarta"),
@@ -67,6 +96,7 @@ export const BatchBookingRoomItemSchema = z
 	.object({
 		assetId: z.string().uuid("Invalid asset ID"),
 		attendance: z.number().int().positive("Jumlah peserta/tamu minimal 1"),
+		roomLayout: z.string().optional().nullable(),
 		startDate: z.coerce.date(),
 		endDate: z.coerce.date(),
 	})

@@ -349,6 +349,14 @@ function BookingStatusDetailPage() {
 															{item.attendance} Pax (Kapasitas: {item.capacity})
 														</span>
 													</div>
+													{item.roomLayout && (
+														<div className="flex justify-between text-muted-foreground">
+															<span>Layout:</span>
+															<span className="font-semibold text-primary">
+																{item.roomLayout}
+															</span>
+														</div>
+													)}
 													{item.rejectionReason && (
 														<div className="text-destructive text-[10px] pt-1">
 															Alasan penolakan: "{item.rejectionReason}"
@@ -386,6 +394,12 @@ function BookingStatusDetailPage() {
 											{booking.assetLocation || "Gedung Utama PPKASN"}
 										</span>
 									</div>
+									{booking.roomLayout && (
+										<div className="flex justify-between border-b border-border/40 pb-1">
+											<span className="text-muted-foreground">Layout Ruangan</span>
+											<span className="font-bold text-primary">{booking.roomLayout}</span>
+										</div>
+									)}
 									<div className="flex justify-between">
 										<span className="text-muted-foreground">Jumlah Peserta</span>
 										<span className="font-bold text-primary">{booking.attendance} Pax</span>
