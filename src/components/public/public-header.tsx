@@ -52,13 +52,12 @@ export function PublicHeader() {
 
 				{/* Desktop Navigation */}
 				<nav className="hidden md:flex items-center gap-1">
-					<Link
-						to="/"
+					<a
+						href="/#katalog"
 						className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted/80"
-						activeProps={{ className: "text-foreground font-semibold bg-muted" }}
 					>
 						Katalog Fasilitas
-					</Link>
+					</a>
 					<a
 						href="/#panduan"
 						className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted/80"
@@ -113,14 +112,14 @@ export function PublicHeader() {
 							<span>LIVE</span>
 						</div>
 					</div>
-					<Link
-						to="/"
+					<a
+						href="/#katalog"
 						onClick={() => setMobileMenuOpen(false)}
 						className="flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium text-foreground hover:bg-muted"
 					>
 						<span>Katalog Fasilitas</span>
 						<ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-					</Link>
+					</a>
 					<a
 						href="/#panduan"
 						onClick={() => setMobileMenuOpen(false)}
