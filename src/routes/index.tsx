@@ -366,7 +366,7 @@ function HomePage() {
 									<FileText className="h-4 w-4 text-indigo-500" />
 								</div>
 								<h3 className="text-sm font-bold text-foreground">
-									Isi Formulir & Unggah Surat
+									Lengkapi Formulir Pengajuan
 								</h3>
 								<p className="text-xs text-muted-foreground leading-relaxed">
 									Lengkapi identitas penanggung jawab, instansi pemohon, agenda kegiatan, dan kontak WhatsApp aktif.

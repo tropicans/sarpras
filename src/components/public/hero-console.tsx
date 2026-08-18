@@ -316,7 +316,7 @@ export function HeroConsole() {
 												01. Form Submission
 											</span>
 											<p className="text-[10px] text-muted-foreground font-sans">
-												Surat dinas diunggah & data tervalidasi
+												Identitas pemohon & agenda tervalidasi
 											</p>
 										</div>
 									</div>
