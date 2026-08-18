@@ -546,7 +546,13 @@ function HomePage() {
 										type="date"
 										value={filterDate}
 										onChange={(e) => setFilterDate(e.target.value)}
-										className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-mono"
+										onClick={(e) => {
+											try {
+												e.currentTarget.showPicker?.();
+											} catch {}
+										}}
+										style={{ colorScheme: "dark light" }}
+										className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-mono cursor-pointer"
 									/>
 								</div>
 
@@ -595,13 +601,25 @@ function HomePage() {
 											type="time"
 											value={filterStartTime}
 											onChange={(e) => setFilterStartTime(e.target.value)}
-											className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-mono"
+											onClick={(e) => {
+												try {
+													e.currentTarget.showPicker?.();
+												} catch {}
+											}}
+											style={{ colorScheme: "dark light" }}
+											className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-mono cursor-pointer"
 										/>
 										<input
 											type="time"
 											value={filterEndTime}
 											onChange={(e) => setFilterEndTime(e.target.value)}
-											className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-mono"
+											onClick={(e) => {
+												try {
+													e.currentTarget.showPicker?.();
+												} catch {}
+											}}
+											style={{ colorScheme: "dark light" }}
+											className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-mono cursor-pointer"
 										/>
 									</div>
 								</div>

@@ -292,6 +292,12 @@ export function ScheduleStep({
 								type="date"
 								value={startDateStr}
 								min={new Date().toISOString().split("T")[0]}
+								onClick={(e) => {
+									try {
+										e.currentTarget.showPicker?.();
+									} catch {}
+								}}
+								style={{ colorScheme: "dark light" }}
 								onChange={(e) => {
 									const val = e.target.value;
 									setStartDateStr(val);
@@ -299,7 +305,7 @@ export function ScheduleStep({
 										setEndDateStr(val);
 									}
 								}}
-								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden"
+								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden cursor-pointer"
 								required
 							/>
 						</div>
@@ -312,8 +318,14 @@ export function ScheduleStep({
 							<input
 								type="time"
 								value={startTime}
+								onClick={(e) => {
+									try {
+										e.currentTarget.showPicker?.();
+									} catch {}
+								}}
+								style={{ colorScheme: "dark light" }}
 								onChange={(e) => setStartTime(e.target.value)}
-								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden"
+								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden cursor-pointer"
 								required
 							/>
 						</div>
@@ -327,8 +339,14 @@ export function ScheduleStep({
 								type="date"
 								value={endDateStr}
 								min={startDateStr}
+								onClick={(e) => {
+									try {
+										e.currentTarget.showPicker?.();
+									} catch {}
+								}}
+								style={{ colorScheme: "dark light" }}
 								onChange={(e) => setEndDateStr(e.target.value)}
-								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden"
+								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden cursor-pointer"
 								required
 							/>
 						</div>
@@ -341,8 +359,14 @@ export function ScheduleStep({
 							<input
 								type="time"
 								value={endTime}
+								onClick={(e) => {
+									try {
+										e.currentTarget.showPicker?.();
+									} catch {}
+								}}
+								style={{ colorScheme: "dark light" }}
 								onChange={(e) => setEndTime(e.target.value)}
-								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden"
+								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden cursor-pointer"
 								required
 							/>
 						</div>
@@ -760,12 +784,18 @@ function AdditionalRoomCard({
 						type="date"
 						value={startDateStr}
 						min={new Date().toISOString().split("T")[0]}
+						onClick={(e) => {
+							try {
+								e.currentTarget.showPicker?.();
+							} catch {}
+						}}
+						style={{ colorScheme: "dark light" }}
 						onChange={(e) => {
 							const val = e.target.value;
 							const newEnd = endDateStr < val ? val : endDateStr;
 							onUpdate({ startDateOnly: val, endDateOnly: newEnd });
 						}}
-						className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden"
+						className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden cursor-pointer"
 					/>
 				</div>
 				<div>
@@ -775,8 +805,14 @@ function AdditionalRoomCard({
 					<input
 						type="time"
 						value={startTime}
+						onClick={(e) => {
+							try {
+								e.currentTarget.showPicker?.();
+							} catch {}
+						}}
+						style={{ colorScheme: "dark light" }}
 						onChange={(e) => onUpdate({ startTime: e.target.value })}
-						className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden"
+						className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden cursor-pointer"
 					/>
 				</div>
 				<div>
@@ -787,8 +823,14 @@ function AdditionalRoomCard({
 						type="date"
 						value={endDateStr}
 						min={startDateStr}
+						onClick={(e) => {
+							try {
+								e.currentTarget.showPicker?.();
+							} catch {}
+						}}
+						style={{ colorScheme: "dark light" }}
 						onChange={(e) => onUpdate({ endDateOnly: e.target.value })}
-						className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden"
+						className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden cursor-pointer"
 					/>
 				</div>
 				<div>
@@ -798,8 +840,14 @@ function AdditionalRoomCard({
 					<input
 						type="time"
 						value={endTime}
+						onClick={(e) => {
+							try {
+								e.currentTarget.showPicker?.();
+							} catch {}
+						}}
+						style={{ colorScheme: "dark light" }}
 						onChange={(e) => onUpdate({ endTime: e.target.value })}
-						className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden"
+						className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden cursor-pointer"
 					/>
 				</div>
 				<div>
