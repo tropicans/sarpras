@@ -44,7 +44,6 @@ export const auth = betterAuth({
 				type: "boolean",
 				required: false,
 				defaultValue: false,
-				fieldName: "must_reset_password",
 			},
 		},
 	},
