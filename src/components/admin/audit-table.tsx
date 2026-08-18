@@ -63,11 +63,11 @@ export function AuditTable({
 	return (
 		<div className="flex flex-col gap-4">
 			{/* Filters Bar */}
-			<div className="p-4 bg-white border border-[#e4e4e7] rounded-xl shadow-xs flex flex-col gap-3">
+			<div className="p-4 bg-card border border-border rounded-xl shadow-xs flex flex-col gap-3">
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-2">
-						<Filter size={15} className="text-[#71717a]" />
-						<span className="text-xs font-bold text-[#09090b]">
+						<Filter size={15} className="text-muted-foreground" />
+						<span className="text-xs font-bold text-foreground">
 							Filter Riwayat Audit
 						</span>
 					</div>
@@ -76,7 +76,7 @@ export function AuditTable({
 						<button
 							type="button"
 							onClick={onResetFilters}
-							className="text-xs text-[#71717a] hover:text-rose-600 flex items-center gap-1 cursor-pointer"
+							className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1 cursor-pointer"
 						>
 							<RotateCcw size={12} />
 							<span>Reset Filter</span>
@@ -93,7 +93,7 @@ export function AuditTable({
 								onFilterChange({ action: e.target.value, page: 1 })
 							}
 							aria-label="Filter Tipe Aksi"
-							className="w-full px-3 py-2 bg-[#fafafa] border border-[#e4e4e7] rounded-lg text-xs text-[#09090b] focus:outline-none focus:border-[#09090b] cursor-pointer"
+							className="w-full px-3 py-2 bg-background border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary cursor-pointer font-medium"
 						>
 							{ACTION_OPTIONS.map((opt) => (
 								<option key={opt.value} value={opt.value}>
@@ -114,7 +114,7 @@ export function AuditTable({
 								})
 							}
 							aria-label="Filter Tipe Entitas"
-							className="w-full px-3 py-2 bg-[#fafafa] border border-[#e4e4e7] rounded-lg text-xs text-[#09090b] focus:outline-none focus:border-[#09090b] cursor-pointer"
+							className="w-full px-3 py-2 bg-background border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary cursor-pointer font-medium"
 						>
 							<option value="all">Semua Tipe Entitas</option>
 							<option value="booking">Booking (Peminjaman)</option>
@@ -127,7 +127,7 @@ export function AuditTable({
 					<div className="relative">
 						<Search
 							size={14}
-							className="absolute left-3 top-1/2 -translate-y-1/2 text-[#71717a]"
+							className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
 						/>
 						<input
 							type="text"
@@ -136,7 +136,7 @@ export function AuditTable({
 							onChange={(e) =>
 								onFilterChange({ actorId: e.target.value, page: 1 })
 							}
-							className="w-full pl-9 pr-3 py-2 bg-[#fafafa] border border-[#e4e4e7] rounded-lg text-xs text-[#09090b] placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#09090b]"
+							className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-lg text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary"
 						/>
 					</div>
 
@@ -152,17 +152,17 @@ export function AuditTable({
 								})
 							}
 							aria-label="Tanggal Dari"
-							className="w-full px-3 py-2 bg-[#fafafa] border border-[#e4e4e7] rounded-lg text-xs text-[#09090b] focus:outline-none focus:border-[#09090b] cursor-pointer"
+							className="w-full px-3 py-2 bg-background border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary cursor-pointer"
 						/>
 					</div>
 				</div>
 			</div>
 
 			{/* Audit Log Table */}
-			<div className="bg-white border border-[#e4e4e7] rounded-xl shadow-xs overflow-hidden flex flex-col">
+			<div className="bg-card border border-border rounded-xl shadow-xs overflow-hidden flex flex-col">
 				<div className="overflow-x-auto">
 					<table className="w-full text-left text-xs border-collapse">
-						<thead className="bg-[#fafafa] border-b border-[#e4e4e7] text-[#71717a] uppercase font-semibold text-[11px]">
+						<thead className="bg-muted/40 border-b border-border text-muted-foreground uppercase font-semibold text-[11px]">
 							<tr>
 								<th className="py-3 px-4">Waktu (WIB)</th>
 								<th className="py-3 px-4">Aksi</th>
@@ -171,12 +171,12 @@ export function AuditTable({
 								<th className="py-3 px-4">Rincian Perubahan / Metadata</th>
 							</tr>
 						</thead>
-						<tbody className="divide-y divide-[#e4e4e7]">
+						<tbody className="divide-y divide-border">
 							{loading && (
 								<tr>
 									<td
 										colSpan={5}
-										className="py-12 text-center text-[#71717a] font-medium"
+										className="py-12 text-center text-muted-foreground font-medium"
 									>
 										Memuat riwayat audit sistem...
 									</td>
@@ -185,10 +185,10 @@ export function AuditTable({
 
 							{!loading && items.length === 0 && (
 								<tr>
-									<td colSpan={5} className="py-16 text-center text-[#71717a]">
+									<td colSpan={5} className="py-16 text-center text-muted-foreground">
 										<div className="flex flex-col items-center justify-center gap-2">
-											<ScrollText size={32} className="text-[#a1a1aa]" />
-											<span className="font-semibold text-sm text-[#09090b]">
+											<ScrollText size={32} className="text-muted-foreground/60" />
+											<span className="font-semibold text-sm text-foreground">
 												Tidak Ada Catatan Audit
 											</span>
 											<span className="text-xs">
@@ -204,12 +204,12 @@ export function AuditTable({
 								items.map((log) => (
 									<tr
 										key={log.id}
-										className="hover:bg-[#fafafa] transition-colors"
+										className="hover:bg-muted/30 transition-colors"
 									>
 										{/* Waktu */}
-										<td className="py-3 px-4 whitespace-nowrap text-[#71717a]">
+										<td className="py-3 px-4 whitespace-nowrap text-muted-foreground">
 											<div className="flex flex-col">
-												<span className="font-semibold text-[#09090b]">
+												<span className="font-semibold text-foreground">
 													{formatJakartaDisplay(log.createdAt, "dd MMM yyyy")}
 												</span>
 												<span className="text-[11px]">
@@ -224,13 +224,13 @@ export function AuditTable({
 										{/* Aksi Badge */}
 										<td className="py-3 px-4 whitespace-nowrap">
 											<span
-												className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded ${
+												className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded border ${
 													log.action.includes("approve")
-														? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+														? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20"
 														: log.action.includes("reject") ||
 																log.action.includes("cancel")
-															? "bg-rose-100 text-rose-800 border border-rose-200"
-															: "bg-blue-100 text-blue-800 border border-blue-200"
+															? "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20"
+															: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20"
 												}`}
 											>
 												{log.action}
@@ -240,10 +240,10 @@ export function AuditTable({
 										{/* Aktor */}
 										<td className="py-3 px-4 whitespace-nowrap">
 											<div className="flex flex-col">
-												<span className="font-semibold text-[#09090b]">
+												<span className="font-semibold text-foreground">
 													{log.actorName || log.actorId}
 												</span>
-												<span className="text-[10px] text-[#71717a] capitalize">
+												<span className="text-[10px] text-muted-foreground capitalize">
 													{log.actorType}{" "}
 													{log.actorEmail ? `(${log.actorEmail})` : ""}
 												</span>
@@ -253,11 +253,11 @@ export function AuditTable({
 										{/* Entitas */}
 										<td className="py-3 px-4 whitespace-nowrap">
 											<div className="flex flex-col">
-												<span className="font-semibold text-[#09090b] capitalize">
+												<span className="font-semibold text-foreground capitalize">
 													{log.entityType}
 												</span>
 												{log.entityId && (
-													<span className="text-[10px] text-[#71717a] font-mono">
+													<span className="text-[10px] text-muted-foreground font-mono">
 														{log.entityId.slice(0, 8)}...
 													</span>
 												)}
@@ -281,7 +281,7 @@ export function AuditTable({
 
 				{/* Pagination */}
 				{totalPages > 1 && (
-					<div className="p-4 border-t border-[#e4e4e7] flex items-center justify-between text-xs text-[#71717a] bg-[#fafafa]">
+					<div className="p-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground bg-muted/40">
 						<span>
 							Menampilkan {(page - 1) * limit + 1} -{" "}
 							{Math.min(page * limit, total)} dari {total} log audit
@@ -291,19 +291,19 @@ export function AuditTable({
 								type="button"
 								onClick={() => onFilterChange({ page: page - 1 })}
 								disabled={page <= 1}
-								className="px-2.5 py-1.5 border border-[#e4e4e7] rounded bg-white text-[#09090b] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f4f4f5] flex items-center gap-1 cursor-pointer"
+								className="px-2.5 py-1.5 border border-border rounded bg-card text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted flex items-center gap-1 cursor-pointer"
 							>
 								<ChevronLeft size={14} />
 								<span>Sebelumnya</span>
 							</button>
-							<span className="font-semibold text-[#09090b]">
+							<span className="font-semibold text-foreground">
 								Halaman {page} / {totalPages}
 							</span>
 							<button
 								type="button"
 								onClick={() => onFilterChange({ page: page + 1 })}
 								disabled={page >= totalPages}
-								className="px-2.5 py-1.5 border border-[#e4e4e7] rounded bg-white text-[#09090b] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f4f4f5] flex items-center gap-1 cursor-pointer"
+								className="px-2.5 py-1.5 border border-border rounded bg-card text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted flex items-center gap-1 cursor-pointer"
 							>
 								<span>Selanjutnya</span>
 								<ChevronRight size={14} />

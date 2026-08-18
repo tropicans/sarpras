@@ -106,32 +106,32 @@ export function BookingReviewDrawer({
 	};
 
 	return (
-		<div className="fixed inset-0 z-40 flex justify-end bg-black/40 backdrop-blur-xs animate-in fade-in duration-150">
-			<div className="w-full max-w-xl bg-white h-full shadow-2xl flex flex-col justify-between border-l border-[#e4e4e7] overflow-y-auto animate-in slide-in-from-right duration-200">
+		<div className="fixed inset-0 z-40 flex justify-end bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+			<div className="w-full max-w-xl bg-card text-foreground h-full shadow-2xl flex flex-col justify-between border-l border-border overflow-y-auto animate-in slide-in-from-right duration-200">
 				{/* Drawer Header */}
-				<div className="p-6 border-b border-[#e4e4e7] flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur-xs z-10">
+				<div className="p-6 border-b border-border flex items-center justify-between sticky top-0 bg-card/95 backdrop-blur-xs z-10">
 					<div className="flex flex-col gap-1">
 						<div className="flex items-center gap-2">
-							<h3 className="font-bold text-base text-[#09090b]">
+							<h3 className="font-bold text-base text-foreground">
 								Tinjauan Permohonan
 							</h3>
 							{target && (
 								<span
-									className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded ${
+									className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded border ${
 										target.status === "approved"
-											? "bg-emerald-100 text-emerald-800"
+											? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20"
 											: target.status === "rejected"
-												? "bg-rose-100 text-rose-800"
+												? "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20"
 												: target.status === "cancelled"
-													? "bg-zinc-100 text-zinc-800"
-													: "bg-amber-100 text-amber-800"
+													? "bg-muted text-muted-foreground border-border"
+													: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20"
 									}`}
 								>
 									{target.status}
 								</span>
 							)}
 						</div>
-						<div className="flex items-center gap-2 text-xs text-[#71717a] font-mono">
+						<div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
 							<span>ID: #{target?.id.slice(0, 8)}</span>
 							{target?.groupId && (
 								<span className="text-primary font-sans font-semibold">
@@ -144,7 +144,7 @@ export function BookingReviewDrawer({
 					<button
 						type="button"
 						onClick={onClose}
-						className="p-1.5 rounded-lg text-[#71717a] hover:text-[#09090b] hover:bg-[#f4f4f5] transition-colors cursor-pointer"
+						className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
 						aria-label="Tutup"
 					>
 						<X size={18} />
@@ -154,13 +154,13 @@ export function BookingReviewDrawer({
 				{/* Drawer Body */}
 				<div className="p-6 flex-1 flex flex-col gap-6 overflow-y-auto">
 					{loading && (
-						<div className="py-12 flex flex-col items-center justify-center gap-2 text-xs text-[#71717a]">
+						<div className="py-12 flex flex-col items-center justify-center gap-2 text-xs text-muted-foreground">
 							<span>Memeriksa ketersediaan jadwal...</span>
 						</div>
 					)}
 
 					{error && (
-						<div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-900 text-xs flex items-start gap-2">
+						<div className="p-3.5 bg-destructive/10 border border-destructive/20 rounded-xl text-destructive text-xs flex items-start gap-2">
 							<AlertOctagon size={16} className="shrink-0 mt-0.5" />
 							<span>{error}</span>
 						</div>
@@ -170,28 +170,28 @@ export function BookingReviewDrawer({
 						<>
 							{/* Section 1: Conflict Status & Warnings */}
 							<div className="flex flex-col gap-3">
-								<h4 className="text-xs font-bold uppercase tracking-wider text-[#71717a]">
+								<h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
 									1. Analisis Bentrokan Jadwal
 								</h4>
 
 								{/* Hard Conflict Warning */}
 								{data?.hasHardConflict && (
-									<div className="p-4 bg-rose-50 border border-rose-200 rounded-xl flex flex-col gap-2.5">
-										<div className="flex items-center gap-2 text-rose-900 font-bold text-xs">
+									<div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl flex flex-col gap-2.5">
+										<div className="flex items-center gap-2 text-rose-800 dark:text-rose-300 font-bold text-xs">
 											<AlertOctagon size={16} className="shrink-0" />
 											<span>BENTROKAN JADWAL (HARD CONFLICT)</span>
 										</div>
-										<p className="text-xs text-rose-800 leading-relaxed">
+										<p className="text-xs text-rose-800 dark:text-rose-300 leading-relaxed">
 											Terdapat permohonan lain yang telah <strong>DISETUJUI</strong> pada rentang waktu yang sama:
 										</p>
-										<div className="flex flex-col gap-1.5 bg-white/80 p-2.5 rounded-lg border border-rose-200">
+										<div className="flex flex-col gap-1.5 bg-card p-2.5 rounded-lg border border-rose-500/20">
 											{data.approvedConflicts.map((c) => (
 												<div
 													key={c.id}
-													className="text-xs text-rose-950 flex flex-col"
+													className="text-xs text-foreground flex flex-col"
 												>
 													<span className="font-semibold">{c.requesterName}</span>
-													<span className="text-[11px] text-rose-800">
+													<span className="text-[11px] text-muted-foreground">
 														{formatJakartaDisplay(
 															c.startDate,
 															"dd MMM yyyy HH:mm",
@@ -206,22 +206,22 @@ export function BookingReviewDrawer({
 
 								{/* Soft Conflict Warning */}
 								{data?.hasPendingOverlaps && (
-									<div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex flex-col gap-2.5">
-										<div className="flex items-center gap-2 text-amber-900 font-bold text-xs">
+									<div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex flex-col gap-2.5">
+										<div className="flex items-center gap-2 text-amber-800 dark:text-amber-300 font-bold text-xs">
 											<AlertTriangle size={16} className="shrink-0" />
 											<span>PERMOHONAN LAIN BERSAMAAN (SOFT CONFLICT)</span>
 										</div>
-										<p className="text-xs text-amber-800 leading-relaxed">
+										<p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
 											Terdapat permohonan lain berstatus <em>Pending</em> yang juga memilih jadwal ini:
 										</p>
-										<div className="flex flex-col divide-y divide-amber-200/60 bg-white/80 rounded-lg border border-amber-200">
+										<div className="flex flex-col divide-y divide-border bg-card rounded-lg border border-amber-500/20">
 											{data.pendingOverlaps.map((p) => (
 												<div
 													key={p.id}
-													className="p-2.5 text-xs text-amber-950"
+													className="p-2.5 text-xs text-foreground"
 												>
 													<div className="font-semibold">{p.requesterName}</div>
-													<div className="text-[11px] text-amber-800">
+													<div className="text-[11px] text-muted-foreground">
 														{formatJakartaDisplay(
 															p.startDate,
 															"dd MMM yyyy HH:mm",
@@ -235,10 +235,10 @@ export function BookingReviewDrawer({
 								)}
 
 								{!data?.hasHardConflict && !data?.hasPendingOverlaps && (
-									<div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2.5 text-emerald-900 text-xs">
+									<div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-2.5 text-emerald-800 dark:text-emerald-300 text-xs">
 										<CheckCircle2
 											size={16}
-											className="text-emerald-600 shrink-0"
+											className="text-emerald-600 dark:text-emerald-400 shrink-0"
 										/>
 										<span className="font-medium">
 											Jadwal Bersih: Tidak ditemukan bentrokan dengan peminjaman
@@ -252,7 +252,7 @@ export function BookingReviewDrawer({
 							{data?.groupSiblings && data.groupSiblings.length > 0 && (
 								<div className="flex flex-col gap-3">
 									<div className="flex items-center justify-between">
-										<h4 className="text-xs font-bold uppercase tracking-wider text-[#71717a]">
+										<h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
 											Ruangan Lain Dalam Acara Ini ({data.groupSiblings.length + 1} Fasilitas)
 										</h4>
 										<span className="text-[10px] font-mono text-primary font-semibold">
@@ -263,13 +263,13 @@ export function BookingReviewDrawer({
 										{data.groupSiblings.map((sibling: any) => (
 											<div
 												key={sibling.id}
-												className="p-3 bg-[#fafafa] border border-[#e4e4e7] rounded-xl flex items-center justify-between text-xs"
+												className="p-3 bg-muted/40 border border-border rounded-xl flex items-center justify-between text-xs"
 											>
 												<div className="flex flex-col">
-													<span className="font-bold text-[#09090b]">
+													<span className="font-bold text-foreground">
 														{sibling.assetName}
 													</span>
-													<span className="text-[11px] text-[#71717a]">
+													<span className="text-[11px] text-muted-foreground">
 														{formatJakartaDisplay(
 															sibling.startDate,
 															"dd MMM yyyy HH:mm",
@@ -279,14 +279,14 @@ export function BookingReviewDrawer({
 													</span>
 												</div>
 												<span
-													className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded ${
+													className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded border ${
 														sibling.status === "approved"
-															? "bg-emerald-100 text-emerald-800"
+															? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20"
 															: sibling.status === "rejected"
-																? "bg-rose-100 text-rose-800"
+																? "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20"
 																: sibling.status === "cancelled"
-																	? "bg-zinc-100 text-zinc-800"
-																	: "bg-amber-100 text-amber-800"
+																	? "bg-muted text-muted-foreground border-border"
+																	: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20"
 													}`}
 												>
 													{sibling.status}
@@ -299,54 +299,54 @@ export function BookingReviewDrawer({
 
 							{/* Section 2: Pemohon & Instansi */}
 							<div className="flex flex-col gap-3">
-								<h4 className="text-xs font-bold uppercase tracking-wider text-[#71717a]">
+								<h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
 									2. Identitas Pemohon & Tujuan
 								</h4>
-								<div className="p-4 bg-[#fafafa] border border-[#e4e4e7] rounded-xl flex flex-col gap-3 text-xs">
+								<div className="p-4 bg-muted/40 border border-border rounded-xl flex flex-col gap-3 text-xs">
 									<div className="flex items-center gap-2.5">
-										<User size={15} className="text-[#71717a]" />
-										<span className="font-bold text-sm text-[#09090b]">
+										<User size={15} className="text-muted-foreground" />
+										<span className="font-bold text-sm text-foreground">
 											{target.requesterName}
 										</span>
 									</div>
-									<div className="flex items-center gap-2.5 text-[#71717a]">
+									<div className="flex items-center gap-2.5 text-muted-foreground">
 										<Mail size={14} />
 										<span>{target.requesterEmail}</span>
 									</div>
 									{target.requesterPhone && (
-										<div className="flex items-center gap-2.5 text-[#71717a]">
+										<div className="flex items-center gap-2.5 text-muted-foreground">
 											<Phone size={14} />
 											<span>{target.requesterPhone}</span>
 										</div>
 									)}
 									{target.requesterOrganization && (
-										<div className="flex items-center gap-2.5 text-[#71717a]">
+										<div className="flex items-center gap-2.5 text-muted-foreground">
 											<Building2 size={14} />
-											<span className="font-medium text-[#09090b]">
+											<span className="font-medium text-foreground">
 												{target.requesterOrganization}
 											</span>
 										</div>
 									)}
-									<div className="pt-2 border-t border-[#e4e4e7] flex flex-col gap-1">
-										<span className="text-[11px] font-semibold text-[#71717a]">
+									<div className="pt-2 border-t border-border flex flex-col gap-1">
+										<span className="text-[11px] font-semibold text-muted-foreground">
 											Tujuan / Keperluan Peminjaman:
 										</span>
-										<p className="text-xs text-[#09090b] leading-relaxed bg-white p-2.5 rounded border border-[#e4e4e7]">
+										<p className="text-xs text-foreground leading-relaxed bg-card p-2.5 rounded border border-border">
 											{target.purpose || "Tidak ada rincian tujuan"}
 										</p>
 									</div>
 
 									{/* Surat Permohonan / Nota Dinas PDF */}
-									<div className="pt-2 border-t border-[#e4e4e7] flex flex-col gap-2">
-										<span className="text-[11px] font-semibold text-[#71717a] flex items-center gap-1.5 uppercase">
+									<div className="pt-2 border-t border-border flex flex-col gap-2">
+										<span className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1.5 uppercase">
 											<Paperclip size={13} className="text-primary" />
 											Dokumen Surat Permohonan:
 										</span>
 										{target.letterFileUrl ? (
-											<div className="flex items-center justify-between p-2.5 bg-white rounded-lg border border-emerald-200">
+											<div className="flex items-center justify-between p-2.5 bg-card rounded-lg border border-border">
 												<div className="flex items-center gap-2 min-w-0">
-													<FileText size={16} className="text-emerald-600 shrink-0" />
-													<span className="font-semibold text-xs text-[#09090b] truncate max-w-[200px]">
+													<FileText size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+													<span className="font-semibold text-xs text-foreground truncate max-w-[200px]">
 														{target.letterFileName || "Surat_Permohonan.pdf"}
 													</span>
 												</div>
@@ -361,7 +361,7 @@ export function BookingReviewDrawer({
 												</a>
 											</div>
 										) : (
-											<p className="text-xs text-[#71717a] italic">
+											<p className="text-xs text-muted-foreground italic">
 												Tidak ada surat permohonan yang dilampirkan (Data lama).
 											</p>
 										)}
@@ -371,26 +371,26 @@ export function BookingReviewDrawer({
 
 							{/* Section 3: Jadwal & Fasilitas */}
 							<div className="flex flex-col gap-3">
-								<h4 className="text-xs font-bold uppercase tracking-wider text-[#71717a]">
+								<h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
 									3. Fasilitas & Jadwal Penggunaan
 								</h4>
-								<div className="p-4 bg-[#fafafa] border border-[#e4e4e7] rounded-xl flex flex-col gap-3 text-xs">
+								<div className="p-4 bg-muted/40 border border-border rounded-xl flex flex-col gap-3 text-xs">
 									<div className="flex items-center justify-between">
-										<span className="font-bold text-[#09090b] text-sm">
+										<span className="font-bold text-foreground text-sm">
 											{target.assetName}
 										</span>
-										<span className="text-[10px] font-semibold uppercase px-2 py-0.5 bg-[#e4e4e7] rounded">
+										<span className="text-[10px] font-semibold uppercase px-2 py-0.5 bg-muted text-muted-foreground rounded">
 											{target.assetType === "room" ? "Ruangan" : "Asrama"}
 										</span>
 									</div>
 									{target.assetLocation && (
-										<div className="flex items-center gap-2 text-[#71717a]">
+										<div className="flex items-center gap-2 text-muted-foreground">
 											<MapPin size={14} />
 											<span>{target.assetLocation}</span>
 										</div>
 									)}
 									{target.roomLayout && (
-										<div className="flex items-center gap-2 text-[#71717a]">
+										<div className="flex items-center gap-2 text-muted-foreground">
 											<Building2 size={14} className="text-primary" />
 											<span>
 												Layout Ruangan:{" "}
@@ -400,7 +400,7 @@ export function BookingReviewDrawer({
 											</span>
 										</div>
 									)}
-									<div className="flex items-center gap-2 text-[#71717a]">
+									<div className="flex items-center gap-2 text-muted-foreground">
 										<Calendar size={14} />
 										<span>
 											{formatJakartaDisplay(
@@ -411,11 +411,11 @@ export function BookingReviewDrawer({
 										</span>
 									</div>
 									{target.attendance && (
-										<div className="flex items-center gap-2 text-[#71717a]">
+										<div className="flex items-center gap-2 text-muted-foreground">
 											<Users size={14} />
 											<span>
 												Kapasitas Diajukan:{" "}
-												<strong className="text-[#09090b]">
+												<strong className="text-foreground">
 													{target.attendance} orang
 												</strong>{" "}
 												(Maks. {target.assetCapacity} orang)
@@ -427,7 +427,7 @@ export function BookingReviewDrawer({
 
 							{/* Rejection Note (if rejected) */}
 							{target.status === "rejected" && target.rejectionReason && (
-								<div className="p-4 bg-rose-50 border border-rose-200 rounded-xl flex flex-col gap-1.5 text-xs text-rose-900">
+								<div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl flex flex-col gap-1.5 text-xs text-rose-800 dark:text-rose-300">
 									<span className="font-bold">Alasan Penolakan:</span>
 									<p className="leading-relaxed italic">
 										"{target.rejectionReason}"
@@ -440,7 +440,7 @@ export function BookingReviewDrawer({
 
 				{/* Action Footer */}
 				{target && target.status === "pending" && !isReadOnly && (
-					<div className="p-6 border-t border-[#e4e4e7] bg-[#fafafa] flex flex-wrap items-center justify-end gap-2.5 sticky bottom-0 z-10">
+					<div className="p-6 border-t border-border bg-card flex flex-wrap items-center justify-end gap-2.5 sticky bottom-0 z-10">
 						<button
 							type="button"
 							onClick={() =>
@@ -451,7 +451,7 @@ export function BookingReviewDrawer({
 								})
 							}
 							disabled={actionLoading}
-							className="px-3.5 py-2 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+							className="px-3.5 py-2 text-xs font-semibold text-rose-700 dark:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
 						>
 							Tolak Permohonan
 						</button>

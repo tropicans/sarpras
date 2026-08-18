@@ -17,34 +17,34 @@ export function KpiCard({
 }: KpiCardProps) {
 	const variantStyles = {
 		default: {
-			border: "border-[#e4e4e7]",
-			bg: "bg-[#fafafa]",
-			iconBg: "bg-[#e4e4e7] text-[#09090b]",
-			valColor: "text-[#09090b]",
+			border: "border-border",
+			bg: "bg-card",
+			iconBg: "bg-muted text-foreground",
+			valColor: "text-foreground",
 		},
 		amber: {
-			border: "border-amber-200",
-			bg: "bg-amber-50/50",
-			iconBg: "bg-amber-100 text-amber-800",
-			valColor: "text-amber-900",
+			border: "border-amber-500/30",
+			bg: "bg-amber-500/10",
+			iconBg: "bg-amber-500/20 text-amber-700 dark:text-amber-300",
+			valColor: "text-amber-800 dark:text-amber-300",
 		},
 		emerald: {
-			border: "border-emerald-200",
-			bg: "bg-emerald-50/50",
-			iconBg: "bg-emerald-100 text-emerald-800",
-			valColor: "text-emerald-900",
+			border: "border-emerald-500/30",
+			bg: "bg-emerald-500/10",
+			iconBg: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300",
+			valColor: "text-emerald-800 dark:text-emerald-300",
 		},
 		blue: {
-			border: "border-blue-200",
-			bg: "bg-blue-50/50",
-			iconBg: "bg-blue-100 text-blue-800",
-			valColor: "text-blue-900",
+			border: "border-sky-500/30",
+			bg: "bg-sky-500/10",
+			iconBg: "bg-sky-500/20 text-sky-700 dark:text-sky-300",
+			valColor: "text-sky-800 dark:text-sky-300",
 		},
 		rose: {
-			border: "border-rose-200",
-			bg: "bg-rose-50/50",
-			iconBg: "bg-rose-100 text-rose-800",
-			valColor: "text-rose-900",
+			border: "border-rose-500/30",
+			bg: "bg-rose-500/10",
+			iconBg: "bg-rose-500/20 text-rose-700 dark:text-rose-300",
+			valColor: "text-rose-800 dark:text-rose-300",
 		},
 	}[variant];
 
@@ -53,12 +53,12 @@ export function KpiCard({
 			className={`p-5 rounded-xl border ${variantStyles.border} ${variantStyles.bg} flex items-center justify-between shadow-xs transition-all hover:shadow-sm`}
 		>
 			<div className="flex flex-col gap-1">
-				<span className="text-xs font-medium text-[#71717a]">{title}</span>
+				<span className="text-xs font-medium text-muted-foreground">{title}</span>
 				<span className={`text-3xl font-bold ${variantStyles.valColor}`}>
 					{value}
 				</span>
 				{subtext && (
-					<span className="text-[11px] text-[#71717a]">{subtext}</span>
+					<span className="text-[11px] text-muted-foreground">{subtext}</span>
 				)}
 			</div>
 			<div className={`p-3 rounded-lg ${variantStyles.iconBg}`}>

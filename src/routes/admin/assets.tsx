@@ -327,15 +327,15 @@ function AdminAssetsComponent() {
 	const getAssetTypeBadge = (type: string) => {
 		const label = ASSET_TYPE_LABELS[type as AssetType] || type;
 		const colorClasses: Record<string, string> = {
-			room: "bg-blue-50 text-blue-700 border-blue-200",
-			dormitory: "bg-purple-50 text-purple-700 border-purple-200",
-			vehicle: "bg-emerald-50 text-emerald-700 border-emerald-200",
-			field: "bg-amber-50 text-amber-700 border-amber-200",
-			equipment: "bg-slate-100 text-slate-700 border-slate-200",
+			room: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20",
+			dormitory: "bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/20",
+			vehicle: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20",
+			field: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20",
+			equipment: "bg-slate-500/10 text-slate-700 dark:text-slate-300 border-slate-500/20",
 		};
 		return (
 			<span
-				className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded border ${colorClasses[type] || "bg-zinc-100 text-zinc-700 border-zinc-200"}`}
+				className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded border ${colorClasses[type] || "bg-muted text-muted-foreground border-border"}`}
 			>
 				{label}
 			</span>
@@ -344,8 +344,8 @@ function AdminAssetsComponent() {
 
 	if (loading) {
 		return (
-			<div className="flex h-full items-center justify-center bg-white">
-				<div className="text-sm font-medium text-[#71717a] animate-pulse">
+			<div className="flex h-full items-center justify-center bg-background">
+				<div className="text-sm font-medium text-muted-foreground animate-pulse">
 					Memuat daftar aset...
 				</div>
 			</div>
@@ -356,10 +356,10 @@ function AdminAssetsComponent() {
 		<div className="flex flex-col gap-6">
 			<div className="flex items-center justify-between">
 				<div className="flex flex-col gap-1">
-					<h2 className="text-2xl font-bold tracking-tight text-[#09090b]">
+					<h2 className="text-2xl font-bold tracking-tight text-foreground">
 						Kelola Fasilitas & Aset
 					</h2>
-					<p className="text-xs text-[#71717a]">
+					<p className="text-xs text-muted-foreground">
 						Kelola ruangan, asrama, kendaraan, lapangan, peralatan, jadwal
 						operasional, dan hari libur
 					</p>
@@ -367,7 +367,7 @@ function AdminAssetsComponent() {
 				{(currentUser as any)?.role !== "pimpinan" && (
 					<button
 						onClick={handleOpenCreate}
-						className="flex items-center gap-2 px-3 py-2 bg-[#09090b] text-white hover:bg-[#27272a] rounded-md text-xs font-semibold shadow-sm outline-none transition-colors"
+						className="flex items-center gap-2 px-3.5 py-2 bg-primary text-primary-foreground hover:opacity-90 rounded-md text-xs font-semibold shadow-xs outline-none transition-opacity cursor-pointer"
 					>
 						<Plus size={16} />
 						<span>Tambah Aset</span>
@@ -376,12 +376,12 @@ function AdminAssetsComponent() {
 			</div>
 
 			{error && (
-				<div className="p-4 bg-[#fef2f2] border border-[#fecaca] text-[#e11d48] text-sm rounded-lg flex items-center gap-3">
+				<div className="p-4 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-lg flex items-center gap-3">
 					<AlertCircle size={20} />
 					<span>{error}</span>
 					<button
 						onClick={fetchAssets}
-						className="ml-auto underline font-medium"
+						className="ml-auto underline font-medium cursor-pointer"
 					>
 						Coba Lagi
 					</button>
@@ -389,11 +389,11 @@ function AdminAssetsComponent() {
 			)}
 
 			{/* Assets Table */}
-			<div className="border border-[#e4e4e7] rounded-xl overflow-hidden shadow-sm bg-white">
+			<div className="border border-border rounded-xl overflow-hidden shadow-xs bg-card">
 				<div className="overflow-x-auto">
 					<table className="w-full text-left border-collapse">
 						<thead>
-							<tr className="bg-[#fafafa] border-b border-[#e4e4e7] text-xs font-semibold text-[#71717a]">
+							<tr className="bg-muted/40 border-b border-border text-xs font-semibold text-muted-foreground">
 								<th className="p-4">Nama Fasilitas / Aset</th>
 								<th className="p-4">Tipe Fasilitas</th>
 								<th className="p-4">Lokasi</th>
@@ -402,17 +402,17 @@ function AdminAssetsComponent() {
 								<th className="p-4 text-right">Aksi</th>
 							</tr>
 						</thead>
-						<tbody className="divide-y divide-[#e4e4e7] text-sm">
+						<tbody className="divide-y divide-border text-sm">
 							{paginatedAssets.length === 0 ? (
 								<tr>
 									<td
 										colSpan={6}
 										className="p-12 text-center flex flex-col gap-2 justify-center items-center"
 									>
-										<h3 className="font-semibold text-lg text-[#09090b]">
+										<h3 className="font-semibold text-lg text-foreground">
 											Belum ada fasilitas / aset
 										</h3>
-										<p className="text-xs text-[#71717a]">
+										<p className="text-xs text-muted-foreground">
 											Tambahkan ruangan, asrama, kendaraan, lapangan, atau
 											peralatan untuk mulai mengelola peminjaman.
 										</p>
@@ -420,19 +420,19 @@ function AdminAssetsComponent() {
 								</tr>
 							) : (
 								paginatedAssets.map((asset) => (
-									<tr key={asset.id} className="hover:bg-[#fafafa]">
-										<td className="p-4 font-medium text-[#09090b]">
+									<tr key={asset.id} className="hover:bg-muted/30 transition-colors">
+										<td className="p-4 font-medium text-foreground">
 											{asset.name}
 										</td>
 										<td className="p-4">{getAssetTypeBadge(asset.type)}</td>
-										<td className="p-4 text-[#71717a]">
+										<td className="p-4 text-muted-foreground">
 											{asset.location || "—"}
 										</td>
-										<td className="p-4 text-[#09090b]">
+										<td className="p-4 text-foreground">
 											<div className="flex flex-col">
 												<span className="font-semibold">{asset.capacity} pax/unit</span>
 												{asset.type === "room" && asset.roomLayouts && asset.roomLayouts.length > 0 && (
-													<span className="text-[10px] text-[#71717a] font-mono">
+													<span className="text-[10px] text-muted-foreground font-mono">
 														{asset.roomLayouts.map((l) => `${l.name}: ${l.maxCapacity}`).join(" • ")}
 													</span>
 												)}
@@ -440,12 +440,12 @@ function AdminAssetsComponent() {
 										</td>
 										<td className="p-4">
 											<span
-												className={`px-2 py-0.5 text-[10px] font-semibold uppercase rounded ${
+												className={`px-2 py-0.5 text-[10px] font-semibold uppercase rounded border ${
 													asset.status === "active"
-														? "bg-[#ecfdf5] text-[#059669]"
+														? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20"
 														: asset.status === "inactive"
-															? "bg-[#fffbeb] text-[#d97706]"
-															: "bg-[#fef2f2] text-[#e11d48]"
+															? "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20"
+															: "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20"
 												}`}
 											>
 												{asset.status === "active"
@@ -462,21 +462,21 @@ function AdminAssetsComponent() {
 														<button
 															onClick={() => handleOpenSchedules(asset)}
 															title="Atur Jadwal Operasional & Hari Libur"
-															className="p-2 text-[#71717a] hover:text-[#09090b] hover:bg-[#e4e4e7] rounded-md transition-colors"
+															className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors cursor-pointer"
 														>
 															<Calendar size={16} />
 														</button>
 														<button
 															onClick={() => handleOpenEdit(asset)}
 															title="Edit Data Aset"
-															className="p-2 text-[#71717a] hover:text-[#09090b] hover:bg-[#e4e4e7] rounded-md transition-colors"
+															className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors cursor-pointer"
 														>
 															<Edit2 size={16} />
 														</button>
 														<button
 															onClick={() => handleOpenArchive(asset)}
 															title="Arsipkan Aset"
-															className="p-2 text-[#71717a] hover:text-[#e11d48] hover:bg-[#fef2f2] rounded-md transition-colors"
+															className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md transition-colors cursor-pointer"
 														>
 															<Archive size={16} />
 														</button>
@@ -491,7 +491,7 @@ function AdminAssetsComponent() {
 				</div>
 
 				{/* Pagination */}
-				<div className="p-4 border-t border-[#e4e4e7] flex items-center justify-between text-xs text-[#71717a] bg-[#fafafa]">
+				<div className="p-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground bg-muted/40">
 					<span>
 						Menampilkan {totalItems > 0 ? startIndex + 1 : 0}-{endIndex} dari
 						total {totalItems} aset
@@ -500,14 +500,14 @@ function AdminAssetsComponent() {
 						<button
 							onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
 							disabled={currentPage === 1}
-							className="px-3 py-1.5 border border-[#e4e4e7] bg-white rounded-md font-medium hover:bg-[#fafafa] disabled:opacity-50 disabled:cursor-not-allowed"
+							className="px-3 py-1.5 border border-border bg-card text-foreground rounded-md font-medium hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
 						>
 							Sebelumnya
 						</button>
 						<button
 							onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
 							disabled={currentPage === totalPages}
-							className="px-3 py-1.5 border border-[#e4e4e7] bg-white rounded-md font-medium hover:bg-[#fafafa] disabled:opacity-50 disabled:cursor-not-allowed"
+							className="px-3 py-1.5 border border-border bg-card text-foreground rounded-md font-medium hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
 						>
 							Selanjutnya
 						</button>
@@ -517,26 +517,26 @@ function AdminAssetsComponent() {
 
 			{/* Asset Create/Edit Form Modal */}
 			{showForm && (
-				<div className="fixed inset-0 bg-[#09090b]/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+				<div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
 					<form
 						onSubmit={handleSaveAsset}
-						className="w-full max-w-[450px] bg-white border border-[#e4e4e7] rounded-xl shadow-lg p-6 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150"
+						className="w-full max-w-[450px] bg-card border border-border rounded-xl shadow-xl p-6 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150 text-foreground"
 					>
-						<div className="flex items-center justify-between border-b border-[#e4e4e7] pb-3">
-							<h3 className="text-base font-bold text-[#09090b]">
+						<div className="flex items-center justify-between border-b border-border pb-3">
+							<h3 className="text-base font-bold text-foreground">
 								{formId ? "Edit Aset / Fasilitas" : "Tambah Aset Baru"}
 							</h3>
 							<button
 								type="button"
 								onClick={() => setShowForm(false)}
-								className="text-[#71717a] hover:text-[#09090b]"
+								className="text-muted-foreground hover:text-foreground cursor-pointer"
 							>
 								<X size={18} />
 							</button>
 						</div>
 
 						{formError && (
-							<div className="p-3 bg-[#fef2f2] border border-[#fecaca] text-[#e11d48] text-xs rounded-md">
+							<div className="p-3 bg-destructive/10 border border-destructive/20 text-destructive text-xs rounded-md">
 								{formError}
 							</div>
 						)}
@@ -544,7 +544,7 @@ function AdminAssetsComponent() {
 						<div className="flex flex-col gap-1">
 							<label
 								htmlFor="assetName"
-								className="text-xs font-medium text-[#71717a]"
+								className="text-xs font-medium text-muted-foreground"
 							>
 								Nama Fasilitas / Aset
 							</label>
@@ -554,7 +554,7 @@ function AdminAssetsComponent() {
 								disabled={formLoading}
 								value={formName}
 								onChange={(e) => setFormName(e.target.value)}
-								className="px-3 py-2 border border-[#e4e4e7] rounded-md text-sm outline-none focus:ring-2 focus:ring-[#09090b] focus:border-transparent"
+								className="px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
 								placeholder="contoh: Ruang Rapat Garuda / Mobil Avanza Dinas / Lapangan Futsal"
 							/>
 						</div>
@@ -562,7 +562,7 @@ function AdminAssetsComponent() {
 						<div className="flex flex-col gap-1">
 							<label
 								htmlFor="assetType"
-								className="text-xs font-medium text-[#71717a]"
+								className="text-xs font-medium text-muted-foreground"
 							>
 								Tipe Fasilitas
 							</label>
@@ -571,7 +571,7 @@ function AdminAssetsComponent() {
 								disabled={formLoading}
 								value={formType}
 								onChange={(e) => setFormType(e.target.value)}
-								className="px-3 py-2 border border-[#e4e4e7] rounded-md text-sm bg-white outline-none focus:ring-2 focus:ring-[#09090b] focus:border-transparent font-medium"
+								className="px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-medium cursor-pointer"
 							>
 								{ASSET_TYPES.map((t) => (
 									<option key={t} value={t}>
@@ -584,7 +584,7 @@ function AdminAssetsComponent() {
 						<div className="flex flex-col gap-1">
 							<label
 								htmlFor="assetLocation"
-								className="text-xs font-medium text-[#71717a]"
+								className="text-xs font-medium text-muted-foreground"
 							>
 								Lokasi / Penempatan
 							</label>
@@ -594,7 +594,7 @@ function AdminAssetsComponent() {
 								disabled={formLoading}
 								value={formLocation}
 								onChange={(e) => setFormLocation(e.target.value)}
-								className="px-3 py-2 border border-[#e4e4e7] rounded-md text-sm outline-none focus:ring-2 focus:ring-[#09090b] focus:border-transparent"
+								className="px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
 								placeholder="contoh: Gedung Utama Lantai 2 / Garasi Kendaraan"
 							/>
 						</div>
@@ -602,7 +602,7 @@ function AdminAssetsComponent() {
 						<div className="flex flex-col gap-1">
 							<label
 								htmlFor="assetCapacity"
-								className="text-xs font-medium text-[#71717a]"
+								className="text-xs font-medium text-muted-foreground"
 							>
 								Kapasitas Dasar / Maksimal (Pax)
 							</label>
@@ -612,95 +612,95 @@ function AdminAssetsComponent() {
 								disabled={formLoading}
 								value={formCapacity}
 								onChange={(e) => handleCapacityChange(Number(e.target.value))}
-								className="px-3 py-2 border border-[#e4e4e7] rounded-md text-sm outline-none focus:ring-2 focus:ring-[#09090b] focus:border-transparent"
+								className="px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
 								min={1}
 							/>
 						</div>
 
 						{formType === "room" && (
-							<div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg flex flex-col gap-3">
+							<div className="p-3.5 bg-muted/40 border border-border rounded-lg flex flex-col gap-3">
 								<div className="flex items-center justify-between">
-									<label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+									<label className="text-xs font-bold text-foreground flex items-center gap-1.5">
 										<span>Tata Letak Ruangan (Layout & Kapasitas)</span>
 									</label>
-									<span className="text-[10px] text-slate-500 font-mono">Custom per Ruangan</span>
+									<span className="text-[10px] text-muted-foreground font-mono">Custom per Ruangan</span>
 								</div>
-								<p className="text-[11px] text-slate-600 leading-tight">
+								<p className="text-[11px] text-muted-foreground leading-tight">
 									Aktifkan dan atur kapasitas maksimal khusus untuk setiap opsi tata letak:
 								</p>
 
 								{/* Island */}
-								<div className="flex items-center justify-between gap-3 bg-white p-2.5 rounded-md border border-slate-200">
-									<label className="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-slate-700">
+								<div className="flex items-center justify-between gap-3 bg-card p-2.5 rounded-md border border-border">
+									<label className="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-foreground">
 										<input
 											type="checkbox"
 											checked={formLayoutIslandEnabled}
 											onChange={(e) => setFormLayoutIslandEnabled(e.target.checked)}
-											className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+											className="rounded border-border text-primary focus:ring-primary"
 										/>
 										<span>🌴 Island</span>
 									</label>
 									<div className="flex items-center gap-1.5">
-										<span className="text-[10px] text-slate-500">Maks:</span>
+										<span className="text-[10px] text-muted-foreground">Maks:</span>
 										<input
 											type="number"
 											min={1}
 											disabled={!formLayoutIslandEnabled || formLoading}
 											value={formLayoutIslandCap}
 											onChange={(e) => setFormLayoutIslandCap(Math.max(1, Number(e.target.value)))}
-											className="w-16 px-2 py-1 text-xs border border-slate-300 rounded text-right disabled:bg-slate-100 disabled:text-slate-400"
+											className="w-16 px-2 py-1 text-xs bg-background text-foreground border border-border rounded text-right disabled:opacity-40"
 										/>
-										<span className="text-[10px] text-slate-500">Pax</span>
+										<span className="text-[10px] text-muted-foreground">Pax</span>
 									</div>
 								</div>
 
 								{/* U-Shape */}
-								<div className="flex items-center justify-between gap-3 bg-white p-2.5 rounded-md border border-slate-200">
-									<label className="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-slate-700">
+								<div className="flex items-center justify-between gap-3 bg-card p-2.5 rounded-md border border-border">
+									<label className="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-foreground">
 										<input
 											type="checkbox"
 											checked={formLayoutUshapeEnabled}
 											onChange={(e) => setFormLayoutUshapeEnabled(e.target.checked)}
-											className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+											className="rounded border-border text-primary focus:ring-primary"
 										/>
 										<span>🔲 U-Shape</span>
 									</label>
 									<div className="flex items-center gap-1.5">
-										<span className="text-[10px] text-slate-500">Maks:</span>
+										<span className="text-[10px] text-muted-foreground">Maks:</span>
 										<input
 											type="number"
 											min={1}
 											disabled={!formLayoutUshapeEnabled || formLoading}
 											value={formLayoutUshapeCap}
 											onChange={(e) => setFormLayoutUshapeCap(Math.max(1, Number(e.target.value)))}
-											className="w-16 px-2 py-1 text-xs border border-slate-300 rounded text-right disabled:bg-slate-100 disabled:text-slate-400"
+											className="w-16 px-2 py-1 text-xs bg-background text-foreground border border-border rounded text-right disabled:opacity-40"
 										/>
-										<span className="text-[10px] text-slate-500">Pax</span>
+										<span className="text-[10px] text-muted-foreground">Pax</span>
 									</div>
 								</div>
 
 								{/* Classroom */}
-								<div className="flex items-center justify-between gap-3 bg-white p-2.5 rounded-md border border-slate-200">
-									<label className="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-slate-700">
+								<div className="flex items-center justify-between gap-3 bg-card p-2.5 rounded-md border border-border">
+									<label className="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-foreground">
 										<input
 											type="checkbox"
 											checked={formLayoutClassroomEnabled}
 											onChange={(e) => setFormLayoutClassroomEnabled(e.target.checked)}
-											className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+											className="rounded border-border text-primary focus:ring-primary"
 										/>
 										<span>🎓 Classroom</span>
 									</label>
 									<div className="flex items-center gap-1.5">
-										<span className="text-[10px] text-slate-500">Maks:</span>
+										<span className="text-[10px] text-muted-foreground">Maks:</span>
 										<input
 											type="number"
 											min={1}
 											disabled={!formLayoutClassroomEnabled || formLoading}
 											value={formLayoutClassroomCap}
 											onChange={(e) => setFormLayoutClassroomCap(Math.max(1, Number(e.target.value)))}
-											className="w-16 px-2 py-1 text-xs border border-slate-300 rounded text-right disabled:bg-slate-100 disabled:text-slate-400"
+											className="w-16 px-2 py-1 text-xs bg-background text-foreground border border-border rounded text-right disabled:opacity-40"
 										/>
-										<span className="text-[10px] text-slate-500">Pax</span>
+										<span className="text-[10px] text-muted-foreground">Pax</span>
 									</div>
 								</div>
 							</div>
@@ -709,7 +709,7 @@ function AdminAssetsComponent() {
 						<div className="flex flex-col gap-1">
 							<label
 								htmlFor="assetStatus"
-								className="text-xs font-medium text-[#71717a]"
+								className="text-xs font-medium text-muted-foreground"
 							>
 								Status
 							</label>
@@ -718,25 +718,25 @@ function AdminAssetsComponent() {
 								disabled={formLoading}
 								value={formStatus}
 								onChange={(e) => setFormStatus(e.target.value)}
-								className="px-3 py-2 border border-[#e4e4e7] rounded-md text-sm bg-white outline-none focus:ring-2 focus:ring-[#09090b] focus:border-transparent"
+								className="px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground outline-none focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer"
 							>
 								<option value="active">Aktif (Dapat Dipinjam)</option>
 								<option value="inactive">Nonaktif (Pemeliharaan)</option>
 							</select>
 						</div>
 
-						<div className="flex gap-3 justify-end border-t border-[#e4e4e7] pt-3 mt-2">
+						<div className="flex gap-3 justify-end border-t border-border pt-3 mt-2">
 							<button
 								type="button"
 								onClick={() => setShowForm(false)}
-								className="px-3 py-1.5 border border-[#e4e4e7] bg-white text-xs font-medium rounded-md hover:bg-[#fafafa]"
+								className="px-3.5 py-2 border border-border bg-card text-foreground text-xs font-medium rounded-md hover:bg-muted cursor-pointer"
 							>
 								Batal
 							</button>
 							<button
 								type="submit"
 								disabled={formLoading}
-								className="px-3 py-1.5 bg-[#09090b] text-white text-xs font-medium rounded-md hover:bg-[#27272a] disabled:opacity-50"
+								className="px-3.5 py-2 bg-primary text-primary-foreground text-xs font-semibold rounded-md hover:opacity-90 disabled:opacity-50 cursor-pointer shadow-xs"
 							>
 								{formLoading ? "Menyimpan..." : "Simpan Aset"}
 							</button>
@@ -747,49 +747,49 @@ function AdminAssetsComponent() {
 
 			{/* Availability & Closures Modal */}
 			{showScheduleModal && scheduleAsset && (
-				<div className="fixed inset-0 bg-[#09090b]/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-					<div className="w-full max-w-[600px] bg-white border border-[#e4e4e7] rounded-xl shadow-lg p-6 flex flex-col gap-5 max-h-[85vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
-						<div className="flex items-center justify-between border-b border-[#e4e4e7] pb-3">
+				<div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+					<div className="w-full max-w-[600px] bg-card border border-border rounded-xl shadow-xl p-6 flex flex-col gap-5 max-h-[85vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150 text-foreground">
+						<div className="flex items-center justify-between border-b border-border pb-3">
 							<div className="flex flex-col">
-								<h3 className="text-base font-bold text-[#09090b]">
+								<h3 className="text-base font-bold text-foreground">
 									Konfigurasi Jadwal & Hari Libur
 								</h3>
-								<p className="text-xs text-[#71717a] font-medium">
+								<p className="text-xs text-muted-foreground font-medium">
 									{scheduleAsset.name}
 								</p>
 							</div>
 							<button
 								type="button"
 								onClick={() => setShowScheduleModal(false)}
-								className="text-[#71717a] hover:text-[#09090b]"
+								className="text-muted-foreground hover:text-foreground cursor-pointer"
 							>
 								<X size={18} />
 							</button>
 						</div>
 
 						{scheduleError && (
-							<div className="p-3 bg-[#fef2f2] border border-[#fecaca] text-[#e11d48] text-xs rounded-md">
+							<div className="p-3 bg-destructive/10 border border-destructive/20 text-destructive text-xs rounded-md">
 								{scheduleError}
 							</div>
 						)}
 
 						{/* Weekly Availability Sections */}
 						<div className="flex flex-col gap-3">
-							<h4 className="font-semibold text-xs text-[#09090b] flex items-center gap-2">
-								<Clock size={16} />
+							<h4 className="font-semibold text-xs text-foreground flex items-center gap-2">
+								<Clock size={16} className="text-primary" />
 								<span>Jadwal Operasional Mingguan (WIB)</span>
 							</h4>
 
 							{/* Add availability form */}
-							<div className="grid grid-cols-4 gap-2 items-end p-3 bg-[#fafafa] border border-[#e4e4e7] rounded-lg">
+							<div className="grid grid-cols-4 gap-2 items-end p-3 bg-muted/40 border border-border rounded-lg">
 								<div className="flex flex-col gap-1">
-									<label className="text-[10px] font-medium text-[#71717a]">
+									<label className="text-[10px] font-medium text-muted-foreground">
 										Hari
 									</label>
 									<select
 										value={newDay}
 										onChange={(e) => setNewDay(Number(e.target.value))}
-										className="px-2 py-1 border border-[#e4e4e7] rounded text-xs bg-white"
+										className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground"
 									>
 										{DAYS_ID.map((d, i) => (
 											<option key={i} value={i}>
@@ -799,40 +799,40 @@ function AdminAssetsComponent() {
 									</select>
 								</div>
 								<div className="flex flex-col gap-1">
-									<label className="text-[10px] font-medium text-[#71717a]">
+									<label className="text-[10px] font-medium text-muted-foreground">
 										Jam Buka
 									</label>
 									<input
 										type="time"
 										value={newOpen}
 										onChange={(e) => setNewOpen(e.target.value)}
-										className="px-2 py-1 border border-[#e4e4e7] rounded text-xs"
+										className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground"
 									/>
 								</div>
 								<div className="flex flex-col gap-1">
-									<label className="text-[10px] font-medium text-[#71717a]">
+									<label className="text-[10px] font-medium text-muted-foreground">
 										Jam Tutup
 									</label>
 									<input
 										type="time"
 										value={newClose}
 										onChange={(e) => setNewClose(e.target.value)}
-										className="px-2 py-1 border border-[#e4e4e7] rounded text-xs"
+										className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground"
 									/>
 								</div>
 								<button
 									type="button"
 									onClick={handleAddAvailability}
-									className="px-3 py-1.5 bg-[#09090b] text-white hover:bg-[#27272a] rounded text-xs font-semibold"
+									className="px-3 py-1.5 bg-primary text-primary-foreground hover:opacity-90 rounded text-xs font-semibold cursor-pointer shadow-xs"
 								>
 									Tambah
 								</button>
 							</div>
 
 							{/* Schedule list */}
-							<div className="flex flex-col gap-1 max-h-[150px] overflow-y-auto border border-[#e4e4e7] rounded-lg divide-y divide-[#e4e4e7]">
+							<div className="flex flex-col gap-1 max-h-[150px] overflow-y-auto border border-border rounded-lg divide-y divide-border">
 								{availList.length === 0 ? (
-									<div className="p-3 text-center text-xs text-[#71717a]">
+									<div className="p-3 text-center text-xs text-muted-foreground">
 										Belum ada jadwal operasional khusus (terbuka 24 jam /
 										bebas).
 									</div>
@@ -840,17 +840,17 @@ function AdminAssetsComponent() {
 									availList.map((slot, index) => (
 										<div
 											key={index}
-											className="flex justify-between items-center p-2.5 text-xs"
+											className="flex justify-between items-center p-2.5 text-xs hover:bg-muted/20"
 										>
-											<span className="font-medium">
+											<span className="font-medium text-foreground">
 												{DAYS_ID[slot.dayOfWeek]}
 											</span>
-											<span className="text-[#71717a] font-mono">
+											<span className="text-muted-foreground font-mono">
 												{slot.openTime} - {slot.closeTime} WIB
 											</span>
 											<button
 												onClick={() => handleRemoveAvailability(index)}
-												className="text-[#e11d48] hover:bg-[#fef2f2] px-2 py-0.5 rounded text-[11px]"
+												className="text-destructive hover:bg-destructive/10 px-2 py-0.5 rounded text-[11px] cursor-pointer"
 											>
 												Hapus
 											</button>
@@ -861,52 +861,52 @@ function AdminAssetsComponent() {
 						</div>
 
 						{/* Date-specific Closures Section */}
-						<div className="flex flex-col gap-3 border-t border-[#e4e4e7] pt-4">
-							<h4 className="font-semibold text-xs text-[#09090b] flex items-center gap-2">
-								<Calendar size={16} />
+						<div className="flex flex-col gap-3 border-t border-border pt-4">
+							<h4 className="font-semibold text-xs text-foreground flex items-center gap-2">
+								<Calendar size={16} className="text-amber-500" />
 								<span>Penutupan Khusus / Hari Libur / Pemeliharaan</span>
 							</h4>
 
 							{/* Add closure form */}
-							<div className="grid grid-cols-4 gap-2 items-end p-3 bg-[#fafafa] border border-[#e4e4e7] rounded-lg">
+							<div className="grid grid-cols-4 gap-2 items-end p-3 bg-muted/40 border border-border rounded-lg">
 								<div className="col-span-3 flex flex-col gap-1">
-									<label className="text-[10px] font-medium text-[#71717a]">
+									<label className="text-[10px] font-medium text-muted-foreground">
 										Tanggal Penutupan
 									</label>
 									<input
 										type="date"
 										value={newClosureDate}
 										onChange={(e) => setNewClosureDate(e.target.value)}
-										className="px-2 py-1.5 border border-[#e4e4e7] rounded text-xs bg-white outline-none w-full"
+										className="px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground outline-none w-full"
 									/>
 								</div>
 								<button
 									type="button"
 									onClick={handleAddClosure}
-									className="px-3 py-1.5 bg-[#09090b] text-white hover:bg-[#27272a] rounded text-xs font-semibold h-[32px] flex items-center justify-center"
+									className="px-3 py-1.5 bg-primary text-primary-foreground hover:opacity-90 rounded text-xs font-semibold h-[32px] flex items-center justify-center cursor-pointer shadow-xs"
 								>
 									Tambah
 								</button>
 							</div>
 
 							{/* Closures list */}
-							<div className="flex flex-col gap-1 max-h-[150px] overflow-y-auto border border-[#e4e4e7] rounded-lg divide-y divide-[#e4e4e7]">
+							<div className="flex flex-col gap-1 max-h-[150px] overflow-y-auto border border-border rounded-lg divide-y divide-border">
 								{closuresList.length === 0 ? (
-									<div className="p-3 text-center text-xs text-[#71717a]">
+									<div className="p-3 text-center text-xs text-muted-foreground">
 										Tidak ada tanggal penutupan khusus.
 									</div>
 								) : (
 									closuresList.map((closure, index) => (
 										<div
 											key={index}
-											className="flex justify-between items-center p-2.5 text-xs"
+											className="flex justify-between items-center p-2.5 text-xs hover:bg-muted/20"
 										>
-											<span className="font-mono font-medium">
+											<span className="font-mono font-medium text-foreground">
 												{closure.date}
 											</span>
 											<button
 												onClick={() => handleRemoveClosure(index)}
-												className="text-[#e11d48] hover:bg-[#fef2f2] px-2 py-0.5 rounded text-[11px]"
+												className="text-destructive hover:bg-destructive/10 px-2 py-0.5 rounded text-[11px] cursor-pointer"
 											>
 												Hapus
 											</button>
@@ -916,19 +916,19 @@ function AdminAssetsComponent() {
 							</div>
 						</div>
 
-						<div className="flex gap-3 justify-end border-t border-[#e4e4e7] pt-3 mt-2">
+						<div className="flex gap-3 justify-end border-t border-border pt-3 mt-2">
 							<button
 								type="button"
 								onClick={() => setShowScheduleModal(false)}
 								disabled={scheduleLoading}
-								className="px-3 py-1.5 border border-[#e4e4e7] bg-white text-xs font-medium rounded-md hover:bg-[#fafafa]"
+								className="px-3.5 py-2 border border-border bg-card text-foreground text-xs font-medium rounded-md hover:bg-muted cursor-pointer"
 							>
 								Batal
 							</button>
 							<button
 								onClick={handleSaveSchedules}
 								disabled={scheduleLoading}
-								className="px-3 py-1.5 bg-[#09090b] text-white text-xs font-medium rounded-md hover:bg-[#27272a] disabled:opacity-50"
+								className="px-3.5 py-2 bg-primary text-primary-foreground text-xs font-semibold rounded-md hover:opacity-90 disabled:opacity-50 cursor-pointer shadow-xs"
 							>
 								{scheduleLoading ? "Menyimpan..." : "Simpan Jadwal"}
 							</button>
@@ -939,15 +939,15 @@ function AdminAssetsComponent() {
 
 			{/* Archive Confirmation Dialog */}
 			{showArchiveConfirm && archiveTarget && (
-				<div className="fixed inset-0 bg-[#09090b]/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-					<div className="w-full max-w-[450px] bg-white border border-[#e4e4e7] rounded-xl shadow-lg p-6 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150">
+				<div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+					<div className="w-full max-w-[450px] bg-card border border-border rounded-xl shadow-xl p-6 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150 text-foreground">
 						<div className="flex flex-col gap-2">
-							<h3 className="text-base font-bold text-[#09090b]">
+							<h3 className="text-base font-bold text-destructive">
 								Arsipkan Fasilitas / Aset
 							</h3>
-							<p className="text-xs text-[#71717a] leading-relaxed">
+							<p className="text-xs text-muted-foreground leading-relaxed">
 								Apakah Anda yakin ingin mengarsipkan aset{" "}
-								<strong>"{archiveTarget.name}"</strong>? Aset tidak akan muncul
+								<strong className="text-foreground">"{archiveTarget.name}"</strong>? Aset tidak akan muncul
 								lagi di katalog peminjaman publik, namun seluruh riwayat
 								peminjaman dan log audit tetap tersimpan aman.
 							</p>
@@ -959,14 +959,14 @@ function AdminAssetsComponent() {
 									setArchiveTarget(null);
 								}}
 								disabled={formLoading}
-								className="px-3 py-1.5 border border-[#e4e4e7] bg-white hover:bg-[#fafafa] text-xs font-medium rounded-md transition-colors disabled:opacity-50"
+								className="px-3.5 py-2 border border-border bg-card hover:bg-muted text-foreground text-xs font-medium rounded-md transition-colors disabled:opacity-50 cursor-pointer"
 							>
 								Batal
 							</button>
 							<button
 								onClick={handleArchive}
 								disabled={formLoading}
-								className="px-3 py-1.5 bg-[#e11d48] text-white hover:bg-[#be123c] text-xs font-medium rounded-md transition-colors disabled:opacity-50"
+								className="px-3.5 py-2 bg-destructive text-destructive-foreground hover:opacity-90 text-xs font-semibold rounded-md transition-opacity disabled:opacity-50 cursor-pointer"
 							>
 								{formLoading ? "Mengarsipkan..." : "Ya, Arsipkan"}
 							</button>

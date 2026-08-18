@@ -101,10 +101,10 @@ function AdminAuditRouteComponent() {
 			{/* Header */}
 			<div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
 				<div className="flex flex-col gap-1">
-					<h2 className="text-2xl font-bold tracking-tight text-[#09090b]">
+					<h2 className="text-2xl font-bold tracking-tight text-foreground">
 						Riwayat Audit Sistem
 					</h2>
-					<p className="text-xs text-[#71717a]">
+					<p className="text-xs text-muted-foreground">
 						Jejak rekaman aktivitas transaksional (append-only) seluruh operasi
 						sarpras
 					</p>
@@ -113,15 +113,15 @@ function AdminAuditRouteComponent() {
 				<button
 					type="button"
 					onClick={fetchAuditLogs}
-					className="self-start md:self-auto px-3.5 py-2 bg-white border border-[#e4e4e7] text-xs font-semibold text-[#09090b] rounded-lg hover:bg-[#fafafa] transition-colors flex items-center gap-2 shadow-xs cursor-pointer"
+					className="self-start md:self-auto px-3.5 py-2 bg-card border border-border text-xs font-semibold text-foreground rounded-lg hover:bg-muted transition-colors flex items-center gap-2 shadow-xs cursor-pointer"
 				>
-					<RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+					<RefreshCw size={14} className={loading ? "animate-spin text-muted-foreground" : "text-muted-foreground"} />
 					<span>Segarkan Log</span>
 				</button>
 			</div>
 
 			{error && (
-				<div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs flex items-center gap-2">
+				<div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl text-destructive text-xs flex items-center gap-2">
 					<AlertCircle size={16} className="shrink-0" />
 					<span>{error}</span>
 				</div>

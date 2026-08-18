@@ -181,10 +181,10 @@ function AdminBookingsComponent() {
 			{/* Header */}
 			<div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
 				<div className="flex flex-col gap-1">
-					<h2 className="text-2xl font-bold tracking-tight text-[#09090b]">
+					<h2 className="text-2xl font-bold tracking-tight text-foreground">
 						Kelola Permohonan Booking
 					</h2>
-					<p className="text-xs text-[#71717a]">
+					<p className="text-xs text-muted-foreground">
 						Daftar permohonan peminjaman ruangan dan asrama PPKASN
 					</p>
 				</div>
@@ -195,13 +195,13 @@ function AdminBookingsComponent() {
 				<div
 					className={`p-4 rounded-xl text-xs flex items-center justify-between border ${
 						notification.type === "success"
-							? "bg-emerald-50 border-emerald-200 text-emerald-800"
-							: "bg-rose-50 border-rose-200 text-rose-800"
+							? "bg-emerald-500/10 border-emerald-500/20 text-emerald-800 dark:text-emerald-200"
+							: "bg-destructive/10 border-destructive/20 text-destructive"
 					}`}
 				>
 					<div className="flex items-center gap-2">
 						{notification.type === "success" ? (
-							<CheckCircle size={16} />
+							<CheckCircle size={16} className="text-emerald-600 dark:text-emerald-400" />
 						) : (
 							<AlertCircle size={16} />
 						)}
@@ -231,10 +231,10 @@ function AdminBookingsComponent() {
 			/>
 
 			{/* Bookings Table */}
-			<div className="bg-white border border-[#e4e4e7] rounded-xl shadow-xs overflow-hidden flex flex-col">
+			<div className="bg-card border border-border rounded-xl shadow-xs overflow-hidden flex flex-col">
 				<div className="overflow-x-auto">
 					<table className="w-full text-left text-xs border-collapse">
-						<thead className="bg-[#fafafa] border-b border-[#e4e4e7] text-[#71717a] uppercase font-semibold text-[11px]">
+						<thead className="bg-muted/40 border-b border-border text-muted-foreground uppercase font-semibold text-[11px]">
 							<tr>
 								<th className="py-3 px-4">Ref / Kode</th>
 								<th className="py-3 px-4">Fasilitas</th>
@@ -245,12 +245,12 @@ function AdminBookingsComponent() {
 								<th className="py-3 px-4 text-right">Aksi</th>
 							</tr>
 						</thead>
-						<tbody className="divide-y divide-[#e4e4e7]">
+						<tbody className="divide-y divide-border">
 							{loading && (
 								<tr>
 									<td
 										colSpan={7}
-										className="py-12 text-center text-[#71717a] font-medium"
+										className="py-12 text-center text-muted-foreground font-medium"
 									>
 										Memuat data permohonan...
 									</td>
@@ -259,10 +259,10 @@ function AdminBookingsComponent() {
 
 							{!loading && data?.items.length === 0 && (
 								<tr>
-									<td colSpan={7} className="py-16 text-center text-[#71717a]">
+									<td colSpan={7} className="py-16 text-center text-muted-foreground">
 										<div className="flex flex-col items-center justify-center gap-2">
-											<Inbox size={32} className="text-[#a1a1aa]" />
-											<span className="font-medium text-sm text-[#09090b]">
+											<Inbox size={32} className="text-muted-foreground/60" />
+											<span className="font-medium text-sm text-foreground">
 												Tidak Ada Data Ditemukan
 											</span>
 											<span className="text-xs">
@@ -278,9 +278,9 @@ function AdminBookingsComponent() {
 								data?.items.map((item) => (
 									<tr
 										key={item.id}
-										className="hover:bg-[#fafafa] transition-colors"
+										className="hover:bg-muted/30 transition-colors"
 									>
-										<td className="py-3 px-4 font-mono text-[11px] text-[#71717a]">
+										<td className="py-3 px-4 font-mono text-[11px] text-muted-foreground">
 											<div className="flex flex-col gap-0.5">
 												<span>{item.id.slice(0, 8)}...</span>
 												{item.groupId && (
@@ -293,10 +293,10 @@ function AdminBookingsComponent() {
 												)}
 											</div>
 										</td>
-										<td className="py-3 px-4 font-medium text-[#09090b]">
+										<td className="py-3 px-4 font-medium text-foreground">
 											<div className="flex flex-col">
 												<span>{item.assetName}</span>
-												<span className="text-[10px] text-[#71717a]">
+												<span className="text-[10px] text-muted-foreground">
 													{ASSET_TYPE_LABELS[item.assetType as AssetType] ||
 														item.assetType}
 												</span>
@@ -304,15 +304,15 @@ function AdminBookingsComponent() {
 										</td>
 										<td className="py-3 px-4">
 											<div className="flex flex-col">
-												<span className="font-semibold text-[#09090b]">
+												<span className="font-semibold text-foreground">
 													{item.requesterName}
 												</span>
-												<span className="text-[11px] text-[#71717a]">
+												<span className="text-[11px] text-muted-foreground">
 													{item.requesterOrganization || item.requesterEmail}
 												</span>
 											</div>
 										</td>
-										<td className="py-3 px-4 text-[#09090b]">
+										<td className="py-3 px-4 text-foreground">
 											<div className="flex flex-col text-[11px]">
 												<span>
 													{formatJakartaDisplay(
@@ -320,33 +320,33 @@ function AdminBookingsComponent() {
 														"dd MMM yyyy, HH:mm",
 													)}
 												</span>
-												<span className="text-[#71717a]">
+												<span className="text-muted-foreground">
 													s/d{" "}
 													{formatJakartaDisplay(item.endDate, "dd MMM, HH:mm")}{" "}
 													WIB
 												</span>
 											</div>
 										</td>
-										<td className="py-3 px-4 text-[#09090b]">
+										<td className="py-3 px-4 text-foreground">
 											{item.attendance ? (
 												<span className="flex items-center gap-1">
-													<Users size={13} className="text-[#71717a]" />
+													<Users size={13} className="text-muted-foreground" />
 													{item.attendance} orang
 												</span>
 											) : (
-												<span className="text-[#a1a1aa]">-</span>
+												<span className="text-muted-foreground/60">-</span>
 											)}
 										</td>
 										<td className="py-3 px-4">
 											<span
-												className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded ${
+												className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded border ${
 													item.status === "approved"
-														? "bg-emerald-100 text-emerald-800"
+														? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20"
 														: item.status === "rejected"
-															? "bg-rose-100 text-rose-800"
+															? "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20"
 															: item.status === "cancelled"
-																? "bg-zinc-100 text-zinc-800"
-																: "bg-amber-100 text-amber-800"
+																? "bg-muted text-muted-foreground border-border"
+																: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20"
 												}`}
 											>
 												{item.status === "approved"
@@ -363,7 +363,7 @@ function AdminBookingsComponent() {
 												<button
 													type="button"
 													onClick={() => setSelectedBookingId(item.id)}
-													className="px-2.5 py-1.5 bg-[#fafafa] hover:bg-[#e4e4e7] text-[#09090b] text-xs font-medium rounded border border-[#e4e4e7] transition-colors flex items-center gap-1 cursor-pointer"
+													className="px-2.5 py-1.5 bg-card hover:bg-muted text-foreground text-xs font-medium rounded border border-border transition-colors flex items-center gap-1 cursor-pointer"
 												>
 													<Eye size={13} />
 													<span>Tinjau</span>
@@ -375,7 +375,7 @@ function AdminBookingsComponent() {
 															<button
 																type="button"
 																onClick={() => handleApprove(item.id)}
-																className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded transition-colors cursor-pointer"
+																className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded transition-colors cursor-pointer shadow-xs"
 																title="Setujui permohonan langsung"
 															>
 																Setujui
@@ -390,7 +390,7 @@ function AdminBookingsComponent() {
 																		assetName: item.assetName,
 																	})
 																}
-																className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-medium rounded transition-colors cursor-pointer"
+																className="px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/20 text-xs font-semibold rounded transition-colors cursor-pointer"
 																title="Tolak permohonan"
 															>
 																Tolak
@@ -407,7 +407,7 @@ function AdminBookingsComponent() {
 
 				{/* Pagination Controls */}
 				{data && data.totalPages > 1 && (
-					<div className="p-4 border-t border-[#e4e4e7] flex items-center justify-between text-xs text-[#71717a] bg-[#fafafa]">
+					<div className="p-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground bg-muted/40">
 						<span>
 							Menampilkan {(data.page - 1) * data.limit + 1} -{" "}
 							{Math.min(data.page * data.limit, data.total)} dari {data.total}{" "}
@@ -418,19 +418,19 @@ function AdminBookingsComponent() {
 								type="button"
 								onClick={() => handlePageChange(data.page - 1)}
 								disabled={data.page <= 1}
-								className="px-2.5 py-1.5 border border-[#e4e4e7] rounded bg-white text-[#09090b] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f4f4f5] flex items-center gap-1 cursor-pointer"
+								className="px-2.5 py-1.5 border border-border rounded bg-card text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted flex items-center gap-1 cursor-pointer"
 							>
 								<ChevronLeft size={14} />
 								<span>Sebelumnya</span>
 							</button>
-							<span className="font-semibold text-[#09090b]">
+							<span className="font-semibold text-foreground">
 								Halaman {data.page} / {data.totalPages}
 							</span>
 							<button
 								type="button"
 								onClick={() => handlePageChange(data.page + 1)}
 								disabled={data.page >= data.totalPages}
-								className="px-2.5 py-1.5 border border-[#e4e4e7] rounded bg-white text-[#09090b] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f4f4f5] flex items-center gap-1 cursor-pointer"
+								className="px-2.5 py-1.5 border border-border rounded bg-card text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted flex items-center gap-1 cursor-pointer"
 							>
 								<span>Selanjutnya</span>
 								<ChevronRight size={14} />
