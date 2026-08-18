@@ -86,14 +86,15 @@ export const verifications = pgTable("verification", {
 });
 
 export const twoFactors = pgTable("two_factor", {
-	id: text("id")
-		.primaryKey()
-		.$defaultFn(() => crypto.randomUUID()),
+	id: text("id").primaryKey(),
 	secret: text("secret").notNull(),
 	backupCodes: text("backup_codes").notNull(),
 	userId: text("user_id")
 		.notNull()
 		.references(() => users.id, { onDelete: "cascade" }),
+	verified: boolean("verified").default(false),
+	failedVerificationCount: integer("failed_verification_count").default(0),
+	lockedUntil: timestamp("locked_until", { withTimezone: true }),
 });
 
 // --- Sarpras PPKASN Core Tables ---
@@ -104,9 +105,10 @@ export const assets = pgTable("assets", {
 	type: text("type").notNull(), // room, dormitory, field, vehicle, equipment
 	location: text("location"),
 	capacity: integer("capacity").notNull(),
-	roomLayouts: jsonb("room_layouts").$type<
-		Array<{ id: string; name: string; maxCapacity: number }>
-	>(),
+	roomLayouts:
+		jsonb("room_layouts").$type<
+			Array<{ id: string; name: string; maxCapacity: number }>
+		>(),
 	status: text("status").default("active").notNull(), // active, archived, inactive
 	legacyId: text("legacy_id").unique(),
 	createdAt: timestamp("created_at", { withTimezone: true })

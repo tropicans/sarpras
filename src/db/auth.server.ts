@@ -19,11 +19,11 @@ export const auth = betterAuth({
 		},
 	}),
 	plugins: [
-		tanstackStartCookies(),
 		twoFactor({
 			issuer: "SARPRAS PPKASN",
 			allowPasswordless: true,
 		}),
+		tanstackStartCookies(),
 	],
 	account: {
 		accountLinking: {
@@ -31,9 +31,6 @@ export const auth = betterAuth({
 			trustedProviders: ["google"],
 			requireLocalEmailVerified: false,
 		},
-	},
-	emailAndPassword: {
-		enabled: true,
 	},
 	socialProviders: {
 		...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
@@ -116,6 +113,13 @@ export const auth = betterAuth({
 								"Akun Anda tidak aktif atau belum terdaftar. Silakan hubungi Administrator.",
 						});
 					}
+
+					// Ensure passwordless OAuth accounts do not retain lingering legacy passwords
+					// which would cause 400 Bad Request (Invalid password) on 2FA enablement/disablement
+					await db
+						.update(schema.accounts)
+						.set({ password: null })
+						.where(eq(schema.accounts.userId, session.userId));
 
 					return { data: session };
 				},

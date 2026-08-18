@@ -232,13 +232,13 @@ async function main() {
 					legacyId: adminData.id,
 				});
 
-				// Insert credentials account row
+				// Insert credentials account row (password nullified for passwordless Google OAuth SSO)
 				await tx.insert(accounts).values({
 					id: `account-${adminData.id}`,
 					accountId: "credential",
 					providerId: "credential",
 					userId: targetUserId,
-					password: adminData.password_hash,
+					password: null,
 				});
 
 				// Write audit log
