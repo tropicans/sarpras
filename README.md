@@ -1,6 +1,6 @@
 # 🏢 Sarpras PPKASN - Sistem Informasi Sarana & Prasarana
 
-Sistem informasi reservasi fasilitas dan aset terpadu berbasis web untuk Pusat Pelatihan Karakter Terbuka / BKN / PPKASN. Dibangun menggunakan **TanStack Start (React 19)**, **Tailwind CSS v4**, dan **PostgreSQL** dengan **Drizzle ORM**.
+Sistem informasi reservasi fasilitas dan aset terpadu berbasis web untuk Pusat Pengembangan Kompetensi ASN (PPKASN) Kemensetneg RI. Dibangun menggunakan **TanStack Start (React 19)**, **Tailwind CSS v4**, dan **PostgreSQL** dengan **Drizzle ORM**.
 
 ---
 

@@ -1,6 +1,6 @@
 # 🏢 SARPRAS PPKASN - Dokumentasi Sistem Terpadu
 
-Selamat datang di repositori dokumentasi resmi sistem **SARPRAS** (Sistem Informasi Sarana dan Prasarana) Pusat Pelatihan Karakter Terbuka / BKN / PPKASN.
+Selamat datang di repositori dokumentasi resmi sistem **SARPRAS** (Sistem Informasi Sarana dan Prasarana) Pusat Pengembangan Kompetensi ASN (PPKASN) Kemensetneg RI.
 
 Sistem ini dirancang untuk mendigitalkan dan mengotomatiskan seluruh alur peminjaman fasilitas dan aset (ruang rapat, asrama, auditorium, kendaraan dinas, dll.) secara transparan, akuntabel, dan efisien dengan pencegahan *double-booking* secara *real-time*.
 

@@ -1,57 +1,94 @@
-# Testing Patterns & Quality Assurance
+# Testing Patterns
 
 **Analysis Date:** 2026-08-18
 
----
+## Test Framework
 
-## 1. Testing Framework & Philosophy
+**Runner:**
+- Node.js Native Test Runner (`node:test`)
+- TypeScript execution via `tsx` loader (`node --import tsx --test`)
 
-- **Test Runner:** Node.js native test runner (`node:test` + `node:assert/strict`) loaded via `tsx` (`node --import tsx --test`).
-- **Execution Command:** `pnpm test` (or targeted file execution: `node --import tsx --test path/to/file.test.ts`).
-- **Test File Pattern:** Co-located test files named `*.test.ts` alongside implementation modules.
+**Assertion Library:**
+- Node.js Native Assertion Module (`node:assert` and `node:assert/strict`)
+- Matchers: `assert.strictEqual`, `assert.deepStrictEqual`, `assert.ok`, `assert.match`, `assert.throws`, `assert.rejects`
 
----
+**Run Commands:**
+```bash
+# Run full test suite
+pnpm test
 
-## 2. Test Suite Breakdown
+# Run a specific test file
+npx tsx --test src/lib/booking/booking.test.ts
 
-| Domain | Test File | Key Coverage Areas |
-| :--- | :--- | :--- |
-| **Assets & Facilities** | `src/lib/assets/facilities.test.ts` | Dynamic tag sanitization, casing deduplication, length limits, default presets |
-| **Database Migrations** | `src/db/migration.test.ts` | Schema migration verification, constraints, indexes |
-| **Auth & Security** | `src/db/auth.test.ts` | Better Auth adapter, session creation, password hashing |
-| **RBAC** | `src/lib/auth/rbac.test.ts` | Role hierarchy rank evaluation, privilege gates (`admin`, `operator`, `pimpinan`) |
-| **2FA & MFA** | `src/lib/auth/two-factor.test.ts` | TOTP secret generation, backup code verification, login lockouts |
-| **2FA Bug Regression** | `src/lib/auth/two-factor-enable-bug.test.ts` | Enablement flow and verification states |
-| **2FA Password Regression**| `src/lib/auth/two-factor-password-bug.test.ts` | Password verification during 2FA enrollment |
-| **OAuth Bug Regression** | `src/lib/auth/oauth-linking-bug.test.ts` | OAuth account linking edge cases |
-| **Booking Engine** | `src/lib/booking/booking.test.ts` | Conflict detection, date overlap checking, room capacity validation |
-| **Booking Admin** | `src/lib/booking/admin.test.ts` | State machine transitions (`pending` -> `approved` / `rejected`), review workflows |
-| **WhatsApp Service** | `src/lib/whatsapp/phone.test.ts` | Indonesian phone number normalization (`08...`, `+628...` -> `628...`) |
-| **WhatsApp Templates** | `src/lib/whatsapp/templates.test.ts` | Dynamic message rendering for submission, approval, rejection, cancellation |
-| **WhatsApp Gateway** | `src/lib/whatsapp/service.test.ts` | Fonnte API call handling, mock console output fallback |
-| **Email Templates** | `src/lib/email/templates.test.ts` | Responsive HTML template generation, action buttons, metadata blocks |
-| **Email Service** | `src/lib/email/service.test.ts` | Resend API payload dispatch, mock fallback, RFC 5322 validation |
-| **Tracking URL Regression** | `src/lib/email/tracking-url-bug.test.ts` | Status link formation and URL scheme safety |
-| **Unified Notifications** | `src/lib/notifications/service.test.ts` | Dual-channel concurrent dispatching and recipient fanout |
+# Run tests with filtering
+npx tsx --test --test-name-pattern="conflict" src/lib/booking/booking.test.ts
+```
 
----
+## Test File Organization
 
-## 3. Writing Unit & Integration Tests
+**Location:**
+- Co-located with implementation modules inside `src/lib/` and `src/db/`
 
+**Test Suite Files:**
+- **Database & Migrations:**
+  - `src/db/migration.test.ts` - Migration execution, schema integrity, legacy data mapping
+  - `src/db/auth.test.ts` - User creation, session generation, password hashing
+- **Authentication & RBAC:**
+  - `src/lib/auth/rbac.test.ts` - Role checks, permissions for `admin`, `operator`, `pimpinan`
+  - `src/lib/auth/two-factor.test.ts` - TOTP secret validation, recovery codes
+  - `src/lib/auth/two-factor-enable-bug.test.ts` - 2FA enabling lifecycle regression tests
+  - `src/lib/auth/two-factor-password-bug.test.ts` - 2FA credential updates regression tests
+- **Assets & Facilities:**
+  - `src/lib/assets/facilities.test.ts` - Layout definitions, capacity bounds, room equipment
+- **Booking Engine:**
+  - `src/lib/booking/booking.test.ts` - Slot availability, overlap conflicts, timezone edge cases
+  - `src/lib/booking/admin.test.ts` - Status transitions, rejection reason requirements, audit triggers
+- **WhatsApp Gateway:**
+  - `src/lib/whatsapp/phone.test.ts` - Indonesian phone number formatting & normalization
+  - `src/lib/whatsapp/templates.test.ts` - Message template variable interpolation
+  - `src/lib/whatsapp/service.test.ts` - Gateway dispatch, mock fallbacks, error handling
+- **Email Gateway:**
+  - `src/lib/email/templates.test.ts` - HTML email template rendering & tracking link injection
+  - `src/lib/email/service.test.ts` - Resend API client, RFC 5322 validation, mock fallbacks
+  - `src/lib/email/tracking-url-bug.test.ts` - Tracking URL parameter format regression tests
+- **Notification Dispatcher:**
+  - `src/lib/notifications/service.test.ts` - Dual-channel orchestration, non-blocking fault tolerance
+
+## Test Structure
+
+**Suite Organization Example:**
 ```typescript
-import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { sanitizeFacilities } from "./facilities";
+import assert from "node:assert/strict";
+import { formatWibDate, isTimeSlotAvailable } from "./datetime";
 
-describe("Facility Tag Sanitization", () => {
-  it("trims whitespace and deduplicates tags case-insensitively", () => {
-    const dirty = ["  AC  ", "ac", "Wi-Fi", "  Proyektor  "];
-    const cleaned = sanitizeFacilities(dirty);
-    assert.deepEqual(cleaned, ["AC", "Wi-Fi", "Proyektor"]);
+describe("Timezone Utilities (WIB)", () => {
+  describe("formatWibDate", () => {
+    it("should correctly format UTC timestamp into WIB calendar string", () => {
+      const utcDate = new Date("2026-08-18T01:00:00Z");
+      const formatted = formatWibDate(utcDate);
+      assert.match(formatted, /18 Agustus 2026/);
+    });
+
+    it("should reject invalid dates gracefully", () => {
+      assert.throws(() => formatWibDate(new Date("invalid")), /Invalid time value/);
+    });
   });
 });
 ```
 
+## Mocking & Isolation
+
+**External Services:**
+- WhatsApp (`FONNTE_MOCK=true`) and Email (`RESEND_MOCK=true`) services support mock modes that print JSON payloads to console rather than hitting live external APIs.
+- In-memory database or transactional rollback patterns are used to test database operations without dirtying production state.
+
+**Guidelines for Writing Tests:**
+1. **Regression-First:** When fixing bugs, always create a test in `src/lib/<domain>/<bug-name>.test.ts` that reproduces the bug before applying fixes.
+2. **Timezone Awareness:** Always construct test dates with explicit ISO strings or timezone offsets to prevent local runner timezone variance.
+3. **No External Network Calls:** Unit and integration tests must run offline with mock gateways enabled.
+
 ---
 
-*Codebase testing analysis: 2026-08-18*
+*Testing analysis: 2026-08-18*
+*Update after adding test suites*

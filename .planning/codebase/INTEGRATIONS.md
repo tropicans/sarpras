@@ -1,85 +1,92 @@
-# External Integrations & Services
+# External Integrations
 
 **Analysis Date:** 2026-08-18
 
+## APIs & External Services
+
+**WhatsApp Gateway:**
+- **Fonnte HTTP API** (`https://api.fonnte.com/send`) - Transactional notification delivery to requesters and administrator groups
+  - Client: Custom fetch service in `src/lib/whatsapp/service.server.ts`
+  - Auth: Bearer token via `FONNTE_API_TOKEN` environment variable
+  - Features: Automatic Indonesian phone normalization (`62xxx`), multi-recipient routing (`FONNTE_ADMIN_TARGET`), mock console mode (`FONNTE_MOCK=true`)
+  - Templates: `src/lib/whatsapp/templates.ts` (new booking submitted, approved, rejected, cancelled, and admin notification)
+
+**Email Gateway:**
+- **Resend HTTP API** (`https://api.resend.com/emails`) - Transactional HTML email notifications
+  - Client: Custom fetch service in `src/lib/email/service.server.ts`
+  - Auth: Bearer token via `RESEND_API_KEY` environment variable
+  - Features: RFC 5322 email syntax validation, sender configuration via `EMAIL_FROM`, mock console fallback (`RESEND_MOCK=true`)
+  - Templates: `src/lib/email/templates.ts` (custom styled HTML booking confirmation, approval, rejection, and admin alerts)
+
+**Notification Orchestration:**
+- **Dual-Channel Dispatcher:** `src/lib/notifications/service.server.ts`
+  - Concurrently triggers both WhatsApp and Email notifications with fault tolerance (errors in one channel do not block the other)
+
+## Data Storage
+
+**Databases:**
+- **PostgreSQL 16** (Containerized or external host)
+  - Connection: Connection string via `DATABASE_URL` env var
+  - Client: `drizzle-orm` with `pg.Pool` client in `src/db/client.server.ts`
+  - Migrations: Programmatic runner in `src/db/migrate.ts` and legacy importer in `src/db/migrate-legacy.ts`
+  - Key Tables: `user`, `session`, `account`, `verification`, `two_factor`, `assets`, `bookings`, `audit_logs`, `asset_availability`, `asset_closures`
+
+**File Storage:**
+- **Local File System Storage:**
+  - Directory: `public/uploads/`
+  - Usage: Uploaded official booking request letters (PDF/Image)
+  - Handling: Managed via server function in `src/lib/booking/upload-letter.functions.ts` and served directly by `prod-server.js`
+
+**Caching & In-Memory:**
+- None external (stateless server functions with direct PostgreSQL transactions)
+
+## Authentication & Identity
+
+**Auth Provider:**
+- **Better Auth** (`better-auth: ^1.6.27`)
+  - Implementation: `src/db/auth.server.ts` (server auth instance) and `src/lib/auth-client.ts` (React client SDK)
+  - Adapter: `@better-auth/drizzle-adapter` connected to PostgreSQL tables
+  - Session Management: HttpOnly secure cookie tokens verified against `session` table
+  - Two-Factor Authentication: Built-in TOTP plugin with encrypted secrets and backup codes in `two_factor` table
+
+**OAuth Integrations:**
+- **Google OAuth 2.0:**
+  - Credentials: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` (optional)
+  - Scope: OpenID, profile, email
+
+## Monitoring & Observability
+
+**Audit Logging:**
+- Internal Audit Engine: `src/lib/audit/audit.server.ts`
+  - Persists system and user actions into `audit_logs` table (`actorId`, `actorType`, `action`, `entityType`, `entityId`, `metadata`)
+  - Admin UI viewer: `src/routes/admin/audit.tsx` with diff visualizer (`src/components/admin/audit-diff-viewer.tsx`)
+
+**Logs:**
+- Standard output (`console.info`, `console.error`, `console.warn`) with structured event metadata
+
+## CI/CD & Deployment
+
+**Hosting & Containers:**
+- **Docker Compose:** `docker-compose.yml` defining `app` (Node.js 22 production runtime) and `postgres` (PostgreSQL 16 Alpine with health check)
+- **Container Build:** Multi-stage `Dockerfile` with dependency pruning and build asset optimization
+- **Production Entry:** `prod-server.js` serving TanStack Start SSR handler and static assets on port `3000` (mapped to `3002` externally)
+
+## Environment Configuration
+
+**Development & Production Required Variables:**
+- `DATABASE_URL`: PostgreSQL connection URI (`postgres://user:pass@host:port/dbname`)
+- `BETTER_AUTH_SECRET`: Random 64-character secret for token signing and encryption
+- `BETTER_AUTH_URL`: Canonical URL of application (e.g., `http://localhost:3000` or production domain)
+- `APP_BASE_URL`: Public base URL for tracking links in WhatsApp/Email messages
+- `FONNTE_API_TOKEN`: Fonnte WhatsApp API Gateway token
+- `FONNTE_ADMIN_TARGET`: Phone number(s) or WhatsApp Group ID for admin alerts
+- `FONNTE_MOCK`: Set to `true` to log WhatsApp payloads without sending
+- `RESEND_API_KEY`: Resend Email API token
+- `RESEND_MOCK`: Set to `true` to log Email payloads without sending
+- `EMAIL_FROM`: Verified sender email address
+- `ADMIN_DEFAULT_EMAIL`: Initial admin account email for automated seeding (`src/db/seed-admin.ts`)
+
 ---
 
-## 1. Database Integration
-
-### PostgreSQL Connection
-- **Client:** `pg.Pool` configured in `src/db/client.server.ts`
-- **Environment Variable:** `DATABASE_URL` (e.g., `postgres://postgres:password@localhost:5432/sarpras_db`)
-- **Connection Configuration:**
-  - `max`: 20 connections
-  - `idleTimeoutMillis`: 30,000ms
-  - `connectionTimeoutMillis`: 5,000ms
-- **Integration Layer:** Drizzle ORM instance (`drizzle(pool, { schema })`) used across server functions and migration utilities.
-
----
-
-## 2. Authentication & Session Services
-
-### Better Auth Integration
-- **Server Handler:** `src/db/auth.server.ts` exposes Better Auth instance with Drizzle PostgreSQL adapter.
-- **Client Handler:** `src/lib/auth-client.ts` uses `createAuthClient` with `twoFactorClient` plugin.
-- **API Endpoints:** `src/routes/api/auth/$.ts` handles incoming auth requests (`/api/auth/*`).
-- **Plugins:**
-  - Two-Factor Authentication (TOTP authenticator app support, QR uri, backup codes)
-- **Environment Variables:**
-  - `BETTER_AUTH_SECRET`: Secret key for session encryption and signing.
-  - `BETTER_AUTH_URL`: Origin URL for Better Auth verification redirects (e.g., `http://localhost:3000`).
-
----
-
-## 3. WhatsApp Notification Gateway (Fonnte)
-
-### Outbound Gateway
-- **Service Layer:** `src/lib/whatsapp/service.server.ts`
-- **Endpoint:** `https://api.fonnte.com/send` (HTTP POST)
-- **Header:** `Authorization: {FONNTE_API_TOKEN}`
-- **Payload Schema:** `target`, `message`, `countryCode: "62"`, optional `url` / `filename`.
-- **Environment Variables:**
-  - `FONNTE_API_TOKEN`: API key from Fonnte account dashboard.
-  - `FONNTE_ADMIN_TARGET`: Phone number or Group ID (`120363xxx@g.us`) for receiving admin booking alerts.
-  - `FONNTE_MOCK`: When set to `"true"` or when no token is configured, logs message payloads to terminal console instead of making network calls.
-- **Audit Integration:** Dispatches are logged to `audit_logs` table under action `whatsapp.dispatch`.
-
----
-
-## 4. Email Notification Gateway (Resend)
-
-### Transactional Email Service
-- **Service Layer:** `src/lib/email/service.server.ts`
-- **Endpoint:** `https://api.resend.com/emails` (HTTP POST)
-- **Header:** `Authorization: Bearer {RESEND_API_KEY}`
-- **Payload Schema:** `from`, `to`, `subject`, `html`, optional attachments.
-- **Environment Variables:**
-  - `RESEND_API_KEY`: API key from Resend dashboard (`re_...`).
-  - `EMAIL_FROM`: Verified sender address (default: `Sarpras PPKASN <sarpras@ppkasn.lan.go.id>`).
-  - `EMAIL_ADMIN_TARGET`: Comma-separated list of admin email recipients for new booking alerts.
-  - `RESEND_MOCK`: Set to `"true"` to enable console mock mode for local testing.
-- **Audit Integration:** Dispatches are logged to `audit_logs` table under action `email.dispatch`.
-
----
-
-## 5. File Storage & Uploads
-
-- **Storage Location:** Local public uploads directory (`public/uploads/`) or custom letter file URLs.
-- **Upload Handlers:**
-  - `src/lib/booking/upload-letter.functions.ts` creates local file records with UUID-based names.
-  - Tracking & letter URLs stored in `bookings.letter_file_url` and `bookings.letter_file_name`.
-
----
-
-## 6. Legacy System Data Ingestion
-
-- **Legacy Source:** MySQL / PHP export in `legacy-data/` (`assets.json`, `bookings.json`, `users.json`).
-- **Migration Script:** `src/db/migrate-legacy.ts`
-- **Mapping:**
-  - Transforms legacy asset IDs and facility strings into normalized JSONB structures.
-  - Preserves historical booking status, notes, and requester contact info with `legacyId` tracing.
-  - Ingests legacy users with mandatory password reset flag (`mustResetPassword: true`).
-
----
-
-*Codebase integrations and external services analysis: 2026-08-18*
+*Integrations analysis: 2026-08-18*
+*Update after external service changes*

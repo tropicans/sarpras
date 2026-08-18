@@ -1,4 +1,4 @@
-import { and, asc, eq, gt, lt, ne } from "drizzle-orm";
+import { and, asc, eq, gt, lt, ne, or } from "drizzle-orm";
 import { db } from "../../db/client.server";
 import {
 	assetAvailability,
@@ -291,7 +291,9 @@ export class BookingService {
 					.for("update");
 
 				if (!asset) {
-					throw new BookingNotFoundError(`Aset (${item.assetId}) tidak ditemukan.`);
+					throw new BookingNotFoundError(
+						`Aset (${item.assetId}) tidak ditemukan.`,
+					);
 				}
 
 				assetMap.set(asset.id, asset);
@@ -308,11 +310,16 @@ export class BookingService {
 					.from(assetClosures)
 					.where(eq(assetClosures.assetId, asset.id));
 
-				const closureCheck = validateAssetClosures(startDate, endDate, closures);
+				const closureCheck = validateAssetClosures(
+					startDate,
+					endDate,
+					closures,
+				);
 				if (!closureCheck.valid) {
 					throw new BookingConflictError(
 						`Aset "${asset.name}": ` +
-							(closureCheck.reason || "Aset sedang ditutup pada jadwal tersebut."),
+							(closureCheck.reason ||
+								"Aset sedang ditutup pada jadwal tersebut."),
 						{ conflictingDate: closureCheck.conflictingDate },
 					);
 				}
@@ -327,7 +334,8 @@ export class BookingService {
 					if (!capCheck.valid) {
 						throw new BookingConflictError(
 							`Aset "${asset.name}": ` +
-								(capCheck.reason || "Jumlah peserta melebihi kapasitas fasilitas."),
+								(capCheck.reason ||
+									"Jumlah peserta melebihi kapasitas fasilitas."),
 						);
 					}
 
@@ -950,13 +958,18 @@ export class BookingService {
 			};
 		}
 
-		if (asset.type === "room") {
+		if (
+			asset.type === "room" ||
+			asset.type === "field" ||
+			asset.type === "vehicle" ||
+			asset.type === "equipment"
+		) {
 			const capCheck = validateRoomCapacity(attendance, asset.capacity);
 			if (!capCheck.valid) {
 				return {
 					available: false,
 					reason:
-						capCheck.reason || "Jumlah peserta melebihi kapasitas ruangan.",
+						capCheck.reason || "Jumlah peserta melebihi kapasitas fasilitas.",
 				};
 			}
 
@@ -976,7 +989,7 @@ export class BookingService {
 						available: false,
 						reason:
 							hoursCheck.reason ||
-							"Jadwal peminjaman di luar jam operasional ruangan.",
+							"Jadwal peminjaman di luar jam operasional fasilitas.",
 					};
 				}
 			}
@@ -1007,7 +1020,7 @@ export class BookingService {
 					available: false,
 					reason:
 						overlapCheck.conflictReason ||
-						"Ruangan sudah terisi untuk jadwal tersebut.",
+						"Fasilitas sudah terisi untuk jadwal tersebut.",
 					details: overlapCheck.details,
 				};
 			}
@@ -1171,17 +1184,19 @@ export class BookingService {
 			.from(assets)
 			.where(eq(assets.status, "active"));
 
-		const [allApprovedBookings, allClosures] = await Promise.all([
+		const [allBookings, allClosures] = await Promise.all([
 			db
 				.select({
+					id: bookings.id,
 					assetId: bookings.assetId,
 					startDate: bookings.startDate,
 					endDate: bookings.endDate,
+					status: bookings.status,
 				})
 				.from(bookings)
 				.where(
 					and(
-						eq(bookings.status, "approved"),
+						or(eq(bookings.status, "approved"), eq(bookings.status, "pending")),
 						lt(bookings.startDate, endDate),
 						gt(bookings.endDate, startDate),
 					),
@@ -1190,7 +1205,6 @@ export class BookingService {
 				.select({
 					assetId: assetClosures.assetId,
 					date: assetClosures.date,
-					reason: assetClosures.reason,
 				})
 				.from(assetClosures),
 		]);
@@ -1217,27 +1231,34 @@ export class BookingService {
 				continue;
 			}
 
-			// 2. Overlapping approved bookings
-			const overlapping = allApprovedBookings.filter(
-				(b) => b.assetId === asset.id,
-			);
+			// 2. Overlapping active bookings
+			const overlapping = allBookings.filter((b) => b.assetId === asset.id);
 
 			if (
 				asset.type === "room" ||
 				asset.type === "vehicle" ||
-				asset.type === "field"
+				asset.type === "field" ||
+				asset.type === "equipment"
 			) {
 				const overlapCheck = checkRoomOverlap(overlapping, startDate, endDate);
+				const isPendingOnly =
+					overlapping.length > 0 &&
+					overlapping.every((b) => b.status === "pending");
+
 				results[asset.id] = {
 					available: overlapCheck.available,
-					reason: overlapCheck.conflictReason,
+					reason: overlapCheck.available
+						? undefined
+						: isPendingOnly
+							? "Terdapat permohonan yang sedang menunggu verifikasi pada jam ini."
+							: "Telah terisi permohonan lain pada rentang waktu ini.",
 					bookedSessions: overlapping.map((b) => ({
 						startDate: b.startDate.toISOString(),
 						endDate: b.endDate.toISOString(),
 					})),
 				};
 			} else {
-				// dormitory / equipment
+				// dormitory / shared
 				results[asset.id] = {
 					available: true,
 					bookedSessions: overlapping.map((b) => ({
@@ -1251,4 +1272,3 @@ export class BookingService {
 		return results;
 	}
 }
-

@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, or } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../../db/client.server";
 import { assetClosures, assets, bookings } from "../../db/schema";
@@ -71,17 +71,18 @@ export const getAssetPublicScheduleFn = createServerFn({ method: "GET" })
 			.parse(data),
 	)
 	.handler(async ({ data }) => {
-		const [approvedList, closuresList] = await Promise.all([
+		const [bookingsList, closuresList] = await Promise.all([
 			db
 				.select({
 					startDate: bookings.startDate,
 					endDate: bookings.endDate,
+					status: bookings.status,
 				})
 				.from(bookings)
 				.where(
 					and(
 						eq(bookings.assetId, data.assetId),
-						eq(bookings.status, "approved"),
+						or(eq(bookings.status, "approved"), eq(bookings.status, "pending")),
 					),
 				),
 			db
@@ -92,10 +93,11 @@ export const getAssetPublicScheduleFn = createServerFn({ method: "GET" })
 				.where(eq(assetClosures.assetId, data.assetId)),
 		]);
 
-		const bookedSlots = approvedList.map((b) => ({
+		const bookedSlots = bookingsList.map((b) => ({
 			startDate: b.startDate.toISOString(),
 			endDate: b.endDate.toISOString(),
 			status: "booked" as const,
+			bookingStatus: b.status as "approved" | "pending",
 		}));
 
 		const closureSlots = closuresList.map((c) => {
@@ -187,4 +189,3 @@ export const checkCatalogAvailabilityFn = createServerFn({ method: "POST" })
 			endDate: data.endDate,
 		});
 	});
-

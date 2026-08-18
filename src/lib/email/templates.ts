@@ -126,7 +126,7 @@ function renderBaseHtmlLayout(options: BaseLayoutOptions): string {
           <tr>
             <td style="background-color: #f1f5f9; padding: 20px 32px; border-top: 1px solid #e2e8f0; text-align: center;">
               <p style="margin: 0 0 6px 0; font-size: 12px; color: #64748b;">
-                Pusat Pelatihan dan Pengembangan Kepemimpinan Aparatur Sipil Negara (PPKASN)
+                Pusat Pengembangan Kompetensi ASN (PPKASN)
               </p>
               <p style="margin: 0; font-size: 11px; color: #94a3b8;">
                 Email otomatis ini dikirim oleh sistem Sarpras PPKASN. Mohon tidak membalas langsung ke alamat ini.

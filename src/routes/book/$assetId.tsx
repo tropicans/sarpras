@@ -31,7 +31,24 @@ import {
 import { submitBatchBookingRequestFn } from "#/lib/booking/server-fns.functions";
 import { ASSET_TYPE_LABELS, type AssetType } from "#/lib/booking/types";
 
+interface BookingSearchParams {
+	date?: string;
+	startDate?: string;
+	endDate?: string;
+	startTime?: string;
+	endTime?: string;
+}
+
 export const Route = createFileRoute("/book/$assetId")({
+	validateSearch: (search: Record<string, unknown>): BookingSearchParams => ({
+		date: typeof search.date === "string" ? search.date : undefined,
+		startDate:
+			typeof search.startDate === "string" ? search.startDate : undefined,
+		endDate: typeof search.endDate === "string" ? search.endDate : undefined,
+		startTime:
+			typeof search.startTime === "string" ? search.startTime : undefined,
+		endTime: typeof search.endTime === "string" ? search.endTime : undefined,
+	}),
 	loader: async ({ params }) => {
 		const [asset, allAssets] = await Promise.all([
 			getPublicAssetByIdFn({
@@ -49,6 +66,11 @@ export const Route = createFileRoute("/book/$assetId")({
 
 function BookingWizardPage() {
 	const { asset, availableAssets } = Route.useLoaderData();
+	const search = Route.useSearch();
+	const initialStartDate = search.startDate || search.date;
+	const initialEndDate = search.endDate || search.date || initialStartDate;
+	const initialStartTime = search.startTime || "08:00";
+	const initialEndTime = search.endTime || "17:00";
 	const isRoom = asset.type === "room";
 	const typeLabel = ASSET_TYPE_LABELS[asset.type as AssetType] || asset.type;
 
@@ -74,12 +96,27 @@ function BookingWizardPage() {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submitError, setSubmitError] = useState<string | null>(null);
 	const [confirmedBookingId, setConfirmedBookingId] = useState<string>("");
-	const [bookedRoomNames, setBookedRoomNames] = useState<string[]>([asset.name]);
+	const [bookedRoomNames, setBookedRoomNames] = useState<string[]>([
+		asset.name,
+	]);
 
 	// Step 1: Schedule state
 	const [scheduleData, setScheduleData] = useState<ScheduleStepData>({
-		startDate: "",
-		endDate: "",
+		startDate: initialStartDate
+			? new Date(
+					`${initialStartDate}T${initialStartTime}:00+07:00`,
+				).toISOString()
+			: "",
+		endDate: initialEndDate
+			? new Date(`${initialEndDate}T${initialEndTime}:00+07:00`).toISOString()
+			: "",
+		startDateOnly: initialStartDate,
+		endDateOnly: initialEndDate,
+		dateOnly: initialStartDate,
+		checkInDate: initialStartDate,
+		checkOutDate: initialEndDate,
+		startTime: initialStartTime,
+		endTime: initialEndTime,
 		attendance: isRoom ? Math.min(10, asset.capacity) : 1,
 	});
 
@@ -183,7 +220,8 @@ function BookingWizardPage() {
 			setConfirmedBookingId(res.groupId || res.bookings[0]?.id || "");
 			setCurrentStep("success");
 		} catch (err: any) {
-			let message = err?.message || "Terjadi kesalahan saat mengirim pengajuan.";
+			let message =
+				err?.message || "Terjadi kesalahan saat mengirim pengajuan.";
 			try {
 				const parsed = JSON.parse(message);
 				if (Array.isArray(parsed) && parsed.length > 0) {
@@ -222,7 +260,8 @@ function BookingWizardPage() {
 						<span>/</span>
 						<span className="text-foreground font-semibold truncate">
 							BOOKING // {asset.name}{" "}
-							{additionalRooms.length > 0 && `(+${additionalRooms.length} Ruangan)`}
+							{additionalRooms.length > 0 &&
+								`(+${additionalRooms.length} Ruangan)`}
 						</span>
 					</nav>
 
@@ -337,4 +376,3 @@ function BookingWizardPage() {
 		</div>
 	);
 }
-

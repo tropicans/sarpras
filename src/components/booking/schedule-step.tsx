@@ -86,11 +86,15 @@ export function ScheduleStep({
 	availableAssets,
 	onNext,
 }: ScheduleStepProps) {
+	const isDormitory = asset.type === "dormitory";
+	const isTimeSlot = !isDormitory;
 	const isRoom = asset.type === "room";
 
 	// Local primary form state
 	const [startDateStr, setStartDateStr] = useState(
-		data.startDateOnly || data.dateOnly || new Date().toISOString().split("T")[0],
+		data.startDateOnly ||
+			data.dateOnly ||
+			new Date().toISOString().split("T")[0],
 	);
 	const [endDateStr, setEndDateStr] = useState(
 		data.endDateOnly ||
@@ -99,7 +103,7 @@ export function ScheduleStep({
 			new Date().toISOString().split("T")[0],
 	);
 	const [startTime, setStartTime] = useState(data.startTime || "08:00");
-	const [endTime, setEndTime] = useState(data.endTime || "12:00");
+	const [endTime, setEndTime] = useState(data.endTime || "17:00");
 
 	const [checkInStr, setCheckInStr] = useState(
 		data.checkInDate || new Date().toISOString().split("T")[0],
@@ -123,7 +127,7 @@ export function ScheduleStep({
 		isRoom && roomLayouts.length > 0
 			? roomLayouts.find(
 					(l) => l.name.toLowerCase() === roomLayout.toLowerCase(),
-			  ) || roomLayouts[0]
+				) || roomLayouts[0]
 			: null;
 
 	const maxAttendance = selectedLayoutObj
@@ -157,7 +161,7 @@ export function ScheduleStep({
 			let startIso = "";
 			let endIso = "";
 
-			if (isRoom) {
+			if (isTimeSlot) {
 				if (!startDateStr || !endDateStr || !startTime || !endTime) return;
 				startIso = new Date(
 					`${startDateStr}T${startTime}:00+07:00`,
@@ -178,7 +182,7 @@ export function ScheduleStep({
 			}
 
 			// Check intra-form overlap with additional sessions for the same asset
-			if (isRoom) {
+			if (isTimeSlot) {
 				const curStart = new Date(startIso);
 				const curEnd = new Date(endIso);
 				for (const extra of additionalRooms) {
@@ -216,7 +220,7 @@ export function ScheduleStep({
 					setChecking(false);
 
 					// Sync parent state
-					if (isRoom) {
+					if (isTimeSlot) {
 						onChange({
 							startDate: startIso,
 							endDate: endIso,
@@ -226,7 +230,10 @@ export function ScheduleStep({
 							startTime,
 							endTime,
 							attendance,
-							roomLayout: roomLayouts.length > 0 ? (roomLayout || roomLayouts[0]?.name) : null,
+							roomLayout:
+								isRoom && roomLayouts.length > 0
+									? roomLayout || roomLayouts[0]?.name
+									: null,
 						});
 					} else {
 						onChange({
@@ -255,6 +262,7 @@ export function ScheduleStep({
 			clearTimeout(debounceTimer);
 		};
 	}, [
+		isTimeSlot,
 		isRoom,
 		startDateStr,
 		endDateStr,
@@ -296,18 +304,21 @@ export function ScheduleStep({
 							</h3>
 						</div>
 						<p className="text-xs text-muted-foreground mt-0.5">
-							{isRoom
-								? "Tentukan jadwal pelaksanaan dan estimasi jumlah peserta."
-								: "Tentukan periode menginap di asrama."}
+							{isDormitory
+								? "Tentukan periode menginap di asrama."
+								: "Tentukan jadwal pelaksanaan dan estimasi jumlah peserta."}
 						</p>
 					</div>
 					<div className="font-mono text-xs text-muted-foreground">
-						Maks. <strong>{asset.capacity}</strong> Pax
+						Maks. <strong>{asset.capacity}</strong>{" "}
+						{asset.type === "vehicle" || asset.type === "equipment"
+							? "Unit"
+							: "Pax"}
 					</div>
 				</div>
 
-				{isRoom ? (
-					/* Room Schedule Inputs (Tanggal Mulai & Tanggal Selesai) */
+				{isTimeSlot ? (
+					/* Time-Slot Schedule Inputs (Tanggal Mulai & Tanggal Selesai) */
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
 						<div className="space-y-1">
 							<label className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
@@ -445,8 +456,14 @@ export function ScheduleStep({
 							</label>
 							{selectedLayoutObj && (
 								<span className="font-mono text-[10px] text-muted-foreground">
-									Kapasitas maks format <strong className="text-foreground">{selectedLayoutObj.name}</strong>:{" "}
-									<strong className="text-primary font-bold">{selectedLayoutObj.maxCapacity} Pax</strong>
+									Kapasitas maks format{" "}
+									<strong className="text-foreground">
+										{selectedLayoutObj.name}
+									</strong>
+									:{" "}
+									<strong className="text-primary font-bold">
+										{selectedLayoutObj.maxCapacity} Pax
+									</strong>
 								</span>
 							)}
 						</div>
@@ -480,7 +497,8 @@ export function ScheduleStep({
 							{isRoom ? "Jumlah Peserta Rapat" : "Jumlah Tamu Menginap"}
 						</label>
 						<span className="font-mono text-[10px] text-muted-foreground">
-							Kapasitas maksimal: <strong className="text-foreground">{maxAttendance} Orang</strong>
+							Kapasitas maksimal:{" "}
+							<strong className="text-foreground">{maxAttendance} Orang</strong>
 						</span>
 					</div>
 					<input
@@ -508,7 +526,8 @@ export function ScheduleStep({
 							<div className="flex items-center gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-3 font-mono text-xs text-emerald-800 dark:text-emerald-300">
 								<CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
 								<span>
-									<strong>[TERSEDIA]:</strong> Jadwal siap diajukan untuk {asset.name}.
+									<strong>[TERSEDIA]:</strong> Jadwal siap diajukan untuk{" "}
+									{asset.name}.
 								</span>
 							</div>
 						) : (
@@ -640,14 +659,15 @@ function AdditionalRoomCard({
 		? getRoomLayoutOptions(asset.capacity, (asset as any).roomLayouts)
 		: [];
 	const [roomLayout, setRoomLayout] = useState<string>(
-		item.schedule.roomLayout || (roomLayouts.length > 0 ? roomLayouts[0].name : ""),
+		item.schedule.roomLayout ||
+			(roomLayouts.length > 0 ? roomLayouts[0].name : ""),
 	);
 
 	const selectedLayoutObj =
 		isRoom && roomLayouts.length > 0
 			? roomLayouts.find(
 					(l) => l.name.toLowerCase() === roomLayout.toLowerCase(),
-			  ) || roomLayouts[0]
+				) || roomLayouts[0]
 			: null;
 
 	const maxCapacity = selectedLayoutObj
@@ -859,7 +879,9 @@ function AdditionalRoomCard({
 				</button>
 			</div>
 
-			<div className={`grid grid-cols-1 sm:grid-cols-2 ${isRoom ? "lg:grid-cols-6" : "lg:grid-cols-5"} gap-2 items-center`}>
+			<div
+				className={`grid grid-cols-1 sm:grid-cols-2 ${isRoom ? "lg:grid-cols-6" : "lg:grid-cols-5"} gap-2 items-center`}
+			>
 				<div>
 					<label className="text-[10px] text-muted-foreground block">
 						Tgl Mulai
@@ -997,4 +1019,3 @@ function AdditionalRoomCard({
 		</div>
 	);
 }
-

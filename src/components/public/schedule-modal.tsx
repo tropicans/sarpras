@@ -28,6 +28,7 @@ interface ScheduleData {
 		startDate: string;
 		endDate: string;
 		status: "booked";
+		bookingStatus?: "approved" | "pending";
 	}>;
 	closureSlots: Array<{
 		startDate: string;
@@ -117,7 +118,8 @@ export function ScheduleModal({ asset, isOpen, onClose }: ScheduleModalProps) {
 									JADWAL FASILITAS // {asset.name}
 								</h3>
 								<p className="text-[11px] text-muted-foreground">
-									{asset.location || "Gedung Utama PPKASN"} &bull; Kapasitas {asset.capacity} Orang
+									{asset.location || "Gedung Utama PPKASN"} &bull; Kapasitas{" "}
+									{asset.capacity} Orang
 								</p>
 							</div>
 						</div>
@@ -150,7 +152,8 @@ export function ScheduleModal({ asset, isOpen, onClose }: ScheduleModalProps) {
 				<div className="bg-sky-500/10 border-b border-sky-500/20 px-5 py-2 flex items-center gap-2 text-[11px] font-mono text-sky-800 dark:text-sky-300">
 					<ShieldCheck className="h-3.5 w-3.5 shrink-0 text-sky-600 dark:text-sky-400" />
 					<span>
-						<strong>PRIVACY PROTECTED:</strong> Hanya menampilkan blok waktu terisi tanpa data pribadi pemohon.
+						<strong>PRIVACY PROTECTED:</strong> Hanya menampilkan blok waktu
+						terisi tanpa data pribadi pemohon.
 					</span>
 				</div>
 
@@ -208,35 +211,51 @@ export function ScheduleModal({ asset, isOpen, onClose }: ScheduleModalProps) {
 							<div className="space-y-2">
 								<div className="flex items-center gap-2 font-mono text-[10px] font-semibold uppercase tracking-wider text-primary">
 									<span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
-									<span>Jadwal Terisi (Disetujui)</span>
+									<span>Jadwal Terisi / Dalam Pengajuan</span>
 								</div>
 								{schedule.bookedSlots.length === 0 ? (
 									<div className="rounded-md border border-dashed border-border p-6 text-center text-xs font-mono text-muted-foreground">
-										Belum ada jadwal peminjaman pada periode ini. Sarana siap diajukan.
+										Belum ada jadwal peminjaman pada periode ini. Sarana siap
+										diajukan.
 									</div>
 								) : (
 									<div className="space-y-1.5">
-										{schedule.bookedSlots.map((slot, idx) => (
-											<div
-												key={`booked-${idx}`}
-												className="rounded-md border border-border bg-muted/40 p-2.5 flex items-center justify-between gap-3 font-mono"
-											>
-												<div className="flex items-center gap-2.5">
-													<Clock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-													<div>
-														<div className="text-xs font-medium text-foreground">
-															{formatRange(slot.startDate, slot.endDate)}
+										{schedule.bookedSlots.map((slot, idx) => {
+											const isPending = slot.bookingStatus === "pending";
+											return (
+												<div
+													key={`booked-${idx}`}
+													className={`rounded-md border p-2.5 flex items-center justify-between gap-3 font-mono ${
+														isPending
+															? "border-amber-500/30 bg-amber-500/5"
+															: "border-border bg-muted/40"
+													}`}
+												>
+													<div className="flex items-center gap-2.5">
+														<Clock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+														<div>
+															<div className="text-xs font-medium text-foreground">
+																{formatRange(slot.startDate, slot.endDate)}
+															</div>
+															<p className="text-[10px] text-muted-foreground">
+																{isPending
+																	? "Menunggu Verifikasi Admin"
+																	: "Slot Terisi • Disetujui Petugas"}
+															</p>
 														</div>
-														<p className="text-[10px] text-muted-foreground">
-															Slot Terisi &bull; Disetujui Petugas
-														</p>
 													</div>
+													<span
+														className={`rounded px-1.5 py-0.5 text-[10px] font-bold shrink-0 border ${
+															isPending
+																? "border-amber-500/30 bg-amber-500/20 text-amber-800 dark:text-amber-300"
+																: "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300"
+														}`}
+													>
+														{isPending ? "PENDING" : "BOOKED"}
+													</span>
 												</div>
-												<span className="rounded border border-sky-500/30 bg-sky-500/10 px-1.5 py-0.5 text-[10px] font-bold text-sky-700 dark:text-sky-300 shrink-0">
-													BOOKED
-												</span>
-											</div>
-										))}
+											);
+										})}
 									</div>
 								)}
 							</div>

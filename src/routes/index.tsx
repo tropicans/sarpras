@@ -91,7 +91,9 @@ function HomePage() {
 					},
 				});
 				if (!isCancelled) {
-					setAvailabilityMap(results as Record<string, AssetAvailabilityStatus>);
+					setAvailabilityMap(
+						results as Record<string, AssetAvailabilityStatus>,
+					);
 					setIsCheckingAvailability(false);
 				}
 			} catch (err) {
@@ -140,7 +142,13 @@ function HomePage() {
 		const dormCount = assets.filter((a) => a.type === "dormitory").length;
 		const vehicleCount = assets.filter((a) => a.type === "vehicle").length;
 		const otherCount = assets.length - (roomCount + dormCount + vehicleCount);
-		return { roomCount, dormCount, vehicleCount, otherCount, total: assets.length };
+		return {
+			roomCount,
+			dormCount,
+			vehicleCount,
+			otherCount,
+			total: assets.length,
+		};
 	}, [assets]);
 
 	// Dynamic category list based on existing assets in database
@@ -235,9 +243,13 @@ function HomePage() {
 								{/* Technical Status Pill */}
 								<div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/90 px-3.5 py-1 font-mono text-[11px] text-muted-foreground shadow-2xs backdrop-blur-md">
 									<Terminal className="h-3.5 w-3.5 text-primary" />
-									<span className="text-foreground font-semibold">PPKASN // SARPRAS</span>
+									<span className="text-foreground font-semibold">
+										PPKASN // SARPRAS
+									</span>
 									<span className="text-border">|</span>
-									<span className="text-sky-600 dark:text-sky-400 font-medium">PORTAL v1.0</span>
+									<span className="text-sky-600 dark:text-sky-400 font-medium">
+										PORTAL v1.0
+									</span>
 								</div>
 
 								{/* High-Impact Headline */}
@@ -249,7 +261,9 @@ function HomePage() {
 										</span>
 									</h1>
 									<p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-										Katalog & reservasi resmi ruang rapat berstandar tinggi, asrama wisma kedinasan, aula pelatihan, dan armada kendaraan dengan sinkronisasi jadwal real-time.
+										Katalog & reservasi resmi ruang rapat berstandar tinggi,
+										asrama wisma kedinasan, aula pelatihan, dan armada kendaraan
+										dengan sinkronisasi jadwal real-time.
 									</p>
 								</div>
 
@@ -309,7 +323,9 @@ function HomePage() {
 									<span className="text-2xl font-bold tracking-tight text-foreground">
 										{stats.roomCount}
 									</span>
-									<span className="text-[10px] text-muted-foreground">Unit Aktif</span>
+									<span className="text-[10px] text-muted-foreground">
+										Unit Aktif
+									</span>
 								</div>
 							</div>
 
@@ -322,7 +338,9 @@ function HomePage() {
 									<span className="text-2xl font-bold tracking-tight text-foreground">
 										{stats.dormCount}
 									</span>
-									<span className="text-[10px] text-muted-foreground">Kamar/Wisma</span>
+									<span className="text-[10px] text-muted-foreground">
+										Kamar/Wisma
+									</span>
 								</div>
 							</div>
 
@@ -335,7 +353,9 @@ function HomePage() {
 									<span className="text-2xl font-bold tracking-tight text-foreground">
 										{stats.vehicleCount + stats.otherCount}
 									</span>
-									<span className="text-[10px] text-muted-foreground">Armada/Item</span>
+									<span className="text-[10px] text-muted-foreground">
+										Armada/Item
+									</span>
 								</div>
 							</div>
 
@@ -348,7 +368,9 @@ function HomePage() {
 									<span className="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
 										24-48h
 									</span>
-									<span className="text-[10px] text-muted-foreground">Waktu Respon</span>
+									<span className="text-[10px] text-muted-foreground">
+										Waktu Respon
+									</span>
 								</div>
 							</div>
 						</div>
@@ -356,7 +378,10 @@ function HomePage() {
 				</section>
 
 				{/* 3-Stage Process Pipeline */}
-				<section id="panduan" className="border-b border-border bg-card/40 py-14">
+				<section
+					id="panduan"
+					className="border-b border-border bg-card/40 py-14"
+				>
 					<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 						<div className="mb-8 space-y-1">
 							<span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-primary">
@@ -366,7 +391,8 @@ function HomePage() {
 								Alur Peminjaman Fasilitas Kedinasan
 							</h2>
 							<p className="text-xs text-muted-foreground">
-								Tahapan pengajuan transparan dengan pembaruan status real-time via WhatsApp & Email.
+								Tahapan pengajuan transparan dengan pembaruan status real-time
+								via WhatsApp & Email.
 							</p>
 						</div>
 
@@ -383,7 +409,8 @@ function HomePage() {
 									Pilih Sarana & Periksa Kalender
 								</h3>
 								<p className="text-xs text-muted-foreground leading-relaxed">
-									Telusuri katalog fasilitas, pilih waktu kegiatan, dan pastikan tanggal belum terisi peminjam lain.
+									Telusuri katalog fasilitas, pilih waktu kegiatan, dan pastikan
+									tanggal belum terisi peminjam lain.
 								</p>
 							</div>
 
@@ -399,7 +426,8 @@ function HomePage() {
 									Lengkapi Formulir Pengajuan
 								</h3>
 								<p className="text-xs text-muted-foreground leading-relaxed">
-									Lengkapi identitas penanggung jawab, instansi pemohon, agenda kegiatan, dan kontak WhatsApp aktif.
+									Lengkapi identitas penanggung jawab, instansi pemohon, agenda
+									kegiatan, dan kontak WhatsApp aktif.
 								</p>
 							</div>
 
@@ -415,7 +443,8 @@ function HomePage() {
 									Dapatkan Kode Tiket & Notifikasi
 								</h3>
 								<p className="text-xs text-muted-foreground leading-relaxed">
-									Gunakan kode referensi booking untuk memantau proses verifikasi operator dan persetujuan pimpinan.
+									Gunakan kode referensi booking untuk memantau proses
+									verifikasi operator dan persetujuan pimpinan.
 								</p>
 							</div>
 						</div>
@@ -434,7 +463,8 @@ function HomePage() {
 									Katalog Sarana & Prasarana
 								</h2>
 								<p className="text-xs text-muted-foreground">
-									Daftar aset aktif yang terdaftar dalam inventaris PPKASN Kemensetneg RI.
+									Daftar aset aktif yang terdaftar dalam inventaris PPKASN
+									Kemensetneg RI.
 								</p>
 							</div>
 
@@ -498,7 +528,8 @@ function HomePage() {
 											)}
 										</h3>
 										<p className="text-[11px] text-muted-foreground font-sans">
-											Pilih tanggal & jam untuk melihat langsung ruangan mana yang kosong dan siap dipinjam.
+											Pilih tanggal & jam untuk melihat langsung ruangan mana
+											yang kosong dan siap dipinjam.
 										</p>
 									</div>
 								</div>
@@ -651,11 +682,14 @@ function HomePage() {
 													</span>
 												</div>
 											) : (
-												<span className="text-muted-foreground">Menghitung status...</span>
+												<span className="text-muted-foreground">
+													Menghitung status...
+												</span>
 											)
 										) : (
 											<span className="text-muted-foreground text-[10px]">
-												💡 Masukkan tanggal di atas untuk melihat status real-time.
+												💡 Masukkan tanggal di atas untuk melihat status
+												real-time.
 											</span>
 										)}
 									</div>
@@ -697,6 +731,9 @@ function HomePage() {
 										asset={asset}
 										availability={availabilityMap[asset.id]}
 										isFilteredByDate={Boolean(filterDate)}
+										filterDate={filterDate}
+										filterStartTime={filterStartTime}
+										filterEndTime={filterEndTime}
 										onViewSchedule={(item) => setSelectedScheduleAsset(item)}
 									/>
 								))}

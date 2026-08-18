@@ -35,6 +35,9 @@ interface AssetCardProps {
 	onViewSchedule: (asset: PublicAssetItem) => void;
 	availability?: AssetAvailabilityStatus;
 	isFilteredByDate?: boolean;
+	filterDate?: string;
+	filterStartTime?: string;
+	filterEndTime?: string;
 }
 
 export function AssetCard({
@@ -42,6 +45,9 @@ export function AssetCard({
 	onViewSchedule,
 	availability,
 	isFilteredByDate = false,
+	filterDate,
+	filterStartTime,
+	filterEndTime,
 }: AssetCardProps) {
 	const typeLabel =
 		ASSET_TYPE_LABELS[asset.type as AssetType] || asset.type.toUpperCase();
@@ -67,7 +73,8 @@ export function AssetCard({
 				return {
 					gradient: "from-sky-500/20 via-sky-500/5 to-transparent",
 					accentBorder: "group-hover:border-sky-500/50",
-					badge: "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300",
+					badge:
+						"border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300",
 					iconBg: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
 					tags: ["Hybrid Video", "Proyektor 4K", "Wi-Fi 6"],
 				};
@@ -75,7 +82,8 @@ export function AssetCard({
 				return {
 					gradient: "from-indigo-500/20 via-indigo-500/5 to-transparent",
 					accentBorder: "group-hover:border-indigo-500/50",
-					badge: "border-indigo-500/30 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300",
+					badge:
+						"border-indigo-500/30 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300",
 					iconBg: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
 					tags: ["Twin/Single Bed", "AC & Water Heater", "Full Meja Kerja"],
 				};
@@ -83,7 +91,8 @@ export function AssetCard({
 				return {
 					gradient: "from-emerald-500/20 via-emerald-500/5 to-transparent",
 					accentBorder: "group-hover:border-emerald-500/50",
-					badge: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+					badge:
+						"border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
 					iconBg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
 					tags: ["Pengemudi Dinas", "AC Dingin", "Asuransi Perjalanan"],
 				};
@@ -91,7 +100,8 @@ export function AssetCard({
 				return {
 					gradient: "from-amber-500/20 via-amber-500/5 to-transparent",
 					accentBorder: "group-hover:border-amber-500/50",
-					badge: "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+					badge:
+						"border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
 					iconBg: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
 					tags: ["Pencahayaan LED", "Sound Portable", "Outdoor Siap"],
 				};
@@ -187,7 +197,8 @@ export function AssetCard({
 							{getTypeIcon()}
 						</div>
 						<div className="font-mono text-[10px] text-muted-foreground">
-							REF: <span className="text-foreground font-semibold">#{shortId}</span>
+							REF:{" "}
+							<span className="text-foreground font-semibold">#{shortId}</span>
 						</div>
 					</div>
 
@@ -275,13 +286,25 @@ export function AssetCard({
 					<Link
 						to="/book/$assetId"
 						params={{ assetId: asset.id }}
+						search={
+							filterDate
+								? {
+										startDate: filterDate,
+										endDate: filterDate,
+										startTime: filterStartTime || "08:00",
+										endTime: filterEndTime || "17:00",
+									}
+								: undefined
+						}
 						className={`inline-flex items-center justify-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition-all cursor-pointer shadow-2xs group/btn ${
 							isFilteredByDate && !isAvailable
 								? "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border"
 								: "bg-primary text-primary-foreground hover:bg-primary/90"
 						}`}
 					>
-						<span>{isFilteredByDate && !isAvailable ? "Pilih Sesi Lain" : "Pinjam"}</span>
+						<span>
+							{isFilteredByDate && !isAvailable ? "Pilih Sesi Lain" : "Pinjam"}
+						</span>
 						<ArrowUpRight className="h-3.5 w-3.5 opacity-80 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
 					</Link>
 				</div>
@@ -289,4 +312,3 @@ export function AssetCard({
 		</div>
 	);
 }
-
