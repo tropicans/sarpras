@@ -593,319 +593,324 @@ function AdminAssetsComponent() {
 
 			{/* Asset Create/Edit Form Modal */}
 			{showForm && (
-				<div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+				<div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
 					<form
 						onSubmit={handleSaveAsset}
-						className="w-full max-w-[450px] bg-card border border-border rounded-xl shadow-xl p-6 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150 text-foreground"
+						className="w-full max-w-[520px] max-h-[90vh] bg-card border border-border rounded-xl shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-150 text-foreground overflow-hidden my-auto"
 					>
-						<div className="flex items-center justify-between border-b border-border pb-3">
+						{/* Modal Header (Sticky) */}
+						<div className="flex items-center justify-between border-b border-border p-5 pb-4 shrink-0 bg-card">
 							<h3 className="text-base font-bold text-foreground">
 								{formId ? "Edit Aset / Fasilitas" : "Tambah Aset Baru"}
 							</h3>
 							<button
 								type="button"
 								onClick={() => setShowForm(false)}
-								className="text-muted-foreground hover:text-foreground cursor-pointer"
+								className="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors cursor-pointer"
 							>
 								<X size={18} />
 							</button>
 						</div>
 
-						{formError && (
-							<div className="p-3 bg-destructive/10 border border-destructive/20 text-destructive text-xs rounded-md">
-								{formError}
-							</div>
-						)}
-
-						<div className="flex flex-col gap-1">
-							<label
-								htmlFor="assetName"
-								className="text-xs font-medium text-muted-foreground"
-							>
-								Nama Fasilitas / Aset
-							</label>
-							<input
-								id="assetName"
-								type="text"
-								disabled={formLoading}
-								value={formName}
-								onChange={(e) => setFormName(e.target.value)}
-								className="px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-								placeholder="contoh: Ruang Rapat Garuda / Mobil Avanza Dinas / Lapangan Futsal"
-							/>
-						</div>
-
-						<div className="flex flex-col gap-1">
-							<label
-								htmlFor="assetType"
-								className="text-xs font-medium text-muted-foreground"
-							>
-								Tipe Fasilitas
-							</label>
-							<select
-								id="assetType"
-								disabled={formLoading}
-								value={formType}
-								onChange={(e) => setFormType(e.target.value)}
-								className="px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-medium cursor-pointer"
-							>
-								{ASSET_TYPES.map((t) => (
-									<option key={t} value={t}>
-										{ASSET_TYPE_LABELS[t]} ({t.toUpperCase()})
-									</option>
-								))}
-							</select>
-						</div>
-
-						<div className="flex flex-col gap-1">
-							<label
-								htmlFor="assetLocation"
-								className="text-xs font-medium text-muted-foreground"
-							>
-								Lokasi / Penempatan
-							</label>
-							<input
-								id="assetLocation"
-								type="text"
-								disabled={formLoading}
-								value={formLocation}
-								onChange={(e) => setFormLocation(e.target.value)}
-								className="px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-								placeholder="contoh: Gedung Utama Lantai 2 / Garasi Kendaraan"
-							/>
-						</div>
-
-						<div className="flex flex-col gap-1">
-							<label
-								htmlFor="assetCapacity"
-								className="text-xs font-medium text-muted-foreground"
-							>
-								Kapasitas Dasar / Maksimal (Pax)
-							</label>
-							<input
-								id="assetCapacity"
-								type="number"
-								disabled={formLoading}
-								value={formCapacity}
-								onChange={(e) => handleCapacityChange(Number(e.target.value))}
-								className="px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-								min={1}
-							/>
-						</div>
-
-						{formType === "room" && (
-							<div className="p-3.5 bg-muted/40 border border-border rounded-lg flex flex-col gap-3">
-								<div className="flex items-center justify-between">
-									<label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-										<span>Tata Letak Ruangan (Layout & Kapasitas)</span>
-									</label>
-									<span className="text-[10px] text-muted-foreground font-mono">Opsional</span>
+						{/* Modal Scrollable Body */}
+						<div className="p-6 overflow-y-auto flex flex-col gap-4 flex-1">
+							{formError && (
+								<div className="p-3 bg-destructive/10 border border-destructive/20 text-destructive text-xs rounded-md">
+									{formError}
 								</div>
-								<p className="text-[11px] text-muted-foreground leading-tight">
-									Aktifkan opsi tata letak jika ruangan dapat diatur konfigurasinya. Jika seluruh opsi dinonaktifkan, ruangan akan menggunakan kapasitas dasar tanpa pilihan tata letak (misal: Ruang Studio/Lab).
-								</p>
+							)}
 
-								{/* Island */}
-								<div className="flex items-center justify-between gap-3 bg-card p-2.5 rounded-md border border-border">
-									<label className="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-foreground">
-										<input
-											type="checkbox"
-											checked={formLayoutIslandEnabled}
-											onChange={(e) => setFormLayoutIslandEnabled(e.target.checked)}
-											className="rounded border-border text-primary focus:ring-primary"
-										/>
-										<span>🌴 Island</span>
-									</label>
-									<div className="flex items-center gap-1.5">
-										<span className="text-[10px] text-muted-foreground">Maks:</span>
-										<input
-											type="number"
-											min={1}
-											disabled={!formLayoutIslandEnabled || formLoading}
-											value={formLayoutIslandCap}
-											onChange={(e) => setFormLayoutIslandCap(Math.max(1, Number(e.target.value)))}
-											className="w-16 px-2 py-1 text-xs bg-background text-foreground border border-border rounded text-right disabled:opacity-40"
-										/>
-										<span className="text-[10px] text-muted-foreground">Pax</span>
-									</div>
-								</div>
-
-								{/* U-Shape */}
-								<div className="flex items-center justify-between gap-3 bg-card p-2.5 rounded-md border border-border">
-									<label className="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-foreground">
-										<input
-											type="checkbox"
-											checked={formLayoutUshapeEnabled}
-											onChange={(e) => setFormLayoutUshapeEnabled(e.target.checked)}
-											className="rounded border-border text-primary focus:ring-primary"
-										/>
-										<span>🔲 U-Shape</span>
-									</label>
-									<div className="flex items-center gap-1.5">
-										<span className="text-[10px] text-muted-foreground">Maks:</span>
-										<input
-											type="number"
-											min={1}
-											disabled={!formLayoutUshapeEnabled || formLoading}
-											value={formLayoutUshapeCap}
-											onChange={(e) => setFormLayoutUshapeCap(Math.max(1, Number(e.target.value)))}
-											className="w-16 px-2 py-1 text-xs bg-background text-foreground border border-border rounded text-right disabled:opacity-40"
-										/>
-										<span className="text-[10px] text-muted-foreground">Pax</span>
-									</div>
-								</div>
-
-								{/* Classroom */}
-								<div className="flex items-center justify-between gap-3 bg-card p-2.5 rounded-md border border-border">
-									<label className="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-foreground">
-										<input
-											type="checkbox"
-											checked={formLayoutClassroomEnabled}
-											onChange={(e) => setFormLayoutClassroomEnabled(e.target.checked)}
-											className="rounded border-border text-primary focus:ring-primary"
-										/>
-										<span>🎓 Classroom</span>
-									</label>
-									<div className="flex items-center gap-1.5">
-										<span className="text-[10px] text-muted-foreground">Maks:</span>
-										<input
-											type="number"
-											min={1}
-											disabled={!formLayoutClassroomEnabled || formLoading}
-											value={formLayoutClassroomCap}
-											onChange={(e) => setFormLayoutClassroomCap(Math.max(1, Number(e.target.value)))}
-											className="w-16 px-2 py-1 text-xs bg-background text-foreground border border-border rounded text-right disabled:opacity-40"
-										/>
-										<span className="text-[10px] text-muted-foreground">Pax</span>
-									</div>
-								</div>
-							</div>
-						)}
-
-						{/* Facilities & Amenities Tags Editor */}
-						<div className="p-3.5 bg-muted/40 border border-border rounded-lg flex flex-col gap-3">
-							<div className="flex items-center justify-between">
-								<label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-									<Tag size={14} className="text-primary" />
-									<span>Fasilitas & Kelengkapan (Tags/Badges)</span>
+							<div className="flex flex-col gap-1">
+								<label
+									htmlFor="assetName"
+									className="text-xs font-medium text-muted-foreground"
+								>
+									Nama Fasilitas / Aset
 								</label>
-								<span className="text-[10px] text-muted-foreground font-mono">
-									{formFacilities.length}/20 Tag
-								</span>
-							</div>
-							<p className="text-[11px] text-muted-foreground leading-tight">
-								Pilih rekomendasi fasilitas untuk tipe {ASSET_TYPE_LABELS[formType as AssetType] || formType} atau ketik tag kustom (misal: "Smart TV 75\"", "Wi-Fi Cepat", "Kamar Mandi Dalam").
-							</p>
-
-							{/* Active Tags */}
-							<div className="flex flex-wrap gap-1.5 min-h-[32px] p-2 bg-background border border-border rounded-md items-center">
-								{formFacilities.length === 0 ? (
-									<span className="text-xs text-muted-foreground/60 italic">
-										Belum ada fasilitas kustom (akan menggunakan fasilitas default kategori).
-									</span>
-								) : (
-									formFacilities.map((tag) => (
-										<span
-											key={tag}
-											className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-primary/10 text-primary border border-primary/20 rounded-md animate-in fade-in zoom-in-95 duration-100"
-										>
-											{tag}
-											<button
-												type="button"
-												onClick={() => handleRemoveTag(tag)}
-												className="hover:text-destructive hover:bg-destructive/10 rounded p-0.5 transition-colors cursor-pointer"
-												title={`Hapus tag ${tag}`}
-											>
-												<X size={12} />
-											</button>
-										</span>
-									))
-								)}
+								<input
+									id="assetName"
+									type="text"
+									disabled={formLoading}
+									value={formName}
+									onChange={(e) => setFormName(e.target.value)}
+									className="px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+									placeholder="contoh: Ruang Rapat Garuda / Mobil Avanza Dinas / Lapangan Futsal"
+								/>
 							</div>
 
-							{/* Category Preset Quick Suggestions */}
-							{CATEGORY_FACILITY_PRESETS[formType as AssetType] && (
-								<div className="flex flex-col gap-1.5">
-									<div className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
-										<Sparkles size={12} className="text-amber-500" />
-										<span>Rekomendasi Cepat ({ASSET_TYPE_LABELS[formType as AssetType]}):</span>
+							<div className="flex flex-col gap-1">
+								<label
+									htmlFor="assetType"
+									className="text-xs font-medium text-muted-foreground"
+								>
+									Tipe Fasilitas
+								</label>
+								<select
+									id="assetType"
+									disabled={formLoading}
+									value={formType}
+									onChange={(e) => setFormType(e.target.value)}
+									className="px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground outline-none focus:ring-2 focus:ring-primary focus:border-transparent font-medium cursor-pointer"
+								>
+									{ASSET_TYPES.map((t) => (
+										<option key={t} value={t}>
+											{ASSET_TYPE_LABELS[t]} ({t.toUpperCase()})
+										</option>
+									))}
+								</select>
+							</div>
+
+							<div className="flex flex-col gap-1">
+								<label
+									htmlFor="assetLocation"
+									className="text-xs font-medium text-muted-foreground"
+								>
+									Lokasi / Penempatan
+								</label>
+								<input
+									id="assetLocation"
+									type="text"
+									disabled={formLoading}
+									value={formLocation}
+									onChange={(e) => setFormLocation(e.target.value)}
+									className="px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+									placeholder="contoh: Gedung Utama Lantai 2 / Garasi Kendaraan"
+								/>
+							</div>
+
+							<div className="flex flex-col gap-1">
+								<label
+									htmlFor="assetCapacity"
+									className="text-xs font-medium text-muted-foreground"
+								>
+									Kapasitas Dasar / Maksimal (Pax)
+								</label>
+								<input
+									id="assetCapacity"
+									type="number"
+									disabled={formLoading}
+									value={formCapacity}
+									onChange={(e) => handleCapacityChange(Number(e.target.value))}
+									className="px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+									min={1}
+								/>
+							</div>
+
+							{formType === "room" && (
+								<div className="p-3.5 bg-muted/40 border border-border rounded-lg flex flex-col gap-3">
+									<div className="flex items-center justify-between">
+										<label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+											<span>Tata Letak Ruangan (Layout & Kapasitas)</span>
+										</label>
+										<span className="text-[10px] text-muted-foreground font-mono">Opsional</span>
 									</div>
-									<div className="flex flex-wrap gap-1.5">
-										{CATEGORY_FACILITY_PRESETS[formType as AssetType].map((preset) => {
-											const isSelected = formFacilities.some(
-												(t) => t.toLowerCase() === preset.toLowerCase(),
-											);
-											return (
-												<button
-													key={preset}
-													type="button"
-													onClick={() => handleTogglePreset(preset)}
-													className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded border transition-colors cursor-pointer ${
-														isSelected
-															? "bg-primary text-primary-foreground border-primary font-medium shadow-2xs"
-															: "bg-background text-foreground border-border hover:bg-muted"
-													}`}
-												>
-													{isSelected && <Check size={10} />}
-													<span>{preset}</span>
-												</button>
-											);
-										})}
+									<p className="text-[11px] text-muted-foreground leading-tight">
+										Aktifkan opsi tata letak jika ruangan dapat diatur konfigurasinya. Jika seluruh opsi dinonaktifkan, ruangan akan menggunakan kapasitas dasar tanpa pilihan tata letak (misal: Ruang Studio/Lab).
+									</p>
+
+									{/* Island */}
+									<div className="flex items-center justify-between gap-3 bg-card p-2.5 rounded-md border border-border">
+										<label className="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-foreground">
+											<input
+												type="checkbox"
+												checked={formLayoutIslandEnabled}
+												onChange={(e) => setFormLayoutIslandEnabled(e.target.checked)}
+												className="rounded border-border text-primary focus:ring-primary"
+											/>
+											<span>🌴 Island</span>
+										</label>
+										<div className="flex items-center gap-1.5">
+											<span className="text-[10px] text-muted-foreground">Maks:</span>
+											<input
+												type="number"
+												min={1}
+												disabled={!formLayoutIslandEnabled || formLoading}
+												value={formLayoutIslandCap}
+												onChange={(e) => setFormLayoutIslandCap(Math.max(1, Number(e.target.value)))}
+												className="w-16 px-2 py-1 text-xs bg-background text-foreground border border-border rounded text-right disabled:opacity-40"
+											/>
+											<span className="text-[10px] text-muted-foreground">Pax</span>
+										</div>
+									</div>
+
+									{/* U-Shape */}
+									<div className="flex items-center justify-between gap-3 bg-card p-2.5 rounded-md border border-border">
+										<label className="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-foreground">
+											<input
+												type="checkbox"
+												checked={formLayoutUshapeEnabled}
+												onChange={(e) => setFormLayoutUshapeEnabled(e.target.checked)}
+												className="rounded border-border text-primary focus:ring-primary"
+											/>
+											<span>🔲 U-Shape</span>
+										</label>
+										<div className="flex items-center gap-1.5">
+											<span className="text-[10px] text-muted-foreground">Maks:</span>
+											<input
+												type="number"
+												min={1}
+												disabled={!formLayoutUshapeEnabled || formLoading}
+												value={formLayoutUshapeCap}
+												onChange={(e) => setFormLayoutUshapeCap(Math.max(1, Number(e.target.value)))}
+												className="w-16 px-2 py-1 text-xs bg-background text-foreground border border-border rounded text-right disabled:opacity-40"
+											/>
+											<span className="text-[10px] text-muted-foreground">Pax</span>
+										</div>
+									</div>
+
+									{/* Classroom */}
+									<div className="flex items-center justify-between gap-3 bg-card p-2.5 rounded-md border border-border">
+										<label className="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-foreground">
+											<input
+												type="checkbox"
+												checked={formLayoutClassroomEnabled}
+												onChange={(e) => setFormLayoutClassroomEnabled(e.target.checked)}
+												className="rounded border-border text-primary focus:ring-primary"
+											/>
+											<span>🎓 Classroom</span>
+										</label>
+										<div className="flex items-center gap-1.5">
+											<span className="text-[10px] text-muted-foreground">Maks:</span>
+											<input
+												type="number"
+												min={1}
+												disabled={!formLayoutClassroomEnabled || formLoading}
+												value={formLayoutClassroomCap}
+												onChange={(e) => setFormLayoutClassroomCap(Math.max(1, Number(e.target.value)))}
+												className="w-16 px-2 py-1 text-xs bg-background text-foreground border border-border rounded text-right disabled:opacity-40"
+											/>
+											<span className="text-[10px] text-muted-foreground">Pax</span>
+										</div>
 									</div>
 								</div>
 							)}
 
-							{/* Custom Tag Input */}
-							<div className="flex gap-2 items-center pt-1">
-								<input
-									type="text"
-									disabled={formLoading || formFacilities.length >= 20}
-									value={customTagInput}
-									onChange={(e) => setCustomTagInput(e.target.value)}
-									onKeyDown={(e) => {
-										if (e.key === "Enter") {
-											e.preventDefault();
-											handleAddTag(customTagInput);
+							{/* Facilities & Amenities Tags Editor */}
+							<div className="p-3.5 bg-muted/40 border border-border rounded-lg flex flex-col gap-3">
+								<div className="flex items-center justify-between">
+									<label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+										<Tag size={14} className="text-primary" />
+										<span>Fasilitas & Kelengkapan (Tags/Badges)</span>
+									</label>
+									<span className="text-[10px] text-muted-foreground font-mono">
+										{formFacilities.length}/20 Tag
+									</span>
+								</div>
+								<p className="text-[11px] text-muted-foreground leading-tight">
+									Pilih rekomendasi fasilitas untuk tipe {ASSET_TYPE_LABELS[formType as AssetType] || formType} atau ketik tag kustom (misal: "Smart TV 75\"", "Wi-Fi Cepat", "Kamar Mandi Dalam").
+								</p>
+
+								{/* Active Tags */}
+								<div className="flex flex-wrap gap-1.5 min-h-[32px] p-2 bg-background border border-border rounded-md items-center">
+									{formFacilities.length === 0 ? (
+										<span className="text-xs text-muted-foreground/60 italic">
+											Belum ada fasilitas kustom (akan menggunakan fasilitas default kategori).
+										</span>
+									) : (
+										formFacilities.map((tag) => (
+											<span
+												key={tag}
+												className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-primary/10 text-primary border border-primary/20 rounded-md animate-in fade-in zoom-in-95 duration-100"
+											>
+												{tag}
+												<button
+													type="button"
+													onClick={() => handleRemoveTag(tag)}
+													className="hover:text-destructive hover:bg-destructive/10 rounded p-0.5 transition-colors cursor-pointer"
+													title={`Hapus tag ${tag}`}
+												>
+													<X size={12} />
+												</button>
+											</span>
+										))
+									)}
+								</div>
+
+								{/* Category Preset Quick Suggestions */}
+								{CATEGORY_FACILITY_PRESETS[formType as AssetType] && (
+									<div className="flex flex-col gap-1.5">
+										<div className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
+											<Sparkles size={12} className="text-amber-500" />
+											<span>Rekomendasi Cepat ({ASSET_TYPE_LABELS[formType as AssetType]}):</span>
+										</div>
+										<div className="flex flex-wrap gap-1.5">
+											{CATEGORY_FACILITY_PRESETS[formType as AssetType].map((preset) => {
+												const isSelected = formFacilities.some(
+													(t) => t.toLowerCase() === preset.toLowerCase(),
+												);
+												return (
+													<button
+														key={preset}
+														type="button"
+														onClick={() => handleTogglePreset(preset)}
+														className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded border transition-colors cursor-pointer ${
+															isSelected
+																? "bg-primary text-primary-foreground border-primary font-medium shadow-2xs"
+																: "bg-background text-foreground border-border hover:bg-muted"
+														}`}
+													>
+														{isSelected && <Check size={10} />}
+														<span>{preset}</span>
+													</button>
+												);
+											})}
+										</div>
+									</div>
+								)}
+
+								{/* Custom Tag Input */}
+								<div className="flex gap-2 items-center pt-1">
+									<input
+										type="text"
+										disabled={formLoading || formFacilities.length >= 20}
+										value={customTagInput}
+										onChange={(e) => setCustomTagInput(e.target.value)}
+										onKeyDown={(e) => {
+											if (e.key === "Enter") {
+												e.preventDefault();
+												handleAddTag(customTagInput);
+											}
+										}}
+										placeholder={
+											formFacilities.length >= 20
+												? "Maksimal 20 tag tercapai"
+												: "Ketik tag kustom & tekan Enter..."
 										}
-									}}
-									placeholder={
-										formFacilities.length >= 20
-											? "Maksimal 20 tag tercapai"
-											: "Ketik tag kustom & tekan Enter..."
-									}
-									className="flex-1 px-3 py-1.5 bg-background border border-border rounded-md text-xs text-foreground placeholder:text-muted-foreground/60 outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-								/>
-								<button
-									type="button"
-									disabled={formLoading || !customTagInput.trim() || formFacilities.length >= 20}
-									onClick={() => handleAddTag(customTagInput)}
-									className="px-3 py-1.5 bg-secondary text-secondary-foreground text-xs font-semibold rounded-md hover:bg-secondary/80 disabled:opacity-40 cursor-pointer"
+										className="flex-1 px-3 py-1.5 bg-background border border-border rounded-md text-xs text-foreground placeholder:text-muted-foreground/60 outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+									/>
+									<button
+										type="button"
+										disabled={formLoading || !customTagInput.trim() || formFacilities.length >= 20}
+										onClick={() => handleAddTag(customTagInput)}
+										className="px-3 py-1.5 bg-secondary text-secondary-foreground text-xs font-semibold rounded-md hover:bg-secondary/80 disabled:opacity-40 cursor-pointer"
+									>
+										Tambah
+									</button>
+								</div>
+							</div>
+
+							<div className="flex flex-col gap-1">
+								<label
+									htmlFor="assetStatus"
+									className="text-xs font-medium text-muted-foreground"
 								>
-									Tambah
-								</button>
+									Status
+								</label>
+								<select
+									id="assetStatus"
+									disabled={formLoading}
+									value={formStatus}
+									onChange={(e) => setFormStatus(e.target.value)}
+									className="px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground outline-none focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer"
+								>
+									<option value="active">Aktif (Dapat Dipinjam)</option>
+									<option value="inactive">Nonaktif (Pemeliharaan)</option>
+								</select>
 							</div>
 						</div>
 
-						<div className="flex flex-col gap-1">
-							<label
-								htmlFor="assetStatus"
-								className="text-xs font-medium text-muted-foreground"
-							>
-								Status
-							</label>
-							<select
-								id="assetStatus"
-								disabled={formLoading}
-								value={formStatus}
-								onChange={(e) => setFormStatus(e.target.value)}
-								className="px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground outline-none focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer"
-							>
-								<option value="active">Aktif (Dapat Dipinjam)</option>
-								<option value="inactive">Nonaktif (Pemeliharaan)</option>
-							</select>
-						</div>
-
-						<div className="flex gap-3 justify-end border-t border-border pt-3 mt-2">
+						{/* Modal Footer (Sticky) */}
+						<div className="flex gap-3 justify-end border-t border-border p-4 px-6 bg-muted/30 shrink-0">
 							<button
 								type="button"
 								onClick={() => setShowForm(false)}
@@ -927,9 +932,10 @@ function AdminAssetsComponent() {
 
 			{/* Availability & Closures Modal */}
 			{showScheduleModal && scheduleAsset && (
-				<div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-					<div className="w-full max-w-[600px] bg-card border border-border rounded-xl shadow-xl p-6 flex flex-col gap-5 max-h-[85vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150 text-foreground">
-						<div className="flex items-center justify-between border-b border-border pb-3">
+				<div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
+					<div className="w-full max-w-[600px] max-h-[90vh] bg-card border border-border rounded-xl shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-150 text-foreground overflow-hidden my-auto">
+						{/* Schedule Header (Sticky) */}
+						<div className="flex items-center justify-between border-b border-border p-5 pb-4 shrink-0 bg-card">
 							<div className="flex flex-col">
 								<h3 className="text-base font-bold text-foreground">
 									Konfigurasi Jadwal & Hari Libur
@@ -941,162 +947,166 @@ function AdminAssetsComponent() {
 							<button
 								type="button"
 								onClick={() => setShowScheduleModal(false)}
-								className="text-muted-foreground hover:text-foreground cursor-pointer"
+								className="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors cursor-pointer"
 							>
 								<X size={18} />
 							</button>
 						</div>
 
-						{scheduleError && (
-							<div className="p-3 bg-destructive/10 border border-destructive/20 text-destructive text-xs rounded-md">
-								{scheduleError}
-							</div>
-						)}
+						{/* Schedule Body (Scrollable) */}
+						<div className="p-6 overflow-y-auto flex flex-col gap-5 flex-1">
+							{scheduleError && (
+								<div className="p-3 bg-destructive/10 border border-destructive/20 text-destructive text-xs rounded-md">
+									{scheduleError}
+								</div>
+							)}
 
-						{/* Weekly Availability Sections */}
-						<div className="flex flex-col gap-3">
-							<h4 className="font-semibold text-xs text-foreground flex items-center gap-2">
-								<Clock size={16} className="text-primary" />
-								<span>Jadwal Operasional Mingguan (WIB)</span>
-							</h4>
+							{/* Weekly Availability Sections */}
+							<div className="flex flex-col gap-3">
+								<h4 className="font-semibold text-xs text-foreground flex items-center gap-2">
+									<Clock size={16} className="text-primary" />
+									<span>Jadwal Operasional Mingguan (WIB)</span>
+								</h4>
 
-							{/* Add availability form */}
-							<div className="grid grid-cols-4 gap-2 items-end p-3 bg-muted/40 border border-border rounded-lg">
-								<div className="flex flex-col gap-1">
-									<label className="text-[10px] font-medium text-muted-foreground">
-										Hari
-									</label>
-									<select
-										value={newDay}
-										onChange={(e) => setNewDay(Number(e.target.value))}
-										className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground"
+								{/* Add availability form */}
+								<div className="grid grid-cols-4 gap-2 items-end p-3 bg-muted/40 border border-border rounded-lg">
+									<div className="flex flex-col gap-1">
+										<label className="text-[10px] font-medium text-muted-foreground">
+											Hari
+										</label>
+										<select
+											value={newDay}
+											onChange={(e) => setNewDay(Number(e.target.value))}
+											className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground"
+										>
+											{DAYS_ID.map((d, i) => (
+												<option key={i} value={i}>
+													{d}
+												</option>
+											))}
+										</select>
+									</div>
+									<div className="flex flex-col gap-1">
+										<label className="text-[10px] font-medium text-muted-foreground">
+											Jam Buka
+										</label>
+										<input
+											type="time"
+											value={newOpen}
+											onChange={(e) => setNewOpen(e.target.value)}
+											className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground"
+										/>
+									</div>
+									<div className="flex flex-col gap-1">
+										<label className="text-[10px] font-medium text-muted-foreground">
+											Jam Tutup
+										</label>
+										<input
+											type="time"
+											value={newClose}
+											onChange={(e) => setNewClose(e.target.value)}
+											className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground"
+										/>
+									</div>
+									<button
+										type="button"
+										onClick={handleAddAvailability}
+										className="px-3 py-1.5 bg-primary text-primary-foreground hover:opacity-90 rounded text-xs font-semibold cursor-pointer shadow-xs"
 									>
-										{DAYS_ID.map((d, i) => (
-											<option key={i} value={i}>
-												{d}
-											</option>
-										))}
-									</select>
+										Tambah
+									</button>
 								</div>
-								<div className="flex flex-col gap-1">
-									<label className="text-[10px] font-medium text-muted-foreground">
-										Jam Buka
-									</label>
-									<input
-										type="time"
-										value={newOpen}
-										onChange={(e) => setNewOpen(e.target.value)}
-										className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground"
-									/>
+
+								{/* Schedule list */}
+								<div className="flex flex-col gap-1 max-h-[150px] overflow-y-auto border border-border rounded-lg divide-y divide-border">
+									{availList.length === 0 ? (
+										<div className="p-3 text-center text-xs text-muted-foreground">
+											Belum ada jadwal operasional khusus (terbuka 24 jam /
+											bebas).
+										</div>
+									) : (
+										availList.map((slot, index) => (
+											<div
+												key={index}
+												className="flex justify-between items-center p-2.5 text-xs hover:bg-muted/20"
+											>
+												<span className="font-medium text-foreground">
+													{DAYS_ID[slot.dayOfWeek]}
+												</span>
+												<span className="text-muted-foreground font-mono">
+													{slot.openTime} - {slot.closeTime} WIB
+												</span>
+												<button
+													onClick={() => handleRemoveAvailability(index)}
+													className="text-destructive hover:bg-destructive/10 px-2 py-0.5 rounded text-[11px] cursor-pointer"
+												>
+													Hapus
+												</button>
+											</div>
+										))
+									)}
 								</div>
-								<div className="flex flex-col gap-1">
-									<label className="text-[10px] font-medium text-muted-foreground">
-										Jam Tutup
-									</label>
-									<input
-										type="time"
-										value={newClose}
-										onChange={(e) => setNewClose(e.target.value)}
-										className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground"
-									/>
-								</div>
-								<button
-									type="button"
-									onClick={handleAddAvailability}
-									className="px-3 py-1.5 bg-primary text-primary-foreground hover:opacity-90 rounded text-xs font-semibold cursor-pointer shadow-xs"
-								>
-									Tambah
-								</button>
 							</div>
 
-							{/* Schedule list */}
-							<div className="flex flex-col gap-1 max-h-[150px] overflow-y-auto border border-border rounded-lg divide-y divide-border">
-								{availList.length === 0 ? (
-									<div className="p-3 text-center text-xs text-muted-foreground">
-										Belum ada jadwal operasional khusus (terbuka 24 jam /
-										bebas).
+							{/* Date-specific Closures Section */}
+							<div className="flex flex-col gap-3 border-t border-border pt-4">
+								<h4 className="font-semibold text-xs text-foreground flex items-center gap-2">
+									<Calendar size={16} className="text-amber-500" />
+									<span>Penutupan Khusus / Hari Libur / Pemeliharaan</span>
+								</h4>
+
+								{/* Add closure form */}
+								<div className="grid grid-cols-4 gap-2 items-end p-3 bg-muted/40 border border-border rounded-lg">
+									<div className="col-span-3 flex flex-col gap-1">
+										<label className="text-[10px] font-medium text-muted-foreground">
+											Tanggal Penutupan
+										</label>
+										<input
+											type="date"
+											value={newClosureDate}
+											onChange={(e) => setNewClosureDate(e.target.value)}
+											className="px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground outline-none w-full"
+										/>
 									</div>
-								) : (
-									availList.map((slot, index) => (
-										<div
-											key={index}
-											className="flex justify-between items-center p-2.5 text-xs hover:bg-muted/20"
-										>
-											<span className="font-medium text-foreground">
-												{DAYS_ID[slot.dayOfWeek]}
-											</span>
-											<span className="text-muted-foreground font-mono">
-												{slot.openTime} - {slot.closeTime} WIB
-											</span>
-											<button
-												onClick={() => handleRemoveAvailability(index)}
-												className="text-destructive hover:bg-destructive/10 px-2 py-0.5 rounded text-[11px] cursor-pointer"
-											>
-												Hapus
-											</button>
+									<button
+										type="button"
+										onClick={handleAddClosure}
+										className="px-3 py-1.5 bg-primary text-primary-foreground hover:opacity-90 rounded text-xs font-semibold h-[32px] flex items-center justify-center cursor-pointer shadow-xs"
+									>
+										Tambah
+									</button>
+								</div>
+
+								{/* Closures list */}
+								<div className="flex flex-col gap-1 max-h-[150px] overflow-y-auto border border-border rounded-lg divide-y divide-border">
+									{closuresList.length === 0 ? (
+										<div className="p-3 text-center text-xs text-muted-foreground">
+											Tidak ada tanggal penutupan khusus.
 										</div>
-									))
-								)}
+									) : (
+										closuresList.map((closure, index) => (
+											<div
+												key={index}
+												className="flex justify-between items-center p-2.5 text-xs hover:bg-muted/20"
+											>
+												<span className="font-mono font-medium text-foreground">
+													{closure.date}
+												</span>
+												<button
+													onClick={() => handleRemoveClosure(index)}
+													className="text-destructive hover:bg-destructive/10 px-2 py-0.5 rounded text-[11px] cursor-pointer"
+												>
+													Hapus
+												</button>
+											</div>
+										))
+									)}
+								</div>
 							</div>
 						</div>
 
-						{/* Date-specific Closures Section */}
-						<div className="flex flex-col gap-3 border-t border-border pt-4">
-							<h4 className="font-semibold text-xs text-foreground flex items-center gap-2">
-								<Calendar size={16} className="text-amber-500" />
-								<span>Penutupan Khusus / Hari Libur / Pemeliharaan</span>
-							</h4>
-
-							{/* Add closure form */}
-							<div className="grid grid-cols-4 gap-2 items-end p-3 bg-muted/40 border border-border rounded-lg">
-								<div className="col-span-3 flex flex-col gap-1">
-									<label className="text-[10px] font-medium text-muted-foreground">
-										Tanggal Penutupan
-									</label>
-									<input
-										type="date"
-										value={newClosureDate}
-										onChange={(e) => setNewClosureDate(e.target.value)}
-										className="px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground outline-none w-full"
-									/>
-								</div>
-								<button
-									type="button"
-									onClick={handleAddClosure}
-									className="px-3 py-1.5 bg-primary text-primary-foreground hover:opacity-90 rounded text-xs font-semibold h-[32px] flex items-center justify-center cursor-pointer shadow-xs"
-								>
-									Tambah
-								</button>
-							</div>
-
-							{/* Closures list */}
-							<div className="flex flex-col gap-1 max-h-[150px] overflow-y-auto border border-border rounded-lg divide-y divide-border">
-								{closuresList.length === 0 ? (
-									<div className="p-3 text-center text-xs text-muted-foreground">
-										Tidak ada tanggal penutupan khusus.
-									</div>
-								) : (
-									closuresList.map((closure, index) => (
-										<div
-											key={index}
-											className="flex justify-between items-center p-2.5 text-xs hover:bg-muted/20"
-										>
-											<span className="font-mono font-medium text-foreground">
-												{closure.date}
-											</span>
-											<button
-												onClick={() => handleRemoveClosure(index)}
-												className="text-destructive hover:bg-destructive/10 px-2 py-0.5 rounded text-[11px] cursor-pointer"
-											>
-												Hapus
-											</button>
-										</div>
-									))
-								)}
-							</div>
-						</div>
-
-						<div className="flex gap-3 justify-end border-t border-border pt-3 mt-2">
+						{/* Schedule Footer (Sticky) */}
+						<div className="flex gap-3 justify-end border-t border-border p-4 px-6 bg-muted/30 shrink-0">
 							<button
 								type="button"
 								onClick={() => setShowScheduleModal(false)}
