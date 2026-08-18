@@ -45,37 +45,30 @@ test("Facility Tag Sanitization & Fallback Resolver", async (t) => {
 		assert.deepStrictEqual(result, custom);
 	});
 
-	await t.test("getAssetFacilities: falls back to category defaults when facilities is null, undefined, or empty", () => {
+	await t.test("getAssetFacilities: returns empty array by default when facilities is null, undefined, or empty", () => {
 		assert.deepStrictEqual(
 			getAssetFacilities({ type: "room", facilities: null }),
-			CATEGORY_FACILITY_PRESETS.room,
+			[],
 		);
 		assert.deepStrictEqual(
 			getAssetFacilities({ type: "room", facilities: [] }),
-			CATEGORY_FACILITY_PRESETS.room,
+			[],
 		);
 		assert.deepStrictEqual(
 			getAssetFacilities({ type: "dormitory", facilities: undefined }),
-			CATEGORY_FACILITY_PRESETS.dormitory,
+			[],
 		);
 		assert.deepStrictEqual(
 			getAssetFacilities({ type: "vehicle" }),
-			CATEGORY_FACILITY_PRESETS.vehicle,
+			[],
 		);
 		assert.deepStrictEqual(
 			getAssetFacilities({ type: "field" }),
-			CATEGORY_FACILITY_PRESETS.field,
+			[],
 		);
 		assert.deepStrictEqual(
 			getAssetFacilities({ type: "equipment" }),
-			CATEGORY_FACILITY_PRESETS.equipment,
-		);
-	});
-
-	await t.test("getAssetFacilities: falls back to room defaults if unknown asset type is encountered", () => {
-		assert.deepStrictEqual(
-			getAssetFacilities({ type: "unknown_type", facilities: null }),
-			CATEGORY_FACILITY_PRESETS.room,
+			[],
 		);
 	});
 });

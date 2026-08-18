@@ -78,23 +78,17 @@ export function sanitizeFacilities(input: unknown): string[] {
 
 /**
  * Resolves facilities for an asset:
- * Returns custom sanitized tags if present and non-empty,
- * otherwise falls back to category defaults based on asset type.
+ * Returns custom sanitized tags if present,
+ * otherwise returns an empty array by default.
  */
 export function getAssetFacilities(asset: {
-	type: string;
+	type?: string;
 	facilities?: string[] | null;
 }): string[] {
 	if (asset.facilities && Array.isArray(asset.facilities)) {
-		const sanitized = sanitizeFacilities(asset.facilities);
-		if (sanitized.length > 0) {
-			return sanitized;
-		}
+		return sanitizeFacilities(asset.facilities);
 	}
 
-	const defaultPreset =
-		CATEGORY_FACILITY_PRESETS[asset.type as AssetType] ||
-		CATEGORY_FACILITY_PRESETS.room;
-
-	return [...defaultPreset];
+	return [];
 }
+
