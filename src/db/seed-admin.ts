@@ -36,6 +36,7 @@ async function seedAdmin() {
 				role: "admin",
 				status: "active",
 				mustResetPassword: false,
+				emailVerified: true,
 			})
 			.where(eq(users.email, adminEmail));
 

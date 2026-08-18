@@ -14,4 +14,9 @@ test("OAuth Account Linking Configuration Test", () => {
 		options.account?.accountLinking?.trustedProviders?.includes("google"),
 		"account.accountLinking.trustedProviders must include 'google'",
 	);
+	assert.strictEqual(
+		options.account?.accountLinking?.requireLocalEmailVerified,
+		false,
+		"account.accountLinking.requireLocalEmailVerified should be false so pre-seeded whitelist accounts link seamlessly without prior email verification",
+	);
 });
