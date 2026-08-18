@@ -96,12 +96,13 @@ pnpm test
 ```
 
 ### Lingkup Pengujian Unit:
-- `src/lib/booking/booking.test.ts`: Pengujian pencegahan bentrok jadwal dan integritas transaksi.
-- `src/lib/auth/rbac.test.ts`: Pengujian matriks hak akses dan session guard.
-- `src/lib/whatsapp/phone.test.ts`: Pengujian normalisasi format nomor telepon Indonesia.
-- `src/lib/whatsapp/templates.test.ts`: Pengujian pembentukan pesan WhatsApp dan format WIB.
-- `src/lib/email/templates.test.ts`: Pengujian HTML template email dan sanitasi input.
-- `src/lib/notifications/service.test.ts`: Pengujian dual-channel dispatching dan fallback audit log.
+- `src/lib/assets/facilities.test.ts`: Sanitasi tag fasilitas dinamis, deduplikasi case-insensitive, pembatasan tag & preset.
+- `src/db/migration.test.ts` & `src/db/auth.test.ts`: Pengujian integritas skema database dan adapter Better Auth.
+- `src/lib/booking/booking.test.ts` & `src/lib/booking/admin.test.ts`: Pencegahan bentrok jadwal, kapasitas ruangan/asrama, dan alur approval/rejection.
+- `src/lib/auth/rbac.test.ts`, `two-factor.test.ts`, `two-factor-password-bug.test.ts`: Pengujian RBAC hierarkis, pendaftaran TOTP 2FA, dan verifikasi password.
+- `src/lib/whatsapp/phone.test.ts`, `templates.test.ts`, `service.test.ts`: Normalisasi nomor telepon, template pesan WA, dan gateway Fonnte.
+- `src/lib/email/templates.test.ts`, `service.test.ts`, `tracking-url-bug.test.ts`: HTML template email, gateway Resend, dan validasi RFC 5322.
+- `src/lib/notifications/service.test.ts`: Pengujian dual-channel dispatching dan sinkronisasi notifikasi.
 
 ---
 

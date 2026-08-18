@@ -56,23 +56,26 @@ Pengiriman email menggunakan library resmi `resend` dengan template HTML modern,
 ### Konfigurasi `.env`:
 ```ini
 RESEND_API_KEY=re_123456789abcdef...
-EMAIL_FROM=SARPRAS PPKASN <sarpras@ppkasn.bkn.go.id>
-ADMIN_NOTIFICATION_EMAIL=admin.sarpras@ppkasn.bkn.go.id
+EMAIL_FROM=SARPRAS PPKASN <sarpras@ppkasn.lan.go.id>
+EMAIL_ADMIN_TARGET=admin.sarpras@ppkasn.lan.go.id,operator@ppkasn.lan.go.id
+RESEND_MOCK=false
 ```
 
 ---
 
 ## 📱 Integrasi WhatsApp (Fonnte)
 
-Pengiriman pesan instan WhatsApp menggunakan Fonnte API. Sebelum dikirim, nomor telepon pemohon melalui proses normalisasi otomatis:
+Pengiriman pesan instan WhatsApp menggunakan Fonnte API (`https://api.fonnte.com/send`). Sebelum dikirim, nomor telepon pemohon melalui proses normalisasi otomatis:
 - Menghilangkan karakter non-digit (spasi, tanda strip, kurung).
-- Mengubah awalan lokal `08...` menjadi kode negara `628...`.
+- Mengubah awalan lokal `08...` atau `+628...` menjadi kode negara `628...`.
 - Menolak nomor yang tidak valid secara format.
 
 ### Konfigurasi `.env`:
 ```ini
-FONNTE_TOKEN=your_fonnte_device_token_here
-ADMIN_NOTIFICATION_PHONE=6281234567890
+FONNTE_API_TOKEN=your_fonnte_device_token_here
+FONNTE_ADMIN_TARGET=6281234567890
+FONNTE_MOCK=false
+APP_BASE_URL=http://localhost:3000
 ```
 
 ---

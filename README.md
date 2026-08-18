@@ -1,194 +1,97 @@
-Welcome to your new TanStack Start app!
+# 🏢 Sarpras PPKASN - Sistem Informasi Sarana & Prasarana
 
-# Getting Started
+Sistem informasi reservasi fasilitas dan aset terpadu berbasis web untuk Pusat Pelatihan Karakter Terbuka / BKN / PPKASN. Dibangun menggunakan **TanStack Start (React 19)**, **Tailwind CSS v4**, dan **PostgreSQL** dengan **Drizzle ORM**.
 
-To run this application:
+---
 
+## ✨ Fitur Utama
+
+- 🔍 **Katalog & Ketersediaan Aset Real-Time:** Eksplorasi fasilitas (ruang rapat, asrama/dormitory, kendaraan, lapangan, peralatan) dengan jam operasional dan filter dinamis.
+- 📋 **Wizard Reservasi 3-Langkah:** Pemilihan jadwal & kapasitas -> Data pemohon & organisasi -> Verifikasi & review permohonan.
+- 🛡️ **Pencegahan Double-Booking Bertingkat:** Validasi ketersediaan pre-flight pada client dan proteksi bentrok jadwal tingkat database.
+- 📱 **Notifikasi Dual-Channel Otomatis:** Integrasi instan WhatsApp Gateway ([Fonnte](https://fonnte.com)) dan Email Transaksional ([Resend](https://resend.com)) dengan fallback console mock.
+- 🔎 **Pelacakan Permohonan & Pembatalan Mandiri:** Tracking status pengajuan real-time via kode referensi booking unik (`/status/:ref`).
+- 📊 **Panel Administrator & Kalender Interaktif:** Kalender visual terpadu, review drawer permohonan, persetujuan/penolakan dengan alasan, dan inspeksi audit trail.
+- 🔐 **Autentikasi & Keamanan Ketat:** Better Auth dengan Two-Factor Authentication (TOTP 2FA), Session Cookie, dan Hierarchical Role-Based Access Control (`admin`, `operator`, `pimpinan`).
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework:** [TanStack Start](https://tanstack.com/start) & [TanStack Router](https://tanstack.com/router)
+- **UI Library:** React 19 (`react: ^19.2.0`, `react-dom: ^19.2.0`)
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com), `tw-animate-css`, `lucide-react`
+- **Database & ORM:** PostgreSQL 16+ via [Drizzle ORM](https://orm.drizzle.team) (`pg: ^8.23.0`)
+- **Autentikasi:** [Better Auth](https://better-auth.com) dengan TOTP Two-Factor Plugin
+- **Linter & Formatter:** [Biome](https://biomejs.dev)
+- **Runtime & Tests:** Node.js v22 (Native Test Runner via `tsx`)
+
+---
+
+## ⚡ Memulai Cepat (Quick Start)
+
+### 1. Prasyarat
+- Node.js `>= 20.x` atau `22.x`
+- `pnpm` (`npm i -g pnpm`)
+- PostgreSQL 15+ (lokal atau via Docker)
+
+### 2. Instalasi & Konfigurasi
 ```bash
-npm install
-npm run dev
+# Clone repository
+git clone https://github.com/tropicans/sarpras.git
+cd sarpras
+
+# Salin konfigurasi environment
+cp .env.example .env
+
+# Install dependensi
+pnpm install
+
+# Jalankan migrasi database
+pnpm db:migrate
 ```
 
-# Building For Production
-
-To build this application for production:
-
+### 3. Menjalankan Server Pengembangan
 ```bash
-npm run build
+pnpm dev
 ```
+Aplikasi berjalan di [http://localhost:3000](http://localhost:3000).
 
-## Styling
+---
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+## 📜 Perintah Script Tersedia
 
-### Removing Tailwind CSS
+| Perintah | Deskripsi |
+| :--- | :--- |
+| `pnpm dev` | Menjalankan Vite development server pada port 3000 |
+| `pnpm build` | Membangun bundle produksi (client & server) |
+| `pnpm start` | Menjalankan migrasi Drizzle dan server produksi `prod-server.js` |
+| `pnpm test` | Menjalankan seluruh test suite unit & integrasi |
+| `pnpm check` | Menjalankan linter dan formatter Biome |
+| `pnpm format` | Memformat kode secara otomatis via Biome |
+| `pnpm db:generate` | Menghasilkan file migrasi SQL Drizzle dari `schema.ts` |
+| `pnpm db:migrate` | Mengeksekusi migrasi Drizzle ke database target |
+| `pnpm db:migrate-legacy` | Mengimpor data historis JSON legacy ke PostgreSQL |
 
-If you prefer not to use Tailwind CSS:
+---
 
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Remove `@tailwindcss/vite` and `tailwindcss` from `package.json`
+## 📚 Dokumentasi Lengkap
 
-## Linting & Formatting
+Dokumentasi arsitektur, API, skema basis data, dan panduan operasional tersedia lengkap di folder [`docs/`](./docs):
 
-This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
+- 🏗️ [**Arsitektur Sistem**](./docs/architecture.md)
+- 🗄️ [**Skema Database & ERD**](./docs/database-schema.md)
+- 🔄 [**Alur Booking & State Machine**](./docs/booking-lifecycle.md)
+- 🔐 [**Autentikasi & RBAC**](./docs/authentication-rbac.md)
+- 🔔 [**Sistem Notifikasi Dual-Channel**](./docs/notifications.md)
+- 🔌 [**Referensi Server Functions & API**](./docs/api-reference.md)
+- 🚀 [**Deployment & Operasional**](./docs/deployment-operations.md)
+- 🧪 [**Panduan Pengujian (Testing)**](./docs/TESTING.md)
+- ⚙️ [**Konfigurasi Environment**](./docs/CONFIGURATION.md)
+- 👥 [**Panduan Pengguna**](./docs/user-guide.md)
+- 💻 [**Panduan Pengembang**](./docs/developer-guide.md)
 
+---
 
-```bash
-npm run lint
-npm run format
-npm run check
-```
-
-
-
-## Routing
-
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+## 📄 Lisensi
+Hak Cipta © 2026 PPKASN / BKN. Seluruh hak cipta dilindungi undang-undang.

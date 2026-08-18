@@ -17,6 +17,8 @@ Sistem ini dirancang untuk mendigitalkan dan mengotomatiskan seluruh alur peminj
 | 🔔 [**Sistem Notifikasi Dual-Channel**](./notifications.md) | Integrasi Resend (Email) & Fonnte (WhatsApp), template otomatis, format zona waktu WIB, dan audit log notifikasi. |
 | 🔌 [**Referensi Server Functions & API**](./api-reference.md) | Katalog Server RPC Functions, validasi skema Zod, parameter input, format respons, dan penanganan galat. |
 | 🚀 [**Deployment & Operasional**](./deployment-operations.md) | Panduan instalasi Docker, konfigurasi `.env`, migrasi Drizzle, backup database, dan monitoring produksi. |
+| 🧪 [**Panduan Pengujian (Testing)**](./TESTING.md) | Panduan pengujian otomatis Node.js native test runner, matriks kasus uji, dan cakupan. |
+| ⚙️ [**Konfigurasi Environment**](./CONFIGURATION.md) | Rincian lengkap environment variables `.env`, parameter pool DB, dan token gateway. |
 | 👥 [**Panduan Pengguna (User Guide)**](./user-guide.md) | Buku panduan operasional untuk Pemohon Publik (Masyarakat/Pegawai) dan Administrator Fasilitas. |
 | 💻 [**Panduan Pengembang (Developer Guide)**](./developer-guide.md) | Panduan setup lokal, konvensi kode, pengujian unit (`test`), tooling Biome, dan standarisasi commit. |
 

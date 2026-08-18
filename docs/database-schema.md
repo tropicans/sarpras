@@ -10,6 +10,7 @@ Dokumen ini memuat dokumentasi menyeluruh mengenai skema basis data PostgreSQL y
 erDiagram
     user ||--o{ session : "memiliki banyak sesi"
     user ||--o{ account : "memiliki provider login"
+    user ||--o| two_factor : "memiliki konfigurasi 2FA"
     assets ||--o{ bookings : "dipinjam melalui"
     assets ||--o{ asset_availability : "memiliki jadwal operasional"
     assets ||--o{ asset_closures : "memiliki hari libur/tutup"
@@ -24,9 +25,20 @@ erDiagram
         text role "admin | operator | pimpinan"
         text status "active | inactive"
         boolean must_reset_password
+        boolean two_factor_enabled
         text legacy_id UK
         timestamp created_at
         timestamp updated_at
+    }
+
+    two_factor {
+        text id PK
+        text user_id FK
+        text secret
+        text backup_codes
+        boolean verified
+        integer failed_verification_count
+        timestamp locked_until
     }
 
     session {
@@ -64,9 +76,11 @@ erDiagram
     assets {
         uuid id PK
         text name
-        text type "room | dormitory | vehicle"
+        text type "room | dormitory | vehicle | field | equipment"
         text location
         integer capacity
+        jsonb room_layouts
+        jsonb facilities
         text status "active | archived | inactive"
         text legacy_id UK
         timestamp created_at
@@ -82,11 +96,15 @@ erDiagram
         text requester_organization
         text purpose
         integer attendance
+        text room_layout
         timestamp start_date
         timestamp end_date
         text timezone "Asia/Jakarta"
         text status "pending | approved | rejected | cancelled"
         text rejection_reason
+        text group_id
+        text letter_file_name
+        text letter_file_url
         text legacy_id UK
         timestamp created_at
         timestamp updated_at
@@ -139,13 +157,29 @@ Menyimpan data akun administrator, operator, dan pimpinan untuk akses panel kelo
 | `role` | `text` | NOT NULL | `'operator'` | Role akses: `admin`, `operator`, `pimpinan` |
 | `status` | `text` | NOT NULL | `'active'` | Status akun: `active`, `inactive` |
 | `must_reset_password`| `boolean`| NOT NULL | `false` | Wajib ganti password saat login |
+| `two_factor_enabled`| `boolean`| NOT NULL | `false` | Status aktifasi 2FA TOTP |
 | `legacy_id` | `text` | UNIQUE, NULL | - | ID referensi dari database lama |
 | `created_at` | `timestamptz` | NOT NULL | `now()` | Waktu pembuatan akun |
 | `updated_at` | `timestamptz` | NOT NULL | `now()` | Waktu pembaruan akun |
 
 ---
 
-### 2. `session` (Tabel Sesi Pengguna)
+### 2. `two_factor` (Tabel Two-Factor Authentication)
+Menyimpan secret TOTP, backup codes, dan status verifikasi 2FA pengguna via Better Auth.
+
+| Kolom | Tipe Data | Constraint | Keterangan |
+| :--- | :--- | :--- | :--- |
+| `id` | `text` | **PK** | ID Record 2FA |
+| `user_id` | `text` | **FK** -> `user.id` (CASCADE) | Pemilik konfigurasi 2FA |
+| `secret` | `text` | NOT NULL | Secret key TOTP terenkripsi |
+| `backup_codes` | `text` | NOT NULL | Daftar backup code terenkripsi |
+| `verified` | `boolean` | NOT NULL | `false` | Status verifikasi pendaftaran 2FA |
+| `failed_verification_count` | `integer` | NOT NULL | `0` | Counter kegagalan verifikasi OTP |
+| `locked_until` | `timestamptz` | NULL | Timestamp pembekuan akun jika brute-force |
+
+---
+
+### 3. `session` (Tabel Sesi Pengguna)
 Dikelola otomatis oleh Better Auth untuk mencatat token autentikasi berbasis sesi aktif.
 
 | Kolom | Tipe Data | Constraint | Keterangan |
@@ -161,8 +195,8 @@ Dikelola otomatis oleh Better Auth untuk mencatat token autentikasi berbasis ses
 
 ---
 
-### 3. `account` (Tabel Kredensial Autentikasi)
-Menyimpan hash password (argon2/bcrypt) atau kredensial OAuth provider.
+### 4. `account` (Tabel Kredensial Autentikasi)
+Menyimpan hash password (argon2/scrypt) atau kredensial OAuth provider.
 
 | Kolom | Tipe Data | Constraint | Keterangan |
 | :--- | :--- | :--- | :--- |
@@ -176,16 +210,18 @@ Menyimpan hash password (argon2/bcrypt) atau kredensial OAuth provider.
 
 ---
 
-### 4. `assets` (Tabel Fasilitas & Sarana Prasarana)
-Katalog utama ruang rapat, asrama, auditorium, atau fasilitas yang dapat dipinjam.
+### 5. `assets` (Tabel Fasilitas & Sarana Prasarana)
+Katalog utama ruang rapat, asrama, auditorium, kendaraan, atau fasilitas yang dapat dipinjam.
 
 | Kolom | Tipe Data | Constraint | Nilai Bawaan | Keterangan |
 | :--- | :--- | :--- | :--- | :--- |
 | `id` | `uuid` | **PK** | `gen_random_uuid()` | ID Unik Aset |
 | `name` | `text` | NOT NULL | - | Nama aset/ruangan (e.g. *Auditorium Graha 1*) |
-| `type` | `text` | NOT NULL | - | Kategori aset (`room`, `dormitory`, dll.) |
+| `type` | `text` | NOT NULL | - | Kategori aset (`room`, `dormitory`, `vehicle`, `field`, `equipment`) |
 | `location` | `text` | NULL | - | Lokasi gedung/lantai |
 | `capacity` | `integer` | NOT NULL | - | Kapasitas daya tampung (orang) |
+| `room_layouts` | `jsonb` | NULL | - | Array opsi tata letak ruang & kapasitas |
+| `facilities` | `jsonb` | NULL | - | Array tag fasilitas dinamis kustom |
 | `status` | `text` | NOT NULL | `'active'` | Status aset (`active`, `archived`, `inactive`) |
 | `legacy_id` | `text` | UNIQUE, NULL | - | ID referensi data migrasi lama |
 | `created_at` | `timestamptz` | NOT NULL | `now()` | Waktu didaftarkan |
@@ -193,7 +229,7 @@ Katalog utama ruang rapat, asrama, auditorium, atau fasilitas yang dapat dipinja
 
 ---
 
-### 5. `bookings` (Tabel Pemesanan & Peminjaman)
+### 6. `bookings` (Tabel Pemesanan & Peminjaman)
 Inti transaksi peminjaman sarana dan prasarana.
 
 | Kolom | Tipe Data | Constraint | Nilai Bawaan | Keterangan |
@@ -206,11 +242,15 @@ Inti transaksi peminjaman sarana dan prasarana.
 | `requester_organization` | `text` | NULL | - | Instansi / Unit Kerja / Biro pemohon |
 | `purpose` | `text` | NULL | - | Tujuan & agenda kegiatan peminjaman |
 | `attendance` | `integer` | NULL | - | Estimasi jumlah peserta hadir |
+| `room_layout` | `text` | NULL | - | Opsi tata letak ruangan terpilih |
 | `start_date` | `timestamptz` | NOT NULL | - | Waktu mulai peminjaman (UTC) |
 | `end_date` | `timestamptz` | NOT NULL | - | Waktu selesai peminjaman (UTC) |
 | `timezone` | `text` | NOT NULL | `'Asia/Jakarta'` | Basis zona waktu input |
 | `status` | `text` | NOT NULL | `'pending'` | Status: `pending`, `approved`, `rejected`, `cancelled` |
 | `rejection_reason` | `text` | NULL | - | Alasan penolakan admin / alasan pembatalan pemohon |
+| `group_id` | `text` | NULL | - | Group ID untuk pemesanan multi-kamar/aset |
+| `letter_file_name` | `text` | NULL | - | Nama file surat permohonan dinas |
+| `letter_file_url` | `text` | NULL | - | URL / path dokumen permohonan |
 | `legacy_id` | `text` | UNIQUE, NULL | - | ID referensi sistem lama |
 | `created_at` | `timestamptz` | NOT NULL | `now()` | Waktu pengajuan formulir |
 | `updated_at` | `timestamptz` | NOT NULL | `now()` | Waktu perubahan status |

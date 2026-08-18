@@ -34,12 +34,15 @@ BETTER_AUTH_URL=https://sarpras.ppkasn.bkn.go.id
 
 # --- Layanan Email Transaksional (Resend) ---
 RESEND_API_KEY=re_your_resend_api_key
-EMAIL_FROM=SARPRAS PPKASN <sarpras@ppkasn.bkn.go.id>
-ADMIN_NOTIFICATION_EMAIL=admin.sarpras@ppkasn.bkn.go.id
+EMAIL_FROM=SARPRAS PPKASN <sarpras@ppkasn.lan.go.id>
+EMAIL_ADMIN_TARGET=admin.sarpras@ppkasn.lan.go.id,operator@ppkasn.lan.go.id
+RESEND_MOCK=false
 
 # --- WhatsApp Gateway (Fonnte) ---
-FONNTE_TOKEN=your_fonnte_device_token
-ADMIN_NOTIFICATION_PHONE=6281234567890
+FONNTE_API_TOKEN=your_fonnte_api_token
+FONNTE_ADMIN_TARGET=6281234567890
+FONNTE_MOCK=false
+APP_BASE_URL=https://sarpras.ppkasn.lan.go.id
 ```
 
 ---

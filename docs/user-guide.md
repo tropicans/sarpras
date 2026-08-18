@@ -93,6 +93,7 @@ graph LR
 ---
 
 ### 4. Manajemen Aset & Pengguna
-- **Kelola Fasilitas (`/admin/assets`)**: Tambah ruang rapat baru, sesuaikan kapasitas maksimum, ubah status operasional aset (*active/inactive/archived*).
-- **Kelola Pengguna (`/admin/users`)**: Khusus Super Admin untuk mendaftarkan operator baru, menetapkan peran (*Role*), dan me-reset password staf.
-- **Audit Log (`/admin/audit`)**: Memantau rekam jejak setiap mutasi data, waktu perubahan, dan aktor yang melakukan tindakan.
+- **Kelola Fasilitas (`/admin/assets`)**: Tambah ruang rapat/asrama baru, sesuaikan kapasitas maksimum, tentukan opsi layout ruangan (U-Shape, Classroom, Island), tambahkan tag fasilitas dinamis kustom, dan kelola jam operasional atau hari libur fasilitas.
+- **Keamanan Akun & 2FA (`/admin`)**: Staf dapat mengaktifkan Two-Factor Authentication (TOTP via Google Authenticator) dan menyimpan 10 kode cadangan darurat melalui menu "Keamanan 2FA".
+- **Kelola Pengguna (`/admin/users`)**: Khusus Super Admin untuk mendaftarkan operator baru, menetapkan peran (*Role*: `admin`, `operator`, `pimpinan`), dan me-reset password staf.
+- **Audit Log (`/admin/audit`)**: Memantau rekam jejak setiap mutasi data dengan visual JSON diff viewer, waktu perubahan, dan aktor yang melakukan tindakan.
