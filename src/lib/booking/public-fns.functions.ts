@@ -17,6 +17,7 @@ export const getPublicAssetsListFn = createServerFn({ method: "GET" }).handler(
 				type: assets.type,
 				location: assets.location,
 				capacity: assets.capacity,
+				roomLayouts: assets.roomLayouts,
 				status: assets.status,
 			})
 			.from(assets)
@@ -46,6 +47,7 @@ export const getPublicAssetByIdFn = createServerFn({ method: "GET" })
 				type: assets.type,
 				location: assets.location,
 				capacity: assets.capacity,
+				roomLayouts: assets.roomLayouts,
 				status: assets.status,
 			})
 			.from(assets)

@@ -34,6 +34,7 @@ type Asset = {
 	type: string;
 	location?: string | null;
 	capacity: number;
+	roomLayouts?: Array<{ id: string; name: string; maxCapacity: number }> | null;
 	status: string;
 	createdAt: string | Date;
 };
@@ -60,10 +61,18 @@ function AdminAssetsComponent() {
 	const [formName, setFormName] = useState("");
 	const [formType, setFormType] = useState<string>("room");
 	const [formLocation, setFormLocation] = useState("");
-	const [formCapacity, setFormCapacity] = useState(1);
+	const [formCapacity, setFormCapacity] = useState(50);
 	const [formStatus, setFormStatus] = useState("active");
 	const [formError, setFormError] = useState<string | null>(null);
 	const [formLoading, setFormLoading] = useState(false);
+
+	// Room Layouts Configuration State
+	const [formLayoutIslandEnabled, setFormLayoutIslandEnabled] = useState(true);
+	const [formLayoutIslandCap, setFormLayoutIslandCap] = useState(35);
+	const [formLayoutUshapeEnabled, setFormLayoutUshapeEnabled] = useState(true);
+	const [formLayoutUshapeCap, setFormLayoutUshapeCap] = useState(25);
+	const [formLayoutClassroomEnabled, setFormLayoutClassroomEnabled] = useState(true);
+	const [formLayoutClassroomCap, setFormLayoutClassroomCap] = useState(42);
 
 	// Scheduling State
 	const [showScheduleModal, setShowScheduleModal] = useState(false);
@@ -109,7 +118,13 @@ function AdminAssetsComponent() {
 		setFormName("");
 		setFormType("room");
 		setFormLocation("");
-		setFormCapacity(1);
+		setFormCapacity(50);
+		setFormLayoutIslandEnabled(true);
+		setFormLayoutIslandCap(35);
+		setFormLayoutUshapeEnabled(true);
+		setFormLayoutUshapeCap(25);
+		setFormLayoutClassroomEnabled(true);
+		setFormLayoutClassroomCap(42);
 		setFormStatus("active");
 		setFormError(null);
 		setShowForm(true);
@@ -122,8 +137,40 @@ function AdminAssetsComponent() {
 		setFormLocation(asset.location || "");
 		setFormCapacity(asset.capacity);
 		setFormStatus(asset.status);
+
+		if (asset.roomLayouts && asset.roomLayouts.length > 0) {
+			const island = asset.roomLayouts.find((l) => l.id === "island");
+			const ushape = asset.roomLayouts.find((l) => l.id === "ushape");
+			const classroom = asset.roomLayouts.find((l) => l.id === "classroom");
+
+			setFormLayoutIslandEnabled(Boolean(island));
+			setFormLayoutIslandCap(island?.maxCapacity ?? Math.max(1, Math.round(asset.capacity * 0.7)));
+
+			setFormLayoutUshapeEnabled(Boolean(ushape));
+			setFormLayoutUshapeCap(ushape?.maxCapacity ?? Math.max(1, Math.round(asset.capacity * 0.5)));
+
+			setFormLayoutClassroomEnabled(Boolean(classroom));
+			setFormLayoutClassroomCap(classroom?.maxCapacity ?? Math.max(1, Math.round(asset.capacity * 0.85)));
+		} else {
+			setFormLayoutIslandEnabled(true);
+			setFormLayoutIslandCap(Math.max(1, Math.round(asset.capacity * 0.7)));
+			setFormLayoutUshapeEnabled(true);
+			setFormLayoutUshapeCap(Math.max(1, Math.round(asset.capacity * 0.5)));
+			setFormLayoutClassroomEnabled(true);
+			setFormLayoutClassroomCap(Math.max(1, Math.round(asset.capacity * 0.85)));
+		}
+
 		setFormError(null);
 		setShowForm(true);
+	};
+
+	const handleCapacityChange = (cap: number) => {
+		setFormCapacity(cap);
+		if (cap > 0) {
+			setFormLayoutIslandCap(Math.max(1, Math.round(cap * 0.7)));
+			setFormLayoutUshapeCap(Math.max(1, Math.round(cap * 0.5)));
+			setFormLayoutClassroomCap(Math.max(1, Math.round(cap * 0.85)));
+		}
 	};
 
 	const handleSaveAsset = async (e: React.FormEvent) => {
@@ -131,6 +178,23 @@ function AdminAssetsComponent() {
 		if (!formName || formCapacity <= 0) {
 			setFormError("Nama aset dan kapasitas (minimal 1) wajib diisi.");
 			return;
+		}
+
+		const roomLayoutsList = [];
+		if (formType === "room") {
+			if (formLayoutIslandEnabled) {
+				roomLayoutsList.push({ id: "island", name: "Island", maxCapacity: formLayoutIslandCap });
+			}
+			if (formLayoutUshapeEnabled) {
+				roomLayoutsList.push({ id: "ushape", name: "U-Shape", maxCapacity: formLayoutUshapeCap });
+			}
+			if (formLayoutClassroomEnabled) {
+				roomLayoutsList.push({ id: "classroom", name: "Classroom", maxCapacity: formLayoutClassroomCap });
+			}
+			if (roomLayoutsList.length === 0) {
+				setFormError("Minimal satu opsi tata letak (Island / U-Shape / Classroom) harus diaktifkan.");
+				return;
+			}
 		}
 
 		setFormLoading(true);
@@ -144,6 +208,7 @@ function AdminAssetsComponent() {
 					type: formType,
 					location: formLocation,
 					capacity: formCapacity,
+					roomLayouts: formType === "room" ? roomLayoutsList : null,
 					status: formStatus,
 				},
 			});
@@ -363,8 +428,15 @@ function AdminAssetsComponent() {
 										<td className="p-4 text-[#71717a]">
 											{asset.location || "—"}
 										</td>
-										<td className="p-4 text-[#09090b] font-medium">
-											{asset.capacity} pax/unit
+										<td className="p-4 text-[#09090b]">
+											<div className="flex flex-col">
+												<span className="font-semibold">{asset.capacity} pax/unit</span>
+												{asset.type === "room" && asset.roomLayouts && asset.roomLayouts.length > 0 && (
+													<span className="text-[10px] text-[#71717a] font-mono">
+														{asset.roomLayouts.map((l) => `${l.name}: ${l.maxCapacity}`).join(" • ")}
+													</span>
+												)}
+											</div>
 										</td>
 										<td className="p-4">
 											<span
@@ -532,18 +604,107 @@ function AdminAssetsComponent() {
 								htmlFor="assetCapacity"
 								className="text-xs font-medium text-[#71717a]"
 							>
-								Kapasitas (Pax / Orang / Unit)
+								Kapasitas Dasar / Maksimal (Pax)
 							</label>
 							<input
 								id="assetCapacity"
 								type="number"
 								disabled={formLoading}
 								value={formCapacity}
-								onChange={(e) => setFormCapacity(Number(e.target.value))}
+								onChange={(e) => handleCapacityChange(Number(e.target.value))}
 								className="px-3 py-2 border border-[#e4e4e7] rounded-md text-sm outline-none focus:ring-2 focus:ring-[#09090b] focus:border-transparent"
 								min={1}
 							/>
 						</div>
+
+						{formType === "room" && (
+							<div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg flex flex-col gap-3">
+								<div className="flex items-center justify-between">
+									<label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+										<span>Tata Letak Ruangan (Layout & Kapasitas)</span>
+									</label>
+									<span className="text-[10px] text-slate-500 font-mono">Custom per Ruangan</span>
+								</div>
+								<p className="text-[11px] text-slate-600 leading-tight">
+									Aktifkan dan atur kapasitas maksimal khusus untuk setiap opsi tata letak:
+								</p>
+
+								{/* Island */}
+								<div className="flex items-center justify-between gap-3 bg-white p-2.5 rounded-md border border-slate-200">
+									<label className="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-slate-700">
+										<input
+											type="checkbox"
+											checked={formLayoutIslandEnabled}
+											onChange={(e) => setFormLayoutIslandEnabled(e.target.checked)}
+											className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+										/>
+										<span>🌴 Island</span>
+									</label>
+									<div className="flex items-center gap-1.5">
+										<span className="text-[10px] text-slate-500">Maks:</span>
+										<input
+											type="number"
+											min={1}
+											disabled={!formLayoutIslandEnabled || formLoading}
+											value={formLayoutIslandCap}
+											onChange={(e) => setFormLayoutIslandCap(Math.max(1, Number(e.target.value)))}
+											className="w-16 px-2 py-1 text-xs border border-slate-300 rounded text-right disabled:bg-slate-100 disabled:text-slate-400"
+										/>
+										<span className="text-[10px] text-slate-500">Pax</span>
+									</div>
+								</div>
+
+								{/* U-Shape */}
+								<div className="flex items-center justify-between gap-3 bg-white p-2.5 rounded-md border border-slate-200">
+									<label className="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-slate-700">
+										<input
+											type="checkbox"
+											checked={formLayoutUshapeEnabled}
+											onChange={(e) => setFormLayoutUshapeEnabled(e.target.checked)}
+											className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+										/>
+										<span>🔲 U-Shape</span>
+									</label>
+									<div className="flex items-center gap-1.5">
+										<span className="text-[10px] text-slate-500">Maks:</span>
+										<input
+											type="number"
+											min={1}
+											disabled={!formLayoutUshapeEnabled || formLoading}
+											value={formLayoutUshapeCap}
+											onChange={(e) => setFormLayoutUshapeCap(Math.max(1, Number(e.target.value)))}
+											className="w-16 px-2 py-1 text-xs border border-slate-300 rounded text-right disabled:bg-slate-100 disabled:text-slate-400"
+										/>
+										<span className="text-[10px] text-slate-500">Pax</span>
+									</div>
+								</div>
+
+								{/* Classroom */}
+								<div className="flex items-center justify-between gap-3 bg-white p-2.5 rounded-md border border-slate-200">
+									<label className="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-slate-700">
+										<input
+											type="checkbox"
+											checked={formLayoutClassroomEnabled}
+											onChange={(e) => setFormLayoutClassroomEnabled(e.target.checked)}
+											className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+										/>
+										<span>🎓 Classroom</span>
+									</label>
+									<div className="flex items-center gap-1.5">
+										<span className="text-[10px] text-slate-500">Maks:</span>
+										<input
+											type="number"
+											min={1}
+											disabled={!formLayoutClassroomEnabled || formLoading}
+											value={formLayoutClassroomCap}
+											onChange={(e) => setFormLayoutClassroomCap(Math.max(1, Number(e.target.value)))}
+											className="w-16 px-2 py-1 text-xs border border-slate-300 rounded text-right disabled:bg-slate-100 disabled:text-slate-400"
+										/>
+										<span className="text-[10px] text-slate-500">Pax</span>
+									</div>
+								</div>
+							</div>
+						)}
 
 						<div className="flex flex-col gap-1">
 							<label

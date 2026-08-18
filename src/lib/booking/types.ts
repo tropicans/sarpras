@@ -38,8 +38,6 @@ export const DEFAULT_ROOM_LAYOUT_CONFIGS = [
 	{ id: "island", name: "Island", ratio: 0.7 },
 	{ id: "ushape", name: "U-Shape", ratio: 0.5 },
 	{ id: "classroom", name: "Classroom", ratio: 0.85 },
-	{ id: "theater", name: "Theater", ratio: 1.0 },
-	{ id: "boardroom", name: "Boardroom", ratio: 0.4 },
 ] as const;
 
 export function getRoomLayoutOptions(

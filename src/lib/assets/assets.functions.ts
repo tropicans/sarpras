@@ -45,6 +45,7 @@ export const saveAssetFn = createServerFn({ method: "POST" })
 			type: string;
 			location?: string;
 			capacity: number;
+			roomLayouts?: Array<{ id: string; name: string; maxCapacity: number }> | null;
 			status: string;
 		}) => data,
 	)
@@ -64,6 +65,7 @@ export const saveAssetFn = createServerFn({ method: "POST" })
 					type: data.type,
 					location: data.location || null,
 					capacity: data.capacity,
+					roomLayouts: data.type === "room" ? (data.roomLayouts || null) : null,
 					status: data.status,
 					updatedAt: new Date(),
 				})
@@ -86,6 +88,7 @@ export const saveAssetFn = createServerFn({ method: "POST" })
 					type: data.type,
 					location: data.location || null,
 					capacity: data.capacity,
+					roomLayouts: data.type === "room" ? (data.roomLayouts || null) : null,
 					status: data.status,
 				})
 				.returning();
