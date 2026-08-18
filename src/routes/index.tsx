@@ -355,9 +355,6 @@ function HomePage() {
 					</div>
 				</section>
 
-				{/* Bento Grid Visual Feature Showcase */}
-				<BentoShowcase />
-
 				{/* 3-Stage Process Pipeline */}
 				<section id="panduan" className="border-b border-border bg-card/40 py-14">
 					<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -426,7 +423,7 @@ function HomePage() {
 				</section>
 
 				{/* Asset Catalog Section (TanStack DevTools Filter & Grid) */}
-				<section id="katalog" className="py-14 sm:py-18">
+				<section id="katalog" className="border-b border-border py-14 sm:py-18">
 					<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
 						<div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/80 pb-5">
 							<div className="space-y-1">
@@ -707,6 +704,9 @@ function HomePage() {
 						)}
 					</div>
 				</section>
+
+				{/* Bento Grid Visual Feature Showcase */}
+				<BentoShowcase />
 			</main>
 
 			{/* Schedule Modal */}
