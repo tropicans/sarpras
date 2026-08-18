@@ -788,3 +788,198 @@ test("Phase 7 Wave 7: WhatsApp Notification & Integration Triggers (WA-04, WA-05
 
 	await cleanup();
 });
+
+test("Phase Multi-Room: Batch / Multi-Room Booking Verification", async (t) => {
+	const prefix = "test-multi-room-";
+
+	const cleanup = async () => {
+		await db.delete(auditLogs).where(like(auditLogs.actorId, `${prefix}%`));
+		await db
+			.delete(bookings)
+			.where(like(bookings.requesterEmail, `${prefix}%`));
+		await db.delete(assets).where(like(assets.name, `${prefix}%`));
+	};
+
+	await cleanup();
+
+	// Create test assets
+	const [roomA, roomB, roomC] = await db
+		.insert(assets)
+		.values([
+			{
+				name: `${prefix}Ruang Seminar Utama`,
+				type: "room",
+				capacity: 50,
+				status: "active",
+				location: "Gedung A Lt. 1",
+			},
+			{
+				name: `${prefix}Ruang Breakout A`,
+				type: "room",
+				capacity: 20,
+				status: "active",
+				location: "Gedung A Lt. 2",
+			},
+			{
+				name: `${prefix}Ruang Breakout B`,
+				type: "room",
+				capacity: 15,
+				status: "active",
+				location: "Gedung A Lt. 2",
+			},
+		])
+		.returning();
+
+	await t.test(
+		"createBatchBookingRequest creates all rooms atomically with shared groupId",
+		async () => {
+			const start1 = new Date("2026-10-10T02:00:00.000Z");
+			const end1 = new Date("2026-10-10T06:00:00.000Z");
+
+			const result = await BookingService.createBatchBookingRequest({
+				items: [
+					{
+						assetId: roomA.id,
+						startDate: start1,
+						endDate: end1,
+						attendance: 35,
+					},
+					{
+						assetId: roomB.id,
+						startDate: start1,
+						endDate: end1,
+						attendance: 15,
+					},
+				],
+				requesterName: "Dr. Multi Room",
+				requesterEmail: `${prefix}multi@example.com`,
+				requesterPhone: "08123456789",
+				requesterOrganization: "Pusbang ASN",
+				purpose: "Lokakarya Nasional Multi Ruang",
+				timezone: "Asia/Jakarta",
+			});
+
+			assert.ok(result.groupId.startsWith("GRP-"));
+			assert.strictEqual(result.bookings.length, 2);
+			assert.strictEqual(result.bookings[0].groupId, result.groupId);
+			assert.strictEqual(result.bookings[1].groupId, result.groupId);
+			assert.strictEqual(result.bookings[0].status, "pending");
+			assert.strictEqual(result.bookings[1].status, "pending");
+
+			// Query public status by groupId
+			const groupStatus = await BookingService.getPublicBookingStatus(
+				result.groupId,
+			);
+			assert.ok(groupStatus);
+			assert.strictEqual(groupStatus.groupId, result.groupId);
+			assert.strictEqual(groupStatus.isGroup, true);
+			assert.strictEqual(groupStatus.items?.length, 2);
+
+			// Query public status by child booking id
+			const childStatus = await BookingService.getPublicBookingStatus(
+				result.bookings[0].id,
+			);
+			assert.ok(childStatus);
+			assert.strictEqual(childStatus.groupId, result.groupId);
+			assert.strictEqual(childStatus.items?.length, 2);
+		},
+	);
+
+	await t.test(
+		"createBatchBookingRequest rolls back all items atomically on conflict or capacity error",
+		async () => {
+			const start = new Date("2026-10-11T02:00:00.000Z");
+			const end = new Date("2026-10-11T06:00:00.000Z");
+
+			// 1. Create and approve booking for roomA
+			const existing = await BookingService.createBookingRequest({
+				assetId: roomA.id,
+				requesterName: "Prior Owner",
+				requesterEmail: `${prefix}prior@example.com`,
+				requesterPhone: "0811111111",
+				purpose: "Existing Booking",
+				attendance: 10,
+				startDate: start,
+				endDate: end,
+				timezone: "Asia/Jakarta",
+			});
+			await BookingService.approveBooking(existing.id, `${prefix}admin`);
+
+			// 2. Attempt batch booking including roomA (conflict) and roomC (available)
+			await assert.rejects(
+				async () => {
+					await BookingService.createBatchBookingRequest({
+						items: [
+							{
+								assetId: roomC.id, // valid
+								startDate: start,
+								endDate: end,
+								attendance: 10,
+							},
+							{
+								assetId: roomA.id, // conflicts with approved
+								startDate: start,
+								endDate: end,
+								attendance: 10,
+							},
+						],
+						requesterName: "Failed Batch",
+						requesterEmail: `${prefix}failed@example.com`,
+						purpose: "Should rollback everything",
+						timezone: "Asia/Jakarta",
+					});
+				},
+				{
+					message: /sudah disetujui/i,
+				},
+			);
+
+			// Verify roomC was NOT booked (atomicity)
+			const roomCBookings = await db
+				.select()
+				.from(bookings)
+				.where(like(bookings.requesterEmail, `${prefix}failed%`));
+			assert.strictEqual(roomCBookings.length, 0);
+		},
+	);
+
+	await t.test(
+		"batchApproveBookings approves all items in group atomically",
+		async () => {
+			const start = new Date("2026-10-12T02:00:00.000Z");
+			const end = new Date("2026-10-12T06:00:00.000Z");
+
+			const result = await BookingService.createBatchBookingRequest({
+				items: [
+					{
+						assetId: roomB.id,
+						startDate: start,
+						endDate: end,
+						attendance: 10,
+					},
+					{
+						assetId: roomC.id,
+						startDate: start,
+						endDate: end,
+						attendance: 10,
+					},
+				],
+				requesterName: "Batch Approval Tester",
+				requesterEmail: `${prefix}batchapprove@example.com`,
+				purpose: "Batch Approval Event",
+				timezone: "Asia/Jakarta",
+			});
+
+			const approved = await BookingService.batchApproveBookings(
+				result.groupId,
+				`${prefix}admin`,
+			);
+
+			assert.strictEqual(approved.length, 2);
+			assert.ok(approved.every((b) => b.status === "approved"));
+		},
+	);
+
+	await cleanup();
+});
+

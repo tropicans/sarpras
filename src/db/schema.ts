@@ -130,6 +130,7 @@ export const bookings = pgTable("bookings", {
 	timezone: text("timezone").default("Asia/Jakarta").notNull(),
 	status: text("status").default("pending").notNull(), // pending, approved, rejected, cancelled
 	rejectionReason: text("rejection_reason"),
+	groupId: text("group_id"),
 	legacyId: text("legacy_id").unique(),
 	createdAt: timestamp("created_at", { withTimezone: true })
 		.defaultNow()

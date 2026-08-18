@@ -15,6 +15,7 @@ import {
 } from "#/components/booking/requester-step";
 import { ReviewStep } from "#/components/booking/review-step";
 import {
+	type AdditionalRoomSelection,
 	ScheduleStep,
 	type ScheduleStepData,
 } from "#/components/booking/schedule-step";
@@ -22,25 +23,31 @@ import { SuccessCard } from "#/components/booking/success-card";
 import { WizardStepper } from "#/components/booking/wizard-stepper";
 import { PublicFooter } from "#/components/public/public-footer";
 import { PublicHeader } from "#/components/public/public-header";
-import { getPublicAssetByIdFn } from "#/lib/booking/public-fns.functions";
-import { submitBookingRequestFn } from "#/lib/booking/server-fns.functions";
+import {
+	getPublicAssetByIdFn,
+	getPublicAssetsListFn,
+} from "#/lib/booking/public-fns.functions";
+import { submitBatchBookingRequestFn } from "#/lib/booking/server-fns.functions";
 import { ASSET_TYPE_LABELS, type AssetType } from "#/lib/booking/types";
 
 export const Route = createFileRoute("/book/$assetId")({
 	loader: async ({ params }) => {
-		const asset = await getPublicAssetByIdFn({
-			data: { assetId: params.assetId },
-		});
+		const [asset, allAssets] = await Promise.all([
+			getPublicAssetByIdFn({
+				data: { assetId: params.assetId },
+			}),
+			getPublicAssetsListFn(),
+		]);
 		if (!asset) {
 			throw notFound();
 		}
-		return { asset };
+		return { asset, availableAssets: allAssets || [] };
 	},
 	component: BookingWizardPage,
 });
 
 function BookingWizardPage() {
-	const { asset } = Route.useLoaderData();
+	const { asset, availableAssets } = Route.useLoaderData();
 	const isRoom = asset.type === "room";
 	const typeLabel = ASSET_TYPE_LABELS[asset.type as AssetType] || asset.type;
 
@@ -66,6 +73,7 @@ function BookingWizardPage() {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submitError, setSubmitError] = useState<string | null>(null);
 	const [confirmedBookingId, setConfirmedBookingId] = useState<string>("");
+	const [bookedRoomNames, setBookedRoomNames] = useState<string[]>([asset.name]);
 
 	// Step 1: Schedule state
 	const [scheduleData, setScheduleData] = useState<ScheduleStepData>({
@@ -73,6 +81,10 @@ function BookingWizardPage() {
 		endDate: "",
 		attendance: isRoom ? Math.min(10, asset.capacity) : 1,
 	});
+
+	const [additionalRooms, setAdditionalRooms] = useState<
+		AdditionalRoomSelection[]
+	>([]);
 
 	// Step 2: Requester state
 	const [requesterData, setRequesterData] = useState<RequesterStepData>({
@@ -87,6 +99,41 @@ function BookingWizardPage() {
 		setScheduleData((prev) => ({ ...prev, ...updated }));
 	};
 
+	const handleAddRoom = (newAsset: any) => {
+		setAdditionalRooms((prev) => [
+			...prev,
+			{
+				asset: newAsset,
+				schedule: {
+					startDate: scheduleData.startDate,
+					endDate: scheduleData.endDate,
+					dateOnly: scheduleData.dateOnly,
+					startTime: scheduleData.startTime,
+					endTime: scheduleData.endTime,
+					attendance: Math.min(10, newAsset.capacity),
+				},
+				available: true,
+			},
+		]);
+	};
+
+	const handleRemoveRoom = (assetId: string) => {
+		setAdditionalRooms((prev) => prev.filter((r) => r.asset.id !== assetId));
+	};
+
+	const handleUpdateAdditionalRoom = (
+		assetId: string,
+		updated: Partial<ScheduleStepData>,
+	) => {
+		setAdditionalRooms((prev) =>
+			prev.map((r) =>
+				r.asset.id === assetId
+					? { ...r, schedule: { ...r.schedule, ...updated } }
+					: r,
+			),
+		);
+	};
+
 	const handleRequesterChange = (updated: Partial<RequesterStepData>) => {
 		setRequesterData((prev) => ({ ...prev, ...updated }));
 	};
@@ -96,22 +143,36 @@ function BookingWizardPage() {
 		setSubmitError(null);
 
 		try {
-			const res = await submitBookingRequestFn({
-				data: {
+			const items = [
+				{
 					assetId: asset.id,
+					attendance: scheduleData.attendance,
+					startDate: scheduleData.startDate,
+					endDate: scheduleData.endDate,
+				},
+				...additionalRooms.map((r) => ({
+					assetId: r.asset.id,
+					attendance: r.schedule.attendance,
+					startDate: r.schedule.startDate,
+					endDate: r.schedule.endDate,
+				})),
+			];
+
+			const res = await submitBatchBookingRequestFn({
+				data: {
+					items,
 					requesterName: requesterData.requesterName,
 					requesterEmail: requesterData.requesterEmail,
 					requesterPhone: requesterData.requesterPhone,
 					requesterOrganization: requesterData.requesterOrganization,
 					purpose: requesterData.purpose,
-					attendance: scheduleData.attendance,
-					startDate: scheduleData.startDate,
-					endDate: scheduleData.endDate,
 					timezone: "Asia/Jakarta",
 				},
 			});
 
-			setConfirmedBookingId(res.id);
+			const names = [asset.name, ...additionalRooms.map((r) => r.asset.name)];
+			setBookedRoomNames(names);
+			setConfirmedBookingId(res.groupId || res.bookings[0]?.id || "");
 			setCurrentStep("success");
 		} catch (err: any) {
 			setSubmitError(
@@ -121,6 +182,8 @@ function BookingWizardPage() {
 			setIsSubmitting(false);
 		}
 	};
+
+	const totalRooms = 1 + additionalRooms.length;
 
 	return (
 		<div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-primary/20">
@@ -145,7 +208,8 @@ function BookingWizardPage() {
 						</a>
 						<span>/</span>
 						<span className="text-foreground font-semibold truncate">
-							BOOKING // {asset.name}
+							BOOKING // {asset.name}{" "}
+							{additionalRooms.length > 0 && `(+${additionalRooms.length} Ruangan)`}
 						</span>
 					</nav>
 
@@ -160,8 +224,14 @@ function BookingWizardPage() {
 											<span>{typeLabel.toUpperCase()}</span>
 										</span>
 										<span className="text-xs text-muted-foreground font-mono">
-											#{asset.id.slice(0, 8)} &bull; {asset.location || "Gedung Utama PPKASN"}
+											#{asset.id.slice(0, 8)} &bull;{" "}
+											{asset.location || "Gedung Utama PPKASN"}
 										</span>
+										{additionalRooms.length > 0 && (
+											<span className="inline-flex items-center rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+												MULTI-ROOM ({totalRooms} FASILITAS)
+											</span>
+										)}
 									</div>
 									<h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
 										Formulir Peminjaman: {asset.name}
@@ -172,7 +242,7 @@ function BookingWizardPage() {
 									<div className="flex items-center gap-1.5 rounded border border-border bg-muted/40 px-3 py-1.5">
 										<Users className="h-3.5 w-3.5 text-primary" />
 										<span className="font-semibold">
-											Kapasitas {asset.capacity}{" "}
+											Kapasitas Utama {asset.capacity}{" "}
 											{asset.type === "vehicle" || asset.type === "equipment"
 												? "Unit"
 												: "Pax"}
@@ -190,6 +260,11 @@ function BookingWizardPage() {
 									asset={asset}
 									data={scheduleData}
 									onChange={handleScheduleChange}
+									additionalRooms={additionalRooms}
+									onAddRoom={handleAddRoom}
+									onRemoveRoom={handleRemoveRoom}
+									onUpdateAdditionalRoom={handleUpdateAdditionalRoom}
+									availableAssets={availableAssets}
 									onNext={() => setCurrentStep(2)}
 								/>
 							)}
@@ -207,6 +282,7 @@ function BookingWizardPage() {
 								<ReviewStep
 									asset={asset}
 									schedule={scheduleData}
+									additionalRooms={additionalRooms}
 									requester={requesterData}
 									isSubmitting={isSubmitting}
 									errorMessage={submitError}
@@ -221,7 +297,7 @@ function BookingWizardPage() {
 					{currentStep === "success" && (
 						<SuccessCard
 							bookingId={confirmedBookingId}
-							assetName={asset.name}
+							assetName={bookedRoomNames.join(", ")}
 						/>
 					)}
 				</div>
@@ -231,3 +307,4 @@ function BookingWizardPage() {
 		</div>
 	);
 }
+

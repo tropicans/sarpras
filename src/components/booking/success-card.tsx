@@ -14,7 +14,7 @@ interface SuccessCardProps {
 	onReset?: () => void;
 }
 
-export function SuccessCard({ bookingId }: SuccessCardProps) {
+export function SuccessCard({ bookingId, assetName }: SuccessCardProps) {
 	const [copied, setCopied] = useState(false);
 
 	const handleCopy = () => {
@@ -40,6 +40,11 @@ export function SuccessCard({ bookingId }: SuccessCardProps) {
 				<h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
 					Permohonan Peminjaman Diterima
 				</h2>
+				{assetName && (
+					<div className="text-xs font-mono text-muted-foreground bg-muted/40 py-1.5 px-3 rounded-md inline-block border border-border">
+						Fasilitas: <strong className="text-foreground">{assetName}</strong>
+					</div>
+				)}
 				<p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
 					Pengajuan peminjaman fasilitas Anda telah tercatat dalam sistem dan
 					sedang menunggu peninjauan oleh administrator. Notifikasi update akan

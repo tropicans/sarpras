@@ -3,19 +3,40 @@ import { requireMinRole } from "../auth.middleware";
 import { BookingService } from "./service.server";
 import {
 	ApproveBookingInputSchema,
+	BatchApproveBookingsInputSchema,
 	CancelBookingInputSchema,
 	CancelPublicBookingInputSchema,
+	CreateBatchBookingInputSchema,
 	CreateBookingInputSchema,
 	RejectBookingInputSchema,
 } from "./types";
 
 /**
- * Public Server Function: Submits a new booking request.
+ * Public Server Function: Submits a single booking request.
  */
 export const submitBookingRequestFn = createServerFn({ method: "POST" })
 	.validator((data: unknown) => CreateBookingInputSchema.parse(data))
 	.handler(async ({ data }) => {
 		return await BookingService.createBookingRequest(data);
+	});
+
+/**
+ * Public Server Function: Submits a batch booking request with multiple rooms.
+ */
+export const submitBatchBookingRequestFn = createServerFn({ method: "POST" })
+	.validator((data: unknown) => CreateBatchBookingInputSchema.parse(data))
+	.handler(async ({ data }) => {
+		return await BookingService.createBatchBookingRequest(data);
+	});
+
+/**
+ * Protected Server Function: Approves all pending bookings in a group (Requires Operator or Admin role).
+ */
+export const batchApproveBookingsFn = createServerFn({ method: "POST" })
+	.middleware([requireMinRole("operator")])
+	.validator((data: unknown) => BatchApproveBookingsInputSchema.parse(data))
+	.handler(async ({ data, context }) => {
+		return await BookingService.batchApproveBookings(data.groupId, context.user.id);
 	});
 
 /**

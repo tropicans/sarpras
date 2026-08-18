@@ -1,13 +1,18 @@
 import {
 	AlertCircle,
+	Building2,
 	Calendar,
 	CheckCircle2,
 	Clock,
+	DoorOpen,
 	Loader2,
+	Plus,
+	Trash2,
 	Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { checkAvailabilityPreflightFn } from "#/lib/booking/public-fns.functions";
+import { ASSET_TYPE_LABELS, type AssetType } from "#/lib/booking/types";
 
 export interface ScheduleStepData {
 	startDate: string; // ISO string
@@ -20,6 +25,20 @@ export interface ScheduleStepData {
 	attendance: number;
 }
 
+export interface AdditionalRoomSelection {
+	asset: {
+		id: string;
+		name: string;
+		type: string;
+		capacity: number;
+		location: string | null;
+	};
+	schedule: ScheduleStepData;
+	available?: boolean;
+	availabilityReason?: string;
+	checking?: boolean;
+}
+
 interface ScheduleStepProps {
 	asset: {
 		id: string;
@@ -30,6 +49,20 @@ interface ScheduleStepProps {
 	};
 	data: ScheduleStepData;
 	onChange: (updated: Partial<ScheduleStepData>) => void;
+	additionalRooms: AdditionalRoomSelection[];
+	onAddRoom: (asset: any) => void;
+	onRemoveRoom: (assetId: string) => void;
+	onUpdateAdditionalRoom: (
+		assetId: string,
+		updated: Partial<ScheduleStepData>,
+	) => void;
+	availableAssets: Array<{
+		id: string;
+		name: string;
+		type: string;
+		capacity: number;
+		location: string | null;
+	}>;
 	onNext: () => void;
 }
 
@@ -37,11 +70,16 @@ export function ScheduleStep({
 	asset,
 	data,
 	onChange,
+	additionalRooms,
+	onAddRoom,
+	onRemoveRoom,
+	onUpdateAdditionalRoom,
+	availableAssets,
 	onNext,
 }: ScheduleStepProps) {
 	const isRoom = asset.type === "room";
 
-	// Local form state
+	// Local primary form state
 	const [dateStr, setDateStr] = useState(
 		data.dateOnly || new Date().toISOString().split("T")[0],
 	);
@@ -62,14 +100,25 @@ export function ScheduleStep({
 		data.attendance || (isRoom ? Math.min(10, asset.capacity) : 1),
 	);
 
-	// Preflight check state
+	// Preflight check state for primary room
 	const [checking, setChecking] = useState(false);
 	const [availabilityResult, setAvailabilityResult] = useState<{
 		available: boolean;
 		reason?: string;
 	} | null>(null);
 
-	// Trigger preflight validation whenever inputs change
+	// Dropdown selector state
+	const [selectedAssetToAdd, setSelectedAssetToAdd] = useState<string>("");
+
+	// Filter available assets not already selected
+	const unselectedAssets = availableAssets.filter(
+		(a) =>
+			a.id !== asset.id &&
+			!additionalRooms.some((r) => r.asset.id === a.id) &&
+			a.type === "room", // Multi-booking primarily focused on rooms
+	);
+
+	// Trigger preflight validation for primary room whenever inputs change
 	useEffect(() => {
 		let isCancelled = false;
 
@@ -157,20 +206,44 @@ export function ScheduleStep({
 		asset.id,
 	]);
 
-	const isValid = availabilityResult?.available && !checking;
+	const handleAddRoomClick = () => {
+		if (!selectedAssetToAdd) return;
+		const found = availableAssets.find((a) => a.id === selectedAssetToAdd);
+		if (found) {
+			onAddRoom(found);
+			setSelectedAssetToAdd("");
+		}
+	};
+
+	const isPrimaryValid = availabilityResult?.available && !checking;
+	const areAllAdditionalValid = additionalRooms.every(
+		(r) => r.available !== false && !r.checking,
+	);
+	const isValid = isPrimaryValid && areAllAdditionalValid;
 
 	return (
-		<div className="space-y-4">
+		<div className="space-y-6">
+			{/* Primary Room Card */}
 			<div className="rounded-lg border border-border bg-card p-5 space-y-5">
-				<div className="border-b border-border pb-3">
-					<h3 className="font-mono text-xs font-bold uppercase tracking-wider text-foreground">
-						{isRoom
-							? "TENTUKAN JADWAL RUANGAN // WIB"
-							: "TENTUKAN PERIODE MENGINAP // ASRAMA"}
-					</h3>
-					<p className="text-xs text-muted-foreground mt-0.5">
-						Sistem akan secara otomatis memverifikasi ketersediaan slot secara real-time.
-					</p>
+				<div className="border-b border-border pb-3 flex items-center justify-between">
+					<div>
+						<div className="flex items-center gap-2">
+							<span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+								RUANGAN UTAMA
+							</span>
+							<h3 className="font-mono text-xs font-bold uppercase tracking-wider text-foreground">
+								{asset.name}
+							</h3>
+						</div>
+						<p className="text-xs text-muted-foreground mt-0.5">
+							{isRoom
+								? "Tentukan jadwal pelaksanaan dan estimasi jumlah peserta."
+								: "Tentukan periode menginap di asrama."}
+						</p>
+					</div>
+					<div className="font-mono text-xs text-muted-foreground">
+						Maks. <strong>{asset.capacity}</strong> Pax
+					</div>
 				</div>
 
 				{isRoom ? (
@@ -296,14 +369,14 @@ export function ScheduleStep({
 							<div className="flex items-center gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-3 font-mono text-xs text-emerald-800 dark:text-emerald-300">
 								<CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
 								<span>
-									<strong>[AVAILABLE]:</strong> Jadwal dan kapasitas yang dipilih siap untuk diajukan.
+									<strong>[TERSEDIA]:</strong> Jadwal siap diajukan untuk {asset.name}.
 								</span>
 							</div>
 						) : (
 							<div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/10 p-3 font-mono text-xs text-destructive">
 								<AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
 								<div>
-									<strong>[UNAVAILABLE]: </strong>
+									<strong>[TIDAK TERSEDIA]: </strong>
 									<span>
 										{availabilityResult.reason ||
 											"Jadwal tidak tersedia atau bertabrakan."}
@@ -315,8 +388,68 @@ export function ScheduleStep({
 				</div>
 			</div>
 
+			{/* Additional Rooms Section */}
+			{isRoom && (
+				<div className="space-y-4">
+					{additionalRooms.length > 0 && (
+						<div className="space-y-3">
+							<h4 className="font-mono text-xs font-bold uppercase tracking-wider text-muted-foreground">
+								RUANGAN TAMBAHAN ({additionalRooms.length})
+							</h4>
+
+							{additionalRooms.map((item) => (
+								<AdditionalRoomCard
+									key={item.asset.id}
+									item={item}
+									parentDate={dateStr}
+									parentStartTime={startTime}
+									parentEndTime={endTime}
+									onUpdate={(upd) => onUpdateAdditionalRoom(item.asset.id, upd)}
+									onRemove={() => onRemoveRoom(item.asset.id)}
+								/>
+							))}
+						</div>
+					)}
+
+					{/* Add Room Bar */}
+					{unselectedAssets.length > 0 && (
+						<div className="rounded-lg border border-dashed border-border p-4 bg-muted/20 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+							<div className="flex-1">
+								<label className="font-mono text-[11px] font-semibold text-muted-foreground block mb-1">
+									PINJAM RUANGAN LAIN DALAM ACARA YANG SAMA?
+								</label>
+								<select
+									value={selectedAssetToAdd}
+									onChange={(e) => setSelectedAssetToAdd(e.target.value)}
+									className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden"
+								>
+									<option value="">-- Pilih Ruangan Tambahan --</option>
+									{unselectedAssets.map((a) => (
+										<option key={a.id} value={a.id}>
+											{a.name} ({a.location || "PPKASN"} - Kapasitas {a.capacity} Pax)
+										</option>
+									))}
+								</select>
+							</div>
+							<button
+								type="button"
+								disabled={!selectedAssetToAdd}
+								onClick={handleAddRoomClick}
+								className="inline-flex items-center justify-center gap-1.5 rounded-md bg-secondary px-4 py-2 font-mono text-xs font-semibold text-secondary-foreground hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer self-end sm:self-auto h-9"
+							>
+								<Plus className="h-3.5 w-3.5" />
+								<span>+ TAMBAH RUANGAN</span>
+							</button>
+						</div>
+					)}
+				</div>
+			)}
+
 			{/* Action Nav */}
-			<div className="flex items-center justify-end font-mono">
+			<div className="flex items-center justify-between font-mono pt-2 border-t border-border">
+				<span className="text-xs text-muted-foreground">
+					Total fasilitas: <strong>{1 + additionalRooms.length} Ruangan</strong>
+				</span>
 				<button
 					type="button"
 					disabled={!isValid}
@@ -330,3 +463,183 @@ export function ScheduleStep({
 		</div>
 	);
 }
+
+function AdditionalRoomCard({
+	item,
+	parentDate,
+	parentStartTime,
+	parentEndTime,
+	onUpdate,
+	onRemove,
+}: {
+	item: AdditionalRoomSelection;
+	parentDate: string;
+	parentStartTime: string;
+	parentEndTime: string;
+	onUpdate: (upd: Partial<ScheduleStepData>) => void;
+	onRemove: () => void;
+}) {
+	const asset = item.asset;
+	const [attendance, setAttendance] = useState(
+		item.schedule.attendance || Math.min(10, asset.capacity),
+	);
+	const [checking, setChecking] = useState(false);
+	const [result, setResult] = useState<{
+		available: boolean;
+		reason?: string;
+	} | null>(null);
+
+	// By default synced with primary room timings unless custom
+	const dateStr = item.schedule.dateOnly || parentDate;
+	const startTime = item.schedule.startTime || parentStartTime;
+	const endTime = item.schedule.endTime || parentEndTime;
+
+	useEffect(() => {
+		let isCancelled = false;
+		const check = async () => {
+			if (!dateStr || !startTime || !endTime) return;
+			const startIso = new Date(
+				`${dateStr}T${startTime}:00+07:00`,
+			).toISOString();
+			const endIso = new Date(`${dateStr}T${endTime}:00+07:00`).toISOString();
+
+			if (new Date(startIso) >= new Date(endIso)) {
+				setResult({
+					available: false,
+					reason: "Waktu selesai harus lebih akhir dari waktu mulai.",
+				});
+				return;
+			}
+
+			setChecking(true);
+			try {
+				const res = await checkAvailabilityPreflightFn({
+					data: {
+						assetId: asset.id,
+						startDate: startIso,
+						endDate: endIso,
+						attendance,
+					},
+				});
+
+				if (!isCancelled) {
+					setResult(res as { available: boolean; reason?: string });
+					setChecking(false);
+					onUpdate({
+						startDate: startIso,
+						endDate: endIso,
+						dateOnly: dateStr,
+						startTime,
+						endTime,
+						attendance,
+					});
+				}
+			} catch (err: any) {
+				if (!isCancelled) {
+					setResult({
+						available: false,
+						reason: err.message || "Gagal memeriksa ketersediaan.",
+					});
+					setChecking(false);
+				}
+			}
+		};
+
+		const t = setTimeout(check, 300);
+		return () => {
+			isCancelled = true;
+			clearTimeout(t);
+		};
+	}, [asset.id, dateStr, startTime, endTime, attendance]);
+
+	return (
+		<div className="rounded-lg border border-border bg-card p-4 space-y-3 font-mono text-xs">
+			<div className="flex items-center justify-between border-b border-border pb-2">
+				<div className="flex items-center gap-2">
+					<DoorOpen className="h-3.5 w-3.5 text-secondary-foreground" />
+					<strong className="text-foreground">{asset.name}</strong>
+					<span className="text-[10px] text-muted-foreground">
+						({asset.location || "PPKASN"} &bull; Kapasitas {asset.capacity} Pax)
+					</span>
+				</div>
+				<button
+					type="button"
+					onClick={onRemove}
+					className="text-destructive hover:text-destructive/80 p-1 rounded hover:bg-destructive/10 cursor-pointer transition-colors"
+					title="Hapus Ruangan"
+				>
+					<Trash2 className="h-3.5 w-3.5" />
+				</button>
+			</div>
+
+			<div className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
+				<div>
+					<label className="text-[10px] text-muted-foreground block">Tanggal</label>
+					<input
+						type="date"
+						value={dateStr}
+						min={new Date().toISOString().split("T")[0]}
+						onChange={(e) => onUpdate({ dateOnly: e.target.value })}
+						className="w-full rounded border border-border bg-background px-2 py-1 text-xs"
+					/>
+				</div>
+				<div>
+					<label className="text-[10px] text-muted-foreground block">Mulai</label>
+					<input
+						type="time"
+						value={startTime}
+						onChange={(e) => onUpdate({ startTime: e.target.value })}
+						className="w-full rounded border border-border bg-background px-2 py-1 text-xs"
+					/>
+				</div>
+				<div>
+					<label className="text-[10px] text-muted-foreground block">Selesai</label>
+					<input
+						type="time"
+						value={endTime}
+						onChange={(e) => onUpdate({ endTime: e.target.value })}
+						className="w-full rounded border border-border bg-background px-2 py-1 text-xs"
+					/>
+				</div>
+				<div>
+					<label className="text-[10px] text-muted-foreground block">
+						Peserta (Maks: {asset.capacity})
+					</label>
+					<input
+						type="number"
+						min={1}
+						max={asset.capacity}
+						value={attendance}
+						onChange={(e) => {
+							const val = Number.parseInt(e.target.value) || 1;
+							setAttendance(val);
+							onUpdate({ attendance: val });
+						}}
+						className="w-full rounded border border-border bg-background px-2 py-1 text-xs"
+					/>
+				</div>
+			</div>
+
+			{/* Status feedback */}
+			{checking ? (
+				<div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+					<Loader2 className="h-3 w-3 animate-spin text-primary" />
+					<span>Memeriksa ketersediaan...</span>
+				</div>
+			) : result ? (
+				result.available ? (
+					<div className="text-[11px] text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+						<CheckCircle2 className="h-3 w-3" />
+						<span>Tersedia</span>
+					</div>
+				) : (
+					<div className="text-[11px] text-destructive flex items-center gap-1.5">
+						<AlertCircle className="h-3 w-3" />
+						<span>{result.reason || "Tidak tersedia"}</span>
+					</div>
+				)
+			) : null}
+		</div>
+	);
+}
+

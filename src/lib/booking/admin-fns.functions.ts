@@ -201,6 +201,7 @@ export const getAdminBookingsFn = createServerFn({ method: "GET" })
 					ilike(bookings.requesterOrganization, term),
 					ilike(bookings.purpose, term),
 					ilike(assets.name, term),
+					ilike(bookings.groupId, term),
 					sql`CAST(${bookings.id} AS TEXT) ILIKE ${term}`,
 				),
 			);
@@ -217,6 +218,7 @@ export const getAdminBookingsFn = createServerFn({ method: "GET" })
 			db
 				.select({
 					id: bookings.id,
+					groupId: bookings.groupId,
 					assetId: bookings.assetId,
 					assetName: assets.name,
 					assetType: assets.type,
@@ -272,6 +274,7 @@ export const getBookingConflictContextFn = createServerFn({ method: "GET" })
 		const [target] = await db
 			.select({
 				id: bookings.id,
+				groupId: bookings.groupId,
 				assetId: bookings.assetId,
 				assetName: assets.name,
 				assetType: assets.type,
@@ -297,6 +300,35 @@ export const getBookingConflictContextFn = createServerFn({ method: "GET" })
 
 		if (!target) {
 			throw new Error("Permohonan booking tidak ditemukan");
+		}
+
+		// If target is part of a group, fetch all siblings in that group
+		let groupSiblings: Array<any> = [];
+		if (target.groupId) {
+			groupSiblings = await db
+				.select({
+					id: bookings.id,
+					groupId: bookings.groupId,
+					assetId: bookings.assetId,
+					assetName: assets.name,
+					assetType: assets.type,
+					assetLocation: assets.location,
+					assetCapacity: assets.capacity,
+					startDate: bookings.startDate,
+					endDate: bookings.endDate,
+					attendance: bookings.attendance,
+					status: bookings.status,
+					rejectionReason: bookings.rejectionReason,
+				})
+				.from(bookings)
+				.innerJoin(assets, eq(bookings.assetId, assets.id))
+				.where(
+					and(
+						eq(bookings.groupId, target.groupId),
+						ne(bookings.id, target.id),
+					),
+				)
+				.orderBy(asc(bookings.startDate));
 		}
 
 		// Find overlapping approved bookings (Hard Conflict)
@@ -360,6 +392,11 @@ export const getBookingConflictContextFn = createServerFn({ method: "GET" })
 			},
 			hasHardConflict,
 			hasPendingOverlaps,
+			groupSiblings: groupSiblings.map((s) => ({
+				...s,
+				startDate: s.startDate.toISOString(),
+				endDate: s.endDate.toISOString(),
+			})),
 			approvedConflicts: approvedOverlaps.map((item) => ({
 				...item,
 				startDate: item.startDate.toISOString(),
@@ -370,6 +407,27 @@ export const getBookingConflictContextFn = createServerFn({ method: "GET" })
 				startDate: item.startDate.toISOString(),
 				endDate: item.endDate.toISOString(),
 			})),
+		};
+	});
+
+export const BatchApproveBookingsAdminInputSchema = z.object({
+	groupId: z.string().min(1, "Group ID is required"),
+});
+
+/**
+ * Admin Server Function: Approves all pending bookings in a group (FLOW-03).
+ */
+export const batchApproveBookingsAdminFn = createServerFn({ method: "POST" })
+	.middleware([requireMinRole("operator")])
+	.validator((data: unknown) => BatchApproveBookingsAdminInputSchema.parse(data))
+	.handler(async ({ data, context }) => {
+		const approvedList = await BookingService.batchApproveBookings(
+			data.groupId,
+			context.user.id,
+		);
+		return {
+			success: true,
+			count: approvedList.length,
 		};
 	});
 

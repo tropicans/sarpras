@@ -1,4 +1,4 @@
-import { and, eq, gt, lt, ne } from "drizzle-orm";
+import { and, asc, eq, gt, lt, ne } from "drizzle-orm";
 import { db } from "../../db/client.server";
 import {
 	assetAvailability,
@@ -23,7 +23,11 @@ import {
 } from "./availability";
 import { checkDormitoryCapacity } from "./dormitory";
 import { validateBookingTransition } from "./state-machine";
-import type { BookingStatus, CreateBookingInput } from "./types";
+import type {
+	BookingStatus,
+	CreateBatchBookingInput,
+	CreateBookingInput,
+} from "./types";
 
 export class BookingConflictError extends Error {
 	public readonly statusCode = 409;
@@ -177,6 +181,7 @@ export class BookingService {
 				.insert(bookings)
 				.values({
 					assetId: input.assetId,
+					groupId: input.groupId || null,
 					requesterName: input.requesterName,
 					requesterEmail: input.requesterEmail,
 					requesterPhone: input.requesterPhone,
@@ -200,6 +205,7 @@ export class BookingService {
 				entityType: "booking",
 				entityId: newBooking.id,
 				metadata: {
+					groupId: input.groupId || null,
 					newStatus: "pending",
 					assetId: input.assetId,
 					assetType: asset.type,
@@ -217,7 +223,7 @@ export class BookingService {
 		void safeDispatchBookingNotifications(() =>
 			dispatchBookingCreatedNotifications({
 				bookingId: newBooking.id,
-				bookingRef: newBooking.id,
+				bookingRef: newBooking.groupId || newBooking.id,
 				requesterName: newBooking.requesterName,
 				requesterEmail: newBooking.requesterEmail,
 				requesterPhone: newBooking.requesterPhone,
@@ -232,6 +238,283 @@ export class BookingService {
 		);
 
 		return newBooking;
+	}
+
+	/**
+	 * Creates a batch of room bookings sharing a common groupId within a single transaction.
+	 * Authoritatively locks all selected assets and validates availability atomically.
+	 */
+	static async createBatchBookingRequest(
+		input: CreateBatchBookingInput,
+		actorId?: string,
+	) {
+		const groupId = `GRP-${crypto.randomUUID().slice(0, 8).toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
+
+		const { createdBookings, assetMap } = await db.transaction(async (tx) => {
+			const createdBookings = [];
+			const assetMap = new Map<string, typeof assets.$inferSelect>();
+
+			// 1. Check intra-batch duplicate assets with overlapping schedules
+			for (let i = 0; i < input.items.length; i++) {
+				for (let j = i + 1; j < input.items.length; j++) {
+					const itemA = input.items[i];
+					const itemB = input.items[j];
+					if (itemA.assetId === itemB.assetId) {
+						const startA = normalizeDate(itemA.startDate);
+						const endA = normalizeDate(itemA.endDate);
+						const startB = normalizeDate(itemB.startDate);
+						const endB = normalizeDate(itemB.endDate);
+
+						if (startA < endB && endA > startB) {
+							throw new BookingConflictError(
+								"Permohonan memilih fasilitas yang sama dengan jadwal yang saling bertumpuk.",
+							);
+						}
+					}
+				}
+			}
+
+			// 2. Lock and validate each asset
+			for (const item of input.items) {
+				const startDate = normalizeDate(item.startDate);
+				const endDate = normalizeDate(item.endDate);
+				const attendance = item.attendance ?? 1;
+
+				// Lock asset
+				const [asset] = await tx
+					.select()
+					.from(assets)
+					.where(eq(assets.id, item.assetId))
+					.for("update");
+
+				if (!asset) {
+					throw new BookingNotFoundError(`Aset (${item.assetId}) tidak ditemukan.`);
+				}
+
+				assetMap.set(asset.id, asset);
+
+				if (asset.status !== "active") {
+					throw new BookingConflictError(
+						`Aset "${asset.name}" saat ini tidak aktif (${asset.status}) dan tidak dapat dipinjam.`,
+					);
+				}
+
+				// Closures
+				const closures = await tx
+					.select()
+					.from(assetClosures)
+					.where(eq(assetClosures.assetId, asset.id));
+
+				const closureCheck = validateAssetClosures(startDate, endDate, closures);
+				if (!closureCheck.valid) {
+					throw new BookingConflictError(
+						`Aset "${asset.name}": ` +
+							(closureCheck.reason || "Aset sedang ditutup pada jadwal tersebut."),
+						{ conflictingDate: closureCheck.conflictingDate },
+					);
+				}
+
+				// Room/vehicle/field validation
+				if (
+					asset.type === "room" ||
+					asset.type === "vehicle" ||
+					asset.type === "field"
+				) {
+					const capCheck = validateRoomCapacity(attendance, asset.capacity);
+					if (!capCheck.valid) {
+						throw new BookingConflictError(
+							`Aset "${asset.name}": ` +
+								(capCheck.reason || "Jumlah peserta melebihi kapasitas fasilitas."),
+						);
+					}
+
+					const schedules = await tx
+						.select()
+						.from(assetAvailability)
+						.where(eq(assetAvailability.assetId, asset.id));
+
+					if (schedules.length > 0) {
+						const hoursCheck = validateOperatingHours(
+							startDate,
+							endDate,
+							schedules,
+						);
+						if (!hoursCheck.valid) {
+							throw new BookingConflictError(
+								`Aset "${asset.name}": ` +
+									(hoursCheck.reason ||
+										"Jadwal peminjaman di luar jam operasional fasilitas."),
+							);
+						}
+					}
+
+					const approvedBookings = await tx
+						.select({
+							id: bookings.id,
+							startDate: bookings.startDate,
+							endDate: bookings.endDate,
+						})
+						.from(bookings)
+						.where(
+							and(
+								eq(bookings.assetId, asset.id),
+								eq(bookings.status, "approved"),
+								lt(bookings.startDate, endDate),
+								gt(bookings.endDate, startDate),
+							),
+						);
+
+					const overlapCheck = checkRoomOverlap(
+						approvedBookings,
+						startDate,
+						endDate,
+					);
+					if (!overlapCheck.available) {
+						throw new BookingConflictError(
+							`Aset "${asset.name}": ` +
+								(overlapCheck.conflictReason ||
+									"Fasilitas sudah terisi untuk jadwal tersebut."),
+							overlapCheck.details,
+						);
+					}
+				} else if (asset.type === "dormitory" || asset.type === "equipment") {
+					const dormCheck = await checkDormitoryCapacity(
+						tx,
+						asset.id,
+						asset.capacity,
+						startDate,
+						endDate,
+						attendance,
+					);
+
+					if (!dormCheck.available) {
+						throw new BookingConflictError(
+							`Aset "${asset.name}": ` +
+								(dormCheck.conflictReason ||
+									"Kapasitas fasilitas penuh pada rentang waktu tersebut."),
+							dormCheck.details,
+						);
+					}
+				}
+
+				// Insert booking row
+				const [newBooking] = await tx
+					.insert(bookings)
+					.values({
+						assetId: item.assetId,
+						groupId,
+						requesterName: input.requesterName,
+						requesterEmail: input.requesterEmail,
+						requesterPhone: input.requesterPhone,
+						requesterOrganization: input.requesterOrganization,
+						purpose: input.purpose,
+						attendance,
+						startDate,
+						endDate,
+						timezone: input.timezone || "Asia/Jakarta",
+						status: "pending",
+						createdAt: new Date(),
+						updatedAt: new Date(),
+					})
+					.returning();
+
+				createdBookings.push(newBooking);
+
+				// Audit event per booking
+				await recordAuditEvent(tx, {
+					actorId: actorId || input.requesterEmail,
+					actorType: actorId ? "user" : "system",
+					action: "booking.create",
+					entityType: "booking",
+					entityId: newBooking.id,
+					metadata: {
+						groupId,
+						newStatus: "pending",
+						assetId: item.assetId,
+						assetType: asset.type,
+						requesterEmail: input.requesterEmail,
+						startDate: startDate.toISOString(),
+						endDate: endDate.toISOString(),
+						attendance,
+					},
+				});
+			}
+
+			// Record batch audit event
+			await recordAuditEvent(tx, {
+				actorId: actorId || input.requesterEmail,
+				actorType: actorId ? "user" : "system",
+				action: "booking.batch_create",
+				entityType: "booking",
+				entityId: groupId,
+				metadata: {
+					groupId,
+					bookingCount: createdBookings.length,
+					bookingIds: createdBookings.map((b) => b.id),
+					requesterEmail: input.requesterEmail,
+				},
+			});
+
+			return { createdBookings, assetMap };
+		});
+
+		// Post-commit async notifications
+		for (const booking of createdBookings) {
+			const asset = assetMap.get(booking.assetId);
+			void safeDispatchBookingNotifications(() =>
+				dispatchBookingCreatedNotifications({
+					bookingId: booking.id,
+					bookingRef: booking.groupId || booking.id,
+					requesterName: booking.requesterName,
+					requesterEmail: booking.requesterEmail,
+					requesterPhone: booking.requesterPhone,
+					requesterOrganization: booking.requesterOrganization,
+					assetName: asset?.name || "Fasilitas",
+					assetLocation: asset?.location || null,
+					startDate: booking.startDate,
+					endDate: booking.endDate,
+					attendance: booking.attendance ?? 1,
+					purpose: booking.purpose,
+				}),
+			);
+		}
+
+		return {
+			groupId,
+			bookings: createdBookings,
+		};
+	}
+
+	/**
+	 * Approves all pending bookings within a groupId atomically.
+	 */
+	static async batchApproveBookings(groupId: string, actorId: string) {
+		const trimmed = groupId.trim();
+		if (!trimmed) {
+			throw new BookingConflictError("Group ID is required");
+		}
+
+		const groupBookings = await db
+			.select()
+			.from(bookings)
+			.where(eq(bookings.groupId, trimmed));
+
+		if (groupBookings.length === 0) {
+			throw new BookingNotFoundError("Permohonan grup tidak ditemukan.");
+		}
+
+		const pendingBookings = groupBookings.filter((b) => b.status === "pending");
+		if (pendingBookings.length === 0) {
+			return groupBookings;
+		}
+
+		const results = [];
+		for (const booking of pendingBookings) {
+			const approved = await BookingService.approveBooking(booking.id, actorId);
+			results.push(approved);
+		}
+
+		return results;
 	}
 
 	/**
@@ -749,16 +1032,51 @@ export class BookingService {
 	}
 
 	/**
-	 * Public query for sanitized booking status by ID or reference code.
+	 * Public query for sanitized booking status by ID or reference code (including group IDs).
 	 * Projects ONLY privacy-safe fields, strictly omitting requester PII.
 	 */
 	static async getPublicBookingStatus(identifier: string) {
 		const trimmed = identifier.trim();
 		if (!trimmed) return null;
 
-		const [record] = await db
+		// 1. Check if identifier matches a groupId directly
+		const groupMatches = await db
 			.select({
 				id: bookings.id,
+				groupId: bookings.groupId,
+				assetId: bookings.assetId,
+				assetName: assets.name,
+				assetType: assets.type,
+				assetLocation: assets.location,
+				capacity: assets.capacity,
+				startDate: bookings.startDate,
+				endDate: bookings.endDate,
+				attendance: bookings.attendance,
+				status: bookings.status,
+				rejectionReason: bookings.rejectionReason,
+				createdAt: bookings.createdAt,
+				updatedAt: bookings.updatedAt,
+			})
+			.from(bookings)
+			.innerJoin(assets, eq(bookings.assetId, assets.id))
+			.where(eq(bookings.groupId, trimmed))
+			.orderBy(asc(bookings.startDate));
+
+		if (groupMatches.length > 0) {
+			const primary = groupMatches[0];
+			return {
+				...primary,
+				isGroup: true,
+				groupId: primary.groupId,
+				items: groupMatches,
+			};
+		}
+
+		// 2. Check if identifier matches a booking.id
+		const [singleRecord] = await db
+			.select({
+				id: bookings.id,
+				groupId: bookings.groupId,
 				assetId: bookings.assetId,
 				assetName: assets.name,
 				assetType: assets.type,
@@ -776,8 +1094,45 @@ export class BookingService {
 			.innerJoin(assets, eq(bookings.assetId, assets.id))
 			.where(eq(bookings.id, trimmed));
 
-		if (!record) return null;
+		if (!singleRecord) return null;
 
-		return record;
+		// If single record belongs to a group, fetch all siblings
+		if (singleRecord.groupId) {
+			const allGroupItems = await db
+				.select({
+					id: bookings.id,
+					groupId: bookings.groupId,
+					assetId: bookings.assetId,
+					assetName: assets.name,
+					assetType: assets.type,
+					assetLocation: assets.location,
+					capacity: assets.capacity,
+					startDate: bookings.startDate,
+					endDate: bookings.endDate,
+					attendance: bookings.attendance,
+					status: bookings.status,
+					rejectionReason: bookings.rejectionReason,
+					createdAt: bookings.createdAt,
+					updatedAt: bookings.updatedAt,
+				})
+				.from(bookings)
+				.innerJoin(assets, eq(bookings.assetId, assets.id))
+				.where(eq(bookings.groupId, singleRecord.groupId))
+				.orderBy(asc(bookings.startDate));
+
+			return {
+				...singleRecord,
+				isGroup: allGroupItems.length > 1,
+				groupId: singleRecord.groupId,
+				items: allGroupItems,
+			};
+		}
+
+		return {
+			...singleRecord,
+			isGroup: false,
+			groupId: null,
+			items: [singleRecord],
+		};
 	}
 }

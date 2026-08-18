@@ -7,7 +7,10 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { RequesterStepData } from "./requester-step";
-import type { ScheduleStepData } from "./schedule-step";
+import type {
+	AdditionalRoomSelection,
+	ScheduleStepData,
+} from "./schedule-step";
 
 interface ReviewStepProps {
 	asset: {
@@ -18,6 +21,7 @@ interface ReviewStepProps {
 		location: string | null;
 	};
 	schedule: ScheduleStepData;
+	additionalRooms?: AdditionalRoomSelection[];
 	requester: RequesterStepData;
 	isSubmitting: boolean;
 	errorMessage: string | null;
@@ -28,6 +32,7 @@ interface ReviewStepProps {
 export function ReviewStep({
 	asset,
 	schedule,
+	additionalRooms = [],
 	requester,
 	isSubmitting,
 	errorMessage,
@@ -36,6 +41,18 @@ export function ReviewStep({
 }: ReviewStepProps) {
 	const [agreed, setAgreed] = useState(false);
 	const isRoom = asset.type === "room";
+	const allRooms = [
+		{
+			asset,
+			schedule,
+			isPrimary: true,
+		},
+		...additionalRooms.map((r) => ({
+			asset: r.asset,
+			schedule: r.schedule,
+			isPrimary: false,
+		})),
+	];
 
 	const formatDateTime = (isoString: string) => {
 		if (!isoString) return "-";
@@ -75,46 +92,51 @@ export function ReviewStep({
 				)}
 
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-					{/* Section 1: Asset & Schedule */}
-					<div className="rounded border border-border bg-muted/30 p-3.5 space-y-2">
-						<span className="text-[10px] uppercase text-primary font-bold flex items-center gap-1.5">
-							<Building className="h-3.5 w-3.5" />
-							RINCIAN SARANA & JADWAL
+					{/* Section 1: Asset & Schedule (Multi-Room Support) */}
+					<div className="rounded border border-border bg-muted/30 p-3.5 space-y-3">
+						<span className="text-[10px] uppercase text-primary font-bold flex items-center justify-between">
+							<span className="flex items-center gap-1.5">
+								<Building className="h-3.5 w-3.5" />
+								RINCIAN FASILITAS ({allRooms.length} RUANGAN)
+							</span>
 						</span>
 
-						<div className="space-y-1.5 pt-1 text-xs">
-							<div className="flex justify-between border-b border-border/40 pb-1">
-								<span className="text-muted-foreground">Sarana</span>
-								<span className="font-semibold text-foreground">{asset.name}</span>
-							</div>
+						<div className="space-y-2.5 pt-1 text-xs max-h-[260px] overflow-y-auto pr-1">
+							{allRooms.map((room, idx) => (
+								<div
+									key={room.asset.id}
+									className="rounded border border-border/60 bg-background/80 p-2.5 space-y-1"
+								>
+									<div className="flex justify-between items-center border-b border-border/40 pb-1">
+										<span className="font-bold text-foreground flex items-center gap-1.5">
+											{room.isPrimary && (
+												<span className="text-[9px] bg-primary/10 text-primary border border-primary/20 px-1 py-0.2 rounded font-mono">
+													UTAMA
+												</span>
+											)}
+											{room.asset.name}
+										</span>
+										<span className="text-[10px] text-muted-foreground">
+											Kapasitas: {room.asset.capacity} Pax
+										</span>
+									</div>
 
-							<div className="flex justify-between border-b border-border/40 pb-1">
-								<span className="text-muted-foreground">Kategori</span>
-								<span className="font-semibold text-foreground">
-									{isRoom ? "Ruang Rapat" : "Asrama / Wisma"}
-								</span>
-							</div>
+									<div className="flex justify-between text-[11px]">
+										<span className="text-muted-foreground">Jadwal:</span>
+										<span className="font-semibold text-foreground">
+											{formatDateTime(room.schedule.startDate)} s.d.{" "}
+											{formatDateTime(room.schedule.endDate)}
+										</span>
+									</div>
 
-							<div className="flex justify-between border-b border-border/40 pb-1">
-								<span className="text-muted-foreground">Mulai</span>
-								<span className="font-semibold text-foreground">
-									{formatDateTime(schedule.startDate)} WIB
-								</span>
-							</div>
-
-							<div className="flex justify-between border-b border-border/40 pb-1">
-								<span className="text-muted-foreground">Selesai</span>
-								<span className="font-semibold text-foreground">
-									{formatDateTime(schedule.endDate)} WIB
-								</span>
-							</div>
-
-							<div className="flex justify-between">
-								<span className="text-muted-foreground">Peserta</span>
-								<span className="font-bold text-primary">
-									{schedule.attendance} Pax (Kapasitas: {asset.capacity})
-								</span>
-							</div>
+									<div className="flex justify-between text-[11px]">
+										<span className="text-muted-foreground">Peserta:</span>
+										<span className="font-bold text-primary">
+											{room.schedule.attendance} Pax
+										</span>
+									</div>
+								</div>
+							))}
 						</div>
 					</div>
 
@@ -198,7 +220,7 @@ export function ReviewStep({
 					) : (
 						<>
 							<FileCheck className="h-3.5 w-3.5" />
-							<span>[KIRIM PERMOHONAN SEKARANG]</span>
+							<span>[KIRIM PERMOHONAN ({allRooms.length} RUANGAN)]</span>
 						</>
 					)}
 				</button>

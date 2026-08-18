@@ -31,6 +31,7 @@ export const ASSET_TYPE_LABELS: Record<AssetType, string> = {
 export const CreateBookingInputSchema = z
 	.object({
 		assetId: z.string().uuid("Invalid asset ID"),
+		groupId: z.string().optional().nullable(),
 		requesterName: z.string().min(1, "Nama pemohon wajib diisi"),
 		requesterEmail: z.string().email("Format email tidak valid"),
 		requesterPhone: z
@@ -57,6 +58,55 @@ export const CreateBookingInputSchema = z
 	});
 
 export type CreateBookingInput = z.infer<typeof CreateBookingInputSchema>;
+
+export const BatchBookingRoomItemSchema = z
+	.object({
+		assetId: z.string().uuid("Invalid asset ID"),
+		attendance: z.number().int().positive("Jumlah peserta/tamu minimal 1"),
+		startDate: z.coerce.date(),
+		endDate: z.coerce.date(),
+	})
+	.refine((data) => data.endDate > data.startDate, {
+		message: "Waktu selesai harus setelah waktu mulai",
+		path: ["endDate"],
+	});
+
+export type BatchBookingRoomItem = z.infer<typeof BatchBookingRoomItemSchema>;
+
+export const CreateBatchBookingInputSchema = z.object({
+	items: z
+		.array(BatchBookingRoomItemSchema)
+		.min(1, "Pilih minimal 1 ruangan untuk diajukan"),
+	requesterName: z.string().min(1, "Nama pemohon wajib diisi"),
+	requesterEmail: z.string().email("Format email tidak valid"),
+	requesterPhone: z
+		.string()
+		.optional()
+		.nullable()
+		.refine(
+			(val) =>
+				!val || val.trim() === "" || normalizePhoneNumber(val) !== null,
+			{
+				message: "Format nomor WhatsApp tidak valid (contoh: 08123456789)",
+			},
+		),
+	requesterOrganization: z.string().optional().nullable(),
+	purpose: z.string().optional().nullable(),
+	timezone: z.string().default("Asia/Jakarta"),
+});
+
+export type CreateBatchBookingInput = z.infer<
+	typeof CreateBatchBookingInputSchema
+>;
+
+export const BatchApproveBookingsInputSchema = z.object({
+	groupId: z.string().min(1, "Group ID is required"),
+});
+
+export type BatchApproveBookingsInput = z.infer<
+	typeof BatchApproveBookingsInputSchema
+>;
+
 
 export const RejectBookingInputSchema = z.object({
 	bookingId: z.string().uuid("Invalid booking ID"),

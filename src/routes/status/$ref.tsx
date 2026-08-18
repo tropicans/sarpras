@@ -281,7 +281,88 @@ function BookingStatusDetailPage() {
 							</div>
 						)}
 
-						{/* Asset & Schedule Spec Sheet */}
+						{/* Multi-Room Group Section if applicable */}
+						{booking.items && booking.items.length > 1 && (
+							<div className="space-y-3 pt-3 border-t border-border font-mono text-xs">
+								<div className="flex items-center justify-between">
+									<span className="text-[11px] uppercase font-bold text-foreground flex items-center gap-1.5">
+										<Building className="h-3.5 w-3.5 text-primary" />
+										RINCIAN SELURUH FASILITAS DALAM GRUP ({booking.items.length} RUANGAN)
+									</span>
+									<span className="text-[10px] text-muted-foreground">
+										Group Ref: {booking.groupId}
+									</span>
+								</div>
+
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+									{booking.items.map((item: any) => {
+										const itemPending = item.status === "pending";
+										const itemApproved = item.status === "approved";
+										const itemRejected = item.status === "rejected";
+										const itemCancelled = item.status === "cancelled";
+
+										return (
+											<div
+												key={item.id}
+												className="rounded border border-border bg-muted/20 p-3.5 space-y-2"
+											>
+												<div className="flex items-center justify-between border-b border-border/40 pb-1.5">
+													<div className="font-bold text-foreground flex items-center gap-1.5">
+														<DoorOpen className="h-3.5 w-3.5 text-primary" />
+														<span>{item.assetName}</span>
+													</div>
+													<div>
+														{itemPending && (
+															<span className="text-[10px] bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 px-1.5 py-0.5 rounded font-semibold">
+																PENDING
+															</span>
+														)}
+														{itemApproved && (
+															<span className="text-[10px] bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 px-1.5 py-0.5 rounded font-semibold">
+																APPROVED
+															</span>
+														)}
+														{itemRejected && (
+															<span className="text-[10px] bg-destructive/10 text-destructive border border-destructive/20 px-1.5 py-0.5 rounded font-semibold">
+																REJECTED
+															</span>
+														)}
+														{itemCancelled && (
+															<span className="text-[10px] bg-muted text-muted-foreground border border-border px-1.5 py-0.5 rounded font-semibold">
+																CANCELLED
+															</span>
+														)}
+													</div>
+												</div>
+
+												<div className="space-y-1 text-[11px]">
+													<div className="flex justify-between text-muted-foreground">
+														<span>Jadwal:</span>
+														<span className="text-foreground">
+															{formatDateTime(item.startDate)} s.d.{" "}
+															{formatDateTime(item.endDate)}
+														</span>
+													</div>
+													<div className="flex justify-between text-muted-foreground">
+														<span>Peserta:</span>
+														<span className="font-bold text-foreground">
+															{item.attendance} Pax (Kapasitas: {item.capacity})
+														</span>
+													</div>
+													{item.rejectionReason && (
+														<div className="text-destructive text-[10px] pt-1">
+															Alasan penolakan: "{item.rejectionReason}"
+														</div>
+													)}
+												</div>
+											</div>
+										);
+									})}
+								</div>
+							</div>
+						)}
+
+						{/* Asset & Schedule Spec Sheet (Single or Primary Room) */}
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 font-mono text-xs">
 							<div className="rounded border border-border bg-muted/30 p-4 space-y-2">
 								<span className="text-[10px] uppercase text-primary font-bold flex items-center gap-1.5">

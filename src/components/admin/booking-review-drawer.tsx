@@ -12,7 +12,10 @@ import {
 	X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getBookingConflictContextFn } from "#/lib/booking/admin-fns.functions";
+import {
+	batchApproveBookingsAdminFn,
+	getBookingConflictContextFn,
+} from "#/lib/booking/admin-fns.functions";
 import { formatJakartaDisplay } from "#/lib/timezone/datetime";
 
 interface BookingReviewDrawerProps {
@@ -38,6 +41,7 @@ export function BookingReviewDrawer({
 		target: any;
 		hasHardConflict: boolean;
 		hasPendingOverlaps: boolean;
+		groupSiblings?: Array<any>;
 		approvedConflicts: Array<any>;
 		pendingOverlaps: Array<any>;
 	} | null>(null);
@@ -85,6 +89,19 @@ export function BookingReviewDrawer({
 		}
 	};
 
+	const handleBatchApproveClick = async () => {
+		if (!target?.groupId) return;
+		try {
+			setActionLoading(true);
+			await batchApproveBookingsAdminFn({ data: { groupId: target.groupId } });
+			onClose();
+		} catch (err: any) {
+			setError(err.message || "Gagal menyetujui seluruh permohonan dalam grup");
+		} finally {
+			setActionLoading(false);
+		}
+	};
+
 	return (
 		<div className="fixed inset-0 z-40 flex justify-end bg-black/40 backdrop-blur-xs animate-in fade-in duration-150">
 			<div className="w-full max-w-xl bg-white h-full shadow-2xl flex flex-col justify-between border-l border-[#e4e4e7] overflow-y-auto animate-in slide-in-from-right duration-200">
@@ -111,90 +128,90 @@ export function BookingReviewDrawer({
 								</span>
 							)}
 						</div>
-						<span className="text-xs text-[#71717a] font-mono truncate max-w-xs">
-							Ref ID: {bookingId}
-						</span>
+						<div className="flex items-center gap-2 text-xs text-[#71717a] font-mono">
+							<span>ID: #{target?.id.slice(0, 8)}</span>
+							{target?.groupId && (
+								<span className="text-primary font-sans font-semibold">
+									&bull; Grup: {target.groupId}
+								</span>
+							)}
+						</div>
 					</div>
 
 					<button
 						type="button"
 						onClick={onClose}
-						className="p-2 text-[#71717a] hover:text-[#09090b] hover:bg-[#f4f4f5] rounded-lg transition-colors cursor-pointer"
+						className="p-1.5 rounded-lg text-[#71717a] hover:text-[#09090b] hover:bg-[#f4f4f5] transition-colors cursor-pointer"
+						aria-label="Tutup"
 					>
-						<X size={20} />
+						<X size={18} />
 					</button>
 				</div>
 
 				{/* Drawer Body */}
-				<div className="p-6 flex-1 flex flex-col gap-6">
+				<div className="p-6 flex-1 flex flex-col gap-6 overflow-y-auto">
 					{loading && (
-						<div className="flex h-64 items-center justify-center">
-							<div className="text-xs font-medium text-[#71717a] animate-pulse">
-								Memeriksa integritas jadwal dan konflik...
-							</div>
+						<div className="py-12 flex flex-col items-center justify-center gap-2 text-xs text-[#71717a]">
+							<span>Memeriksa ketersediaan jadwal...</span>
 						</div>
 					)}
 
 					{error && (
-						<div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs flex items-center gap-2">
-							<AlertOctagon size={16} className="shrink-0" />
+						<div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-900 text-xs flex items-start gap-2">
+							<AlertOctagon size={16} className="shrink-0 mt-0.5" />
 							<span>{error}</span>
 						</div>
 					)}
 
-					{target && !loading && (
+					{!loading && target && (
 						<>
-							{/* Section 1: Live Conflict Inspector */}
+							{/* Section 1: Conflict Status & Warnings */}
 							<div className="flex flex-col gap-3">
 								<h4 className="text-xs font-bold uppercase tracking-wider text-[#71717a]">
-									1. Analisis Konflik Jadwal (Live Inspector)
+									1. Analisis Bentrokan Jadwal
 								</h4>
 
+								{/* Hard Conflict Warning */}
 								{data?.hasHardConflict && (
-									<div className="p-4 bg-rose-50 border border-rose-200 rounded-xl flex flex-col gap-2.5 text-rose-900">
-										<div className="flex items-center gap-2 font-bold text-xs">
-											<AlertOctagon size={16} className="text-rose-600" />
-											<span>
-												Konflik Keras: Bertabrakan dengan Booking Disetujui!
-											</span>
+									<div className="p-4 bg-rose-50 border border-rose-200 rounded-xl flex flex-col gap-2.5">
+										<div className="flex items-center gap-2 text-rose-900 font-bold text-xs">
+											<AlertOctagon size={16} className="shrink-0" />
+											<span>BENTROKAN JADWAL (HARD CONFLICT)</span>
 										</div>
-										<p className="text-xs leading-relaxed">
-											Fasilitas ini telah disetujui untuk kegiatan lain pada
-											rentang waktu yang sama:
+										<p className="text-xs text-rose-800 leading-relaxed">
+											Terdapat permohonan lain yang telah <strong>DISETUJUI</strong> pada rentang waktu yang sama:
 										</p>
-										<div className="divide-y divide-rose-200 border border-rose-200 rounded-lg bg-white/80 overflow-hidden">
+										<div className="flex flex-col gap-1.5 bg-white/80 p-2.5 rounded-lg border border-rose-200">
 											{data.approvedConflicts.map((c) => (
-												<div key={c.id} className="p-2.5 text-xs text-rose-950">
-													<div className="font-semibold">{c.requesterName}</div>
-													<div className="text-[11px] text-rose-800">
+												<div
+													key={c.id}
+													className="text-xs text-rose-950 flex flex-col"
+												>
+													<span className="font-semibold">{c.requesterName}</span>
+													<span className="text-[11px] text-rose-800">
 														{formatJakartaDisplay(
 															c.startDate,
 															"dd MMM yyyy HH:mm",
 														)}{" "}
 														- {formatJakartaDisplay(c.endDate, "HH:mm 'WIB'")}
-													</div>
-													{c.purpose && (
-														<div className="text-[11px] text-rose-700 italic">
-															"{c.purpose}"
-														</div>
-													)}
+													</span>
 												</div>
 											))}
 										</div>
 									</div>
 								)}
 
-								{!data?.hasHardConflict && data?.hasPendingOverlaps && (
-									<div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex flex-col gap-2.5 text-amber-900">
-										<div className="flex items-center gap-2 font-bold text-xs">
-											<AlertTriangle size={16} className="text-amber-600" />
-											<span>Kompetisi Jadwal: Ada Permohonan Pending Lain</span>
+								{/* Soft Conflict Warning */}
+								{data?.hasPendingOverlaps && (
+									<div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex flex-col gap-2.5">
+										<div className="flex items-center gap-2 text-amber-900 font-bold text-xs">
+											<AlertTriangle size={16} className="shrink-0" />
+											<span>PERMOHONAN LAIN BERSAMAAN (SOFT CONFLICT)</span>
 										</div>
-										<p className="text-xs">
-											Terdapat {data.pendingOverlaps.length} permohonan lain
-											yang juga bersaing meminjam slot waktu ini:
+										<p className="text-xs text-amber-800 leading-relaxed">
+											Terdapat permohonan lain berstatus <em>Pending</em> yang juga memilih jadwal ini:
 										</p>
-										<div className="divide-y divide-amber-200 border border-amber-200 rounded-lg bg-white/80 overflow-hidden">
+										<div className="flex flex-col divide-y divide-amber-200/60 bg-white/80 rounded-lg border border-amber-200">
 											{data.pendingOverlaps.map((p) => (
 												<div
 													key={p.id}
@@ -227,6 +244,55 @@ export function BookingReviewDrawer({
 									</div>
 								)}
 							</div>
+
+							{/* Section: Sibling Rooms in the same group */}
+							{data?.groupSiblings && data.groupSiblings.length > 0 && (
+								<div className="flex flex-col gap-3">
+									<div className="flex items-center justify-between">
+										<h4 className="text-xs font-bold uppercase tracking-wider text-[#71717a]">
+											Ruangan Lain Dalam Acara Ini ({data.groupSiblings.length + 1} Fasilitas)
+										</h4>
+										<span className="text-[10px] font-mono text-primary font-semibold">
+											MULTI-ROOM GROUP
+										</span>
+									</div>
+									<div className="flex flex-col gap-2">
+										{data.groupSiblings.map((sibling: any) => (
+											<div
+												key={sibling.id}
+												className="p-3 bg-[#fafafa] border border-[#e4e4e7] rounded-xl flex items-center justify-between text-xs"
+											>
+												<div className="flex flex-col">
+													<span className="font-bold text-[#09090b]">
+														{sibling.assetName}
+													</span>
+													<span className="text-[11px] text-[#71717a]">
+														{formatJakartaDisplay(
+															sibling.startDate,
+															"dd MMM yyyy HH:mm",
+														)}{" "}
+														- {formatJakartaDisplay(sibling.endDate, "HH:mm")} &bull;{" "}
+														{sibling.attendance} Pax
+													</span>
+												</div>
+												<span
+													className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded ${
+														sibling.status === "approved"
+															? "bg-emerald-100 text-emerald-800"
+															: sibling.status === "rejected"
+																? "bg-rose-100 text-rose-800"
+																: sibling.status === "cancelled"
+																	? "bg-zinc-100 text-zinc-800"
+																	: "bg-amber-100 text-amber-800"
+													}`}
+												>
+													{sibling.status}
+												</span>
+											</div>
+										))}
+									</div>
+								</div>
+							)}
 
 							{/* Section 2: Pemohon & Instansi */}
 							<div className="flex flex-col gap-3">
@@ -329,7 +395,7 @@ export function BookingReviewDrawer({
 
 				{/* Action Footer */}
 				{target && target.status === "pending" && !isReadOnly && (
-					<div className="p-6 border-t border-[#e4e4e7] bg-[#fafafa] flex items-center justify-end gap-3 sticky bottom-0 z-10">
+					<div className="p-6 border-t border-[#e4e4e7] bg-[#fafafa] flex flex-wrap items-center justify-end gap-2.5 sticky bottom-0 z-10">
 						<button
 							type="button"
 							onClick={() =>
@@ -340,18 +406,29 @@ export function BookingReviewDrawer({
 								})
 							}
 							disabled={actionLoading}
-							className="px-4 py-2.5 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+							className="px-3.5 py-2 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
 						>
 							Tolak Permohonan
 						</button>
+
+						{target.groupId && data?.groupSiblings && data.groupSiblings.length > 0 && (
+							<button
+								type="button"
+								onClick={handleBatchApproveClick}
+								disabled={actionLoading}
+								className="px-3.5 py-2 text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+							>
+								{actionLoading ? "Memproses..." : "Setujui Semua di Grup"}
+							</button>
+						)}
 
 						<button
 							type="button"
 							onClick={handleApproveClick}
 							disabled={actionLoading}
-							className="px-5 py-2.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+							className="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
 						>
-							{actionLoading ? "Memproses..." : "Setujui Permohonan"}
+							{actionLoading ? "Memproses..." : "Setujui Ruangan Ini"}
 						</button>
 					</div>
 				)}

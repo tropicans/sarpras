@@ -281,7 +281,17 @@ function AdminBookingsComponent() {
 										className="hover:bg-[#fafafa] transition-colors"
 									>
 										<td className="py-3 px-4 font-mono text-[11px] text-[#71717a]">
-											{item.id.slice(0, 8)}...
+											<div className="flex flex-col gap-0.5">
+												<span>{item.id.slice(0, 8)}...</span>
+												{item.groupId && (
+													<span
+														className="inline-flex items-center gap-0.5 text-[9px] font-sans font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded w-max border border-primary/20"
+														title={`Group Ref: ${item.groupId}`}
+													>
+														GRUP ACARA
+													</span>
+												)}
+											</div>
 										</td>
 										<td className="py-3 px-4 font-medium text-[#09090b]">
 											<div className="flex flex-col">
