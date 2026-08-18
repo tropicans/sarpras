@@ -1,6 +1,6 @@
 import { AlertCircle, X } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface RejectionReasonModalProps {
 	isOpen: boolean;
@@ -46,7 +46,7 @@ export function RejectionReasonModal({
 	const [submitting, setSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
-	React.useEffect(() => {
+	useEffect(() => {
 		if (!isOpen) return;
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === "Escape" && !submitting) {

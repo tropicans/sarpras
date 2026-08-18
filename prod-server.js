@@ -67,6 +67,14 @@ const server = http.createServer(async (req, res) => {
         }
       }
 
+      // If requesting favicon.ico and not found, fallback to favicon.svg
+      if (!fs.existsSync(filePath) && pathname === "/favicon.ico") {
+        const svgFavicon = path.join(PUBLIC_DIR, "favicon.svg");
+        if (fs.existsSync(svgFavicon)) {
+          filePath = svgFavicon;
+        }
+      }
+
       // Prevent path traversal and serve file
       const isSafe = filePath.startsWith(CLIENT_DIR) || filePath.startsWith(PUBLIC_DIR);
       if (isSafe && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {

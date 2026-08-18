@@ -11,7 +11,7 @@ import {
 	ShieldOff,
 	X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { authClient } from "#/lib/auth-client";
 
 interface TwoFactorSetupModalProps {
@@ -125,7 +125,7 @@ export function TwoFactorSetupModal({
 		}
 	};
 
-	React.useEffect(() => {
+	useEffect(() => {
 		if (!isOpen) return;
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === "Escape" && !loading) {
