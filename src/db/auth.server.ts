@@ -17,6 +17,12 @@ export const auth = betterAuth({
 		},
 	}),
 	plugins: [tanstackStartCookies()],
+	account: {
+		accountLinking: {
+			enabled: true,
+			trustedProviders: ["google"],
+		},
+	},
 	emailAndPassword: {
 		enabled: true,
 	},
