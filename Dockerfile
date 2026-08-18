@@ -25,10 +25,14 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/prod-server.js ./prod-server.js
+COPY --from=builder /app/public ./public
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/legacy-data ./legacy-data
+
+# Ensure upload directory exists and has write permissions
+RUN mkdir -p /app/public/uploads/letters && chown -R node:node /app/public
 
 # Use non-root user
 USER node

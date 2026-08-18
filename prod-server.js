@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 3000;
 const CLIENT_DIR = path.join(__dirname, "dist", "client");
+const PUBLIC_DIR = path.join(__dirname, "public");
 
 // Import the compiled TanStack Start server handler
 const serverModule = await import("./dist/server/server.js");
@@ -18,6 +19,7 @@ const MIME_TYPES = {
   ".css": "text/css",
   ".js": "text/javascript",
   ".json": "application/json",
+  ".pdf": "application/pdf",
   ".png": "image/png",
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
@@ -34,7 +36,7 @@ const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
     const pathname = decodeURIComponent(url.pathname);
 
-    // 1. Check if static file exists in dist/client or dist/client/assets
+    // 1. Check if static file exists in dist/client, dist/client/assets, or public/
     if (pathname !== "/" && !pathname.endsWith("/")) {
       let filePath = path.join(CLIENT_DIR, pathname);
       
@@ -43,6 +45,14 @@ const server = http.createServer(async (req, res) => {
         const altPath = path.join(CLIENT_DIR, "assets", pathname);
         if (fs.existsSync(altPath)) {
           filePath = altPath;
+        }
+      }
+
+      // If not found in dist/client, check in public directory (e.g. public/uploads)
+      if (!fs.existsSync(filePath)) {
+        const publicPath = path.join(PUBLIC_DIR, pathname);
+        if (fs.existsSync(publicPath)) {
+          filePath = publicPath;
         }
       }
 
@@ -58,7 +68,8 @@ const server = http.createServer(async (req, res) => {
       }
 
       // Prevent path traversal and serve file
-      if (filePath.startsWith(CLIENT_DIR) && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+      const isSafe = filePath.startsWith(CLIENT_DIR) || filePath.startsWith(PUBLIC_DIR);
+      if (isSafe && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
         const ext = path.extname(filePath).toLowerCase();
         const contentType = MIME_TYPES[ext] || "application/octet-stream";
         res.writeHead(200, {
