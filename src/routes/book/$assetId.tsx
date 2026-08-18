@@ -107,6 +107,8 @@ function BookingWizardPage() {
 				schedule: {
 					startDate: scheduleData.startDate,
 					endDate: scheduleData.endDate,
+					startDateOnly: scheduleData.startDateOnly,
+					endDateOnly: scheduleData.endDateOnly,
 					dateOnly: scheduleData.dateOnly,
 					startTime: scheduleData.startTime,
 					endTime: scheduleData.endTime,

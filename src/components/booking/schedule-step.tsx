@@ -17,7 +17,9 @@ import { ASSET_TYPE_LABELS, type AssetType } from "#/lib/booking/types";
 export interface ScheduleStepData {
 	startDate: string; // ISO string
 	endDate: string; // ISO string
-	dateOnly?: string; // YYYY-MM-DD
+	startDateOnly?: string; // YYYY-MM-DD
+	endDateOnly?: string; // YYYY-MM-DD
+	dateOnly?: string; // Legacy fallback YYYY-MM-DD
 	startTime?: string; // HH:mm
 	endTime?: string; // HH:mm
 	checkInDate?: string; // YYYY-MM-DD
@@ -80,8 +82,14 @@ export function ScheduleStep({
 	const isRoom = asset.type === "room";
 
 	// Local primary form state
-	const [dateStr, setDateStr] = useState(
-		data.dateOnly || new Date().toISOString().split("T")[0],
+	const [startDateStr, setStartDateStr] = useState(
+		data.startDateOnly || data.dateOnly || new Date().toISOString().split("T")[0],
+	);
+	const [endDateStr, setEndDateStr] = useState(
+		data.endDateOnly ||
+			data.dateOnly ||
+			data.startDateOnly ||
+			new Date().toISOString().split("T")[0],
 	);
 	const [startTime, setStartTime] = useState(data.startTime || "08:00");
 	const [endTime, setEndTime] = useState(data.endTime || "12:00");
@@ -127,9 +135,11 @@ export function ScheduleStep({
 			let endIso = "";
 
 			if (isRoom) {
-				if (!dateStr || !startTime || !endTime) return;
-				startIso = new Date(`${dateStr}T${startTime}:00+07:00`).toISOString();
-				endIso = new Date(`${dateStr}T${endTime}:00+07:00`).toISOString();
+				if (!startDateStr || !endDateStr || !startTime || !endTime) return;
+				startIso = new Date(
+					`${startDateStr}T${startTime}:00+07:00`,
+				).toISOString();
+				endIso = new Date(`${endDateStr}T${endTime}:00+07:00`).toISOString();
 			} else {
 				if (!checkInStr || !checkOutStr) return;
 				startIso = new Date(`${checkInStr}T14:00:00+07:00`).toISOString();
@@ -164,7 +174,9 @@ export function ScheduleStep({
 						onChange({
 							startDate: startIso,
 							endDate: endIso,
-							dateOnly: dateStr,
+							startDateOnly: startDateStr,
+							endDateOnly: endDateStr,
+							dateOnly: startDateStr,
 							startTime,
 							endTime,
 							attendance,
@@ -197,7 +209,8 @@ export function ScheduleStep({
 		};
 	}, [
 		isRoom,
-		dateStr,
+		startDateStr,
+		endDateStr,
 		startTime,
 		endTime,
 		checkInStr,
@@ -247,18 +260,24 @@ export function ScheduleStep({
 				</div>
 
 				{isRoom ? (
-					/* Room Schedule Inputs */
-					<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-						<div className="space-y-1 sm:col-span-1">
+					/* Room Schedule Inputs (Tanggal Mulai & Tanggal Selesai) */
+					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+						<div className="space-y-1">
 							<label className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
 								<Calendar className="h-3.5 w-3.5 text-primary" />
-								Tanggal Kegiatan
+								Tanggal Mulai
 							</label>
 							<input
 								type="date"
-								value={dateStr}
+								value={startDateStr}
 								min={new Date().toISOString().split("T")[0]}
-								onChange={(e) => setDateStr(e.target.value)}
+								onChange={(e) => {
+									const val = e.target.value;
+									setStartDateStr(val);
+									if (endDateStr < val) {
+										setEndDateStr(val);
+									}
+								}}
 								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden"
 								required
 							/>
@@ -273,6 +292,21 @@ export function ScheduleStep({
 								type="time"
 								value={startTime}
 								onChange={(e) => setStartTime(e.target.value)}
+								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden"
+								required
+							/>
+						</div>
+
+						<div className="space-y-1">
+							<label className="font-mono text-[11px] font-semibold text-foreground flex items-center gap-1.5 uppercase">
+								<Calendar className="h-3.5 w-3.5 text-primary" />
+								Tanggal Selesai
+							</label>
+							<input
+								type="date"
+								value={endDateStr}
+								min={startDateStr}
+								onChange={(e) => setEndDateStr(e.target.value)}
 								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden"
 								required
 							/>
@@ -401,7 +435,8 @@ export function ScheduleStep({
 								<AdditionalRoomCard
 									key={item.asset.id}
 									item={item}
-									parentDate={dateStr}
+									parentStartDate={startDateStr}
+									parentEndDate={endDateStr}
 									parentStartTime={startTime}
 									parentEndTime={endTime}
 									onUpdate={(upd) => onUpdateAdditionalRoom(item.asset.id, upd)}
@@ -466,14 +501,16 @@ export function ScheduleStep({
 
 function AdditionalRoomCard({
 	item,
-	parentDate,
+	parentStartDate,
+	parentEndDate,
 	parentStartTime,
 	parentEndTime,
 	onUpdate,
 	onRemove,
 }: {
 	item: AdditionalRoomSelection;
-	parentDate: string;
+	parentStartDate: string;
+	parentEndDate: string;
 	parentStartTime: string;
 	parentEndTime: string;
 	onUpdate: (upd: Partial<ScheduleStepData>) => void;
@@ -490,18 +527,26 @@ function AdditionalRoomCard({
 	} | null>(null);
 
 	// By default synced with primary room timings unless custom
-	const dateStr = item.schedule.dateOnly || parentDate;
+	const startDateStr =
+		item.schedule.startDateOnly || item.schedule.dateOnly || parentStartDate;
+	const endDateStr =
+		item.schedule.endDateOnly ||
+		item.schedule.dateOnly ||
+		item.schedule.startDateOnly ||
+		parentEndDate;
 	const startTime = item.schedule.startTime || parentStartTime;
 	const endTime = item.schedule.endTime || parentEndTime;
 
 	useEffect(() => {
 		let isCancelled = false;
 		const check = async () => {
-			if (!dateStr || !startTime || !endTime) return;
+			if (!startDateStr || !endDateStr || !startTime || !endTime) return;
 			const startIso = new Date(
-				`${dateStr}T${startTime}:00+07:00`,
+				`${startDateStr}T${startTime}:00+07:00`,
 			).toISOString();
-			const endIso = new Date(`${dateStr}T${endTime}:00+07:00`).toISOString();
+			const endIso = new Date(
+				`${endDateStr}T${endTime}:00+07:00`,
+			).toISOString();
 
 			if (new Date(startIso) >= new Date(endIso)) {
 				setResult({
@@ -528,7 +573,9 @@ function AdditionalRoomCard({
 					onUpdate({
 						startDate: startIso,
 						endDate: endIso,
-						dateOnly: dateStr,
+						startDateOnly: startDateStr,
+						endDateOnly: endDateStr,
+						dateOnly: startDateStr,
 						startTime,
 						endTime,
 						attendance,
@@ -550,7 +597,7 @@ function AdditionalRoomCard({
 			isCancelled = true;
 			clearTimeout(t);
 		};
-	}, [asset.id, dateStr, startTime, endTime, attendance]);
+	}, [asset.id, startDateStr, endDateStr, startTime, endTime, attendance]);
 
 	return (
 		<div className="rounded-lg border border-border bg-card p-4 space-y-3 font-mono text-xs">
@@ -572,33 +619,55 @@ function AdditionalRoomCard({
 				</button>
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 items-center">
 				<div>
-					<label className="text-[10px] text-muted-foreground block">Tanggal</label>
+					<label className="text-[10px] text-muted-foreground block">
+						Tgl Mulai
+					</label>
 					<input
 						type="date"
-						value={dateStr}
+						value={startDateStr}
 						min={new Date().toISOString().split("T")[0]}
-						onChange={(e) => onUpdate({ dateOnly: e.target.value })}
-						className="w-full rounded border border-border bg-background px-2 py-1 text-xs"
+						onChange={(e) => {
+							const val = e.target.value;
+							const newEnd = endDateStr < val ? val : endDateStr;
+							onUpdate({ startDateOnly: val, endDateOnly: newEnd });
+						}}
+						className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden"
 					/>
 				</div>
 				<div>
-					<label className="text-[10px] text-muted-foreground block">Mulai</label>
+					<label className="text-[10px] text-muted-foreground block">
+						Jam Mulai
+					</label>
 					<input
 						type="time"
 						value={startTime}
 						onChange={(e) => onUpdate({ startTime: e.target.value })}
-						className="w-full rounded border border-border bg-background px-2 py-1 text-xs"
+						className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden"
 					/>
 				</div>
 				<div>
-					<label className="text-[10px] text-muted-foreground block">Selesai</label>
+					<label className="text-[10px] text-muted-foreground block">
+						Tgl Selesai
+					</label>
+					<input
+						type="date"
+						value={endDateStr}
+						min={startDateStr}
+						onChange={(e) => onUpdate({ endDateOnly: e.target.value })}
+						className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden"
+					/>
+				</div>
+				<div>
+					<label className="text-[10px] text-muted-foreground block">
+						Jam Selesai
+					</label>
 					<input
 						type="time"
 						value={endTime}
 						onChange={(e) => onUpdate({ endTime: e.target.value })}
-						className="w-full rounded border border-border bg-background px-2 py-1 text-xs"
+						className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden"
 					/>
 				</div>
 				<div>
@@ -615,7 +684,7 @@ function AdditionalRoomCard({
 							setAttendance(val);
 							onUpdate({ attendance: val });
 						}}
-						className="w-full rounded border border-border bg-background px-2 py-1 text-xs"
+						className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden"
 					/>
 				</div>
 			</div>
