@@ -297,7 +297,6 @@ export function ScheduleStep({
 										e.currentTarget.showPicker?.();
 									} catch {}
 								}}
-								style={{ colorScheme: "dark light" }}
 								onChange={(e) => {
 									const val = e.target.value;
 									setStartDateStr(val);
@@ -323,7 +322,6 @@ export function ScheduleStep({
 										e.currentTarget.showPicker?.();
 									} catch {}
 								}}
-								style={{ colorScheme: "dark light" }}
 								onChange={(e) => setStartTime(e.target.value)}
 								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden cursor-pointer"
 								required
@@ -344,7 +342,6 @@ export function ScheduleStep({
 										e.currentTarget.showPicker?.();
 									} catch {}
 								}}
-								style={{ colorScheme: "dark light" }}
 								onChange={(e) => setEndDateStr(e.target.value)}
 								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden cursor-pointer"
 								required
@@ -364,7 +361,6 @@ export function ScheduleStep({
 										e.currentTarget.showPicker?.();
 									} catch {}
 								}}
-								style={{ colorScheme: "dark light" }}
 								onChange={(e) => setEndTime(e.target.value)}
 								className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-primary focus:outline-hidden cursor-pointer"
 								required
@@ -789,7 +785,6 @@ function AdditionalRoomCard({
 								e.currentTarget.showPicker?.();
 							} catch {}
 						}}
-						style={{ colorScheme: "dark light" }}
 						onChange={(e) => {
 							const val = e.target.value;
 							const newEnd = endDateStr < val ? val : endDateStr;
@@ -810,7 +805,6 @@ function AdditionalRoomCard({
 								e.currentTarget.showPicker?.();
 							} catch {}
 						}}
-						style={{ colorScheme: "dark light" }}
 						onChange={(e) => onUpdate({ startTime: e.target.value })}
 						className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden cursor-pointer"
 					/>
@@ -828,7 +822,6 @@ function AdditionalRoomCard({
 								e.currentTarget.showPicker?.();
 							} catch {}
 						}}
-						style={{ colorScheme: "dark light" }}
 						onChange={(e) => onUpdate({ endDateOnly: e.target.value })}
 						className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden cursor-pointer"
 					/>
@@ -845,7 +838,6 @@ function AdditionalRoomCard({
 								e.currentTarget.showPicker?.();
 							} catch {}
 						}}
-						style={{ colorScheme: "dark light" }}
 						onChange={(e) => onUpdate({ endTime: e.target.value })}
 						className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden cursor-pointer"
 					/>

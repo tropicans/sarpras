@@ -459,6 +459,17 @@ function HomePage() {
 									</button>
 									<button
 										type="button"
+										onClick={() => setTypeFilter("field")}
+										className={`rounded-md px-2.5 py-1 transition-colors cursor-pointer ${
+											typeFilter === "field"
+												? "bg-card text-foreground font-semibold shadow-2xs"
+												: "text-muted-foreground hover:text-foreground"
+										}`}
+									>
+										LAPANGAN
+									</button>
+									<button
+										type="button"
 										onClick={() => setTypeFilter("vehicle")}
 										className={`rounded-md px-2.5 py-1 transition-colors cursor-pointer ${
 											typeFilter === "vehicle"
@@ -551,7 +562,6 @@ function HomePage() {
 												e.currentTarget.showPicker?.();
 											} catch {}
 										}}
-										style={{ colorScheme: "dark light" }}
 										className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-mono cursor-pointer"
 									/>
 								</div>
@@ -606,7 +616,6 @@ function HomePage() {
 													e.currentTarget.showPicker?.();
 												} catch {}
 											}}
-											style={{ colorScheme: "dark light" }}
 											className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-mono cursor-pointer"
 										/>
 										<input
@@ -618,7 +627,6 @@ function HomePage() {
 													e.currentTarget.showPicker?.();
 												} catch {}
 											}}
-											style={{ colorScheme: "dark light" }}
 											className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-hidden font-mono cursor-pointer"
 										/>
 									</div>
