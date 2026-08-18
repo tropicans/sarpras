@@ -116,14 +116,15 @@ export function ScheduleStep({
 		? getRoomLayoutOptions(asset.capacity, (asset as any).roomLayouts)
 		: [];
 	const [roomLayout, setRoomLayout] = useState<string>(
-		data.roomLayout || roomLayouts[0]?.name || "Island",
+		data.roomLayout || (roomLayouts.length > 0 ? roomLayouts[0].name : ""),
 	);
 
-	const selectedLayoutObj = isRoom
-		? roomLayouts.find(
-				(l) => l.name.toLowerCase() === roomLayout.toLowerCase(),
-		  ) || roomLayouts[0]
-		: null;
+	const selectedLayoutObj =
+		isRoom && roomLayouts.length > 0
+			? roomLayouts.find(
+					(l) => l.name.toLowerCase() === roomLayout.toLowerCase(),
+			  ) || roomLayouts[0]
+			: null;
 
 	const maxAttendance = selectedLayoutObj
 		? selectedLayoutObj.maxCapacity
@@ -225,7 +226,7 @@ export function ScheduleStep({
 							startTime,
 							endTime,
 							attendance,
-							roomLayout,
+							roomLayout: roomLayouts.length > 0 ? (roomLayout || roomLayouts[0]?.name) : null,
 						});
 					} else {
 						onChange({
@@ -639,14 +640,15 @@ function AdditionalRoomCard({
 		? getRoomLayoutOptions(asset.capacity, (asset as any).roomLayouts)
 		: [];
 	const [roomLayout, setRoomLayout] = useState<string>(
-		item.schedule.roomLayout || roomLayouts[0]?.name || "Island",
+		item.schedule.roomLayout || (roomLayouts.length > 0 ? roomLayouts[0].name : ""),
 	);
 
-	const selectedLayoutObj = isRoom
-		? roomLayouts.find(
-				(l) => l.name.toLowerCase() === roomLayout.toLowerCase(),
-		  ) || roomLayouts[0]
-		: null;
+	const selectedLayoutObj =
+		isRoom && roomLayouts.length > 0
+			? roomLayouts.find(
+					(l) => l.name.toLowerCase() === roomLayout.toLowerCase(),
+			  ) || roomLayouts[0]
+			: null;
 
 	const maxCapacity = selectedLayoutObj
 		? selectedLayoutObj.maxCapacity
@@ -928,7 +930,7 @@ function AdditionalRoomCard({
 						className="w-full rounded border border-border bg-background px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-hidden cursor-pointer"
 					/>
 				</div>
-				{isRoom && (
+				{isRoom && roomLayouts.length > 0 && (
 					<div>
 						<label className="text-[10px] text-muted-foreground block">
 							Pengaturan

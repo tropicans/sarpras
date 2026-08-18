@@ -44,7 +44,7 @@ export function getRoomLayoutOptions(
 	assetCapacity: number,
 	customLayouts?: RoomLayoutOption[] | null,
 ): RoomLayoutOption[] {
-	if (customLayouts && customLayouts.length > 0) {
+	if (customLayouts !== undefined && customLayouts !== null) {
 		return customLayouts;
 	}
 	return DEFAULT_ROOM_LAYOUT_CONFIGS.map((cfg) => ({

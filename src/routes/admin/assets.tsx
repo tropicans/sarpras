@@ -138,7 +138,7 @@ function AdminAssetsComponent() {
 		setFormCapacity(asset.capacity);
 		setFormStatus(asset.status);
 
-		if (asset.roomLayouts && asset.roomLayouts.length > 0) {
+		if (asset.roomLayouts !== undefined && asset.roomLayouts !== null) {
 			const island = asset.roomLayouts.find((l) => l.id === "island");
 			const ushape = asset.roomLayouts.find((l) => l.id === "ushape");
 			const classroom = asset.roomLayouts.find((l) => l.id === "classroom");
@@ -190,10 +190,6 @@ function AdminAssetsComponent() {
 			}
 			if (formLayoutClassroomEnabled) {
 				roomLayoutsList.push({ id: "classroom", name: "Classroom", maxCapacity: formLayoutClassroomCap });
-			}
-			if (roomLayoutsList.length === 0) {
-				setFormError("Minimal satu opsi tata letak (Island / U-Shape / Classroom) harus diaktifkan.");
-				return;
 			}
 		}
 
@@ -431,10 +427,16 @@ function AdminAssetsComponent() {
 										<td className="p-4 text-foreground">
 											<div className="flex flex-col">
 												<span className="font-semibold">{asset.capacity} pax/unit</span>
-												{asset.type === "room" && asset.roomLayouts && asset.roomLayouts.length > 0 && (
-													<span className="text-[10px] text-muted-foreground font-mono">
-														{asset.roomLayouts.map((l) => `${l.name}: ${l.maxCapacity}`).join(" • ")}
-													</span>
+												{asset.type === "room" && (
+													asset.roomLayouts && asset.roomLayouts.length > 0 ? (
+														<span className="text-[10px] text-muted-foreground font-mono">
+															{asset.roomLayouts.map((l) => `${l.name}: ${l.maxCapacity}`).join(" • ")}
+														</span>
+													) : asset.roomLayouts !== undefined && asset.roomLayouts !== null ? (
+														<span className="text-[10px] text-muted-foreground/70 italic">
+															Kapasitas tetap (tanpa tata letak)
+														</span>
+													) : null
 												)}
 											</div>
 										</td>
@@ -623,10 +625,10 @@ function AdminAssetsComponent() {
 									<label className="text-xs font-bold text-foreground flex items-center gap-1.5">
 										<span>Tata Letak Ruangan (Layout & Kapasitas)</span>
 									</label>
-									<span className="text-[10px] text-muted-foreground font-mono">Custom per Ruangan</span>
+									<span className="text-[10px] text-muted-foreground font-mono">Opsional</span>
 								</div>
 								<p className="text-[11px] text-muted-foreground leading-tight">
-									Aktifkan dan atur kapasitas maksimal khusus untuk setiap opsi tata letak:
+									Aktifkan opsi tata letak jika ruangan dapat diatur konfigurasinya. Jika seluruh opsi dinonaktifkan, ruangan akan menggunakan kapasitas dasar tanpa pilihan tata letak (misal: Ruang Studio/Lab).
 								</p>
 
 								{/* Island */}
