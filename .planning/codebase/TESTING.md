@@ -43,6 +43,7 @@ npx tsx --test --test-name-pattern="conflict" src/lib/booking/booking.test.ts
 - **Booking Engine:**
   - `src/lib/booking/booking.test.ts` - Slot availability, overlap conflicts, timezone edge cases
   - `src/lib/booking/admin.test.ts` - Status transitions, rejection reason requirements, audit triggers
+  - `src/lib/booking/catalog-availability-field-bug.test.ts` - Facility availability status calculation and booking prefill validation
 - **WhatsApp Gateway:**
   - `src/lib/whatsapp/phone.test.ts` - Indonesian phone number formatting & normalization
   - `src/lib/whatsapp/templates.test.ts` - Message template variable interpolation
@@ -50,7 +51,6 @@ npx tsx --test --test-name-pattern="conflict" src/lib/booking/booking.test.ts
 - **Email Gateway:**
   - `src/lib/email/templates.test.ts` - HTML email template rendering & tracking link injection
   - `src/lib/email/service.test.ts` - Resend API client, RFC 5322 validation, mock fallbacks
-  - `src/lib/email/tracking-url-bug.test.ts` - Tracking URL parameter format regression tests
 - **Notification Dispatcher:**
   - `src/lib/notifications/service.test.ts` - Dual-channel orchestration, non-blocking fault tolerance
 
